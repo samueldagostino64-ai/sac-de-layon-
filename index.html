@@ -1,0 +1,780 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1f6a52">
+<meta name="description" content="Checklist de matériel pour les expéditions en Guyane : quantités selon la durée et l'équipe, poids et volume du sac.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Sac de Layon">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Sac de Layon</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout : carnet de terrain, une colonne lisible au téléphone, en-tête façon carte topo */
+:root {
+  --bg: #eef0e8;
+  --surface: #f9faf5;
+  --ink: #1b2a22;
+  --muted: #5d6b61;
+  --line: #d3d9cc;
+  --accent: #1f6a52;
+  --accent-ink: #f4f8f2;
+  --soft: #dce8df;
+  --laterite: #b4532a;
+  --contour: rgba(31,106,82,.13);
+  --f-display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111914; --surface: #18221c; --ink: #e3ebe2; --muted: #96a59a; --line: #2c3a31;
+  --accent: #5fbf98; --accent-ink: #0d1a14; --soft: #20352a; --laterite: #e2875b; --contour: rgba(95,191,152,.10);
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #111914; --surface: #18221c; --ink: #e3ebe2; --muted: #96a59a; --line: #2c3a31;
+  --accent: #5fbf98; --accent-ink: #0d1a14; --soft: #20352a; --laterite: #e2875b; --contour: rgba(95,191,152,.10);
+  color-scheme: dark; }
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.45; }
+.wrap { max-width: 760px; margin: 0 auto; padding-block: 18px 80px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 16px; }
+h1, h2 { font-family: var(--f-display); font-weight: 700; letter-spacing: .01em; margin: 0; text-wrap: balance; }
+h1 { font-size: 2.1rem; line-height: 1; }
+h2 { font-size: 1.25rem; text-transform: uppercase; letter-spacing: .06em; }
+.label { font-size: .74rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
+.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+
+header.top { position: relative; overflow: hidden; border-radius: var(--r); background: var(--surface); border: 1px solid var(--line); padding: 16px; display: grid; gap: 12px; }
+header.top canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+header.top > * { position: relative; }
+.toprow { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 10px; }
+.sync { font-size: .78rem; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+.sync i { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); display: inline-block; }
+.sync.on i { background: var(--accent); }
+.expbar { display: flex; gap: 8px; flex-wrap: wrap; }
+.expbar select { flex: 1 1 200px; min-width: 0; }
+
+input, select, textarea, button { font: inherit; color: inherit; }
+input, select, textarea { width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 9px 10px; min-width: 0; }
+textarea { min-height: 120px; font-family: var(--f-mono); font-size: .8rem; }
+input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button { cursor: pointer; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); padding: 9px 14px; font-weight: 600; }
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+button.ghost { background: transparent; }
+button.danger { color: var(--laterite); border-color: var(--laterite); background: transparent; }
+button.small { padding: 5px 10px; font-size: .85rem; }
+
+section.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; display: grid; gap: 14px; }
+.grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
+.grid .wide { grid-column: 1 / -1; }
+.field { display: grid; gap: 4px; min-width: 0; }
+.hint { font-size: .82rem; color: var(--muted); margin: 0; }
+
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border-radius: 8px; overflow: hidden; border: 1px solid var(--line); }
+.stats div { background: var(--surface); padding: 10px 8px; display: grid; gap: 2px; }
+.stats b { font-family: var(--f-mono); font-size: 1.15rem; font-weight: 500; font-variant-numeric: tabular-nums; }
+@media (max-width: 480px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+.bar { height: 6px; background: var(--soft); border-radius: 3px; overflow: hidden; }
+.bar span { display: block; height: 100%; background: var(--accent); width: 0; transition: width .3s; }
+
+details.add > summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+details.add > summary::-webkit-details-marker { display: none; }
+details.add > summary::after { content: "+"; font-family: var(--f-mono); font-size: 1.3rem; color: var(--accent); }
+details.add[open] > summary::after { content: "−"; }
+.formbody { display: grid; gap: 10px; margin-top: 12px; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.preview { font-size: .9rem; color: var(--accent); font-weight: 600; }
+
+.toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+.chk { display: inline-flex; gap: 8px; align-items: center; font-size: .9rem; }
+.chk input { width: auto; }
+
+.cat { display: grid; gap: 0; }
+.cat h3 { margin: 0 0 4px; font-family: var(--f-display); font-size: 1rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); display: flex; justify-content: space-between; border-bottom: 1px solid var(--line); padding-bottom: 4px; }
+.item { display: grid; grid-template-columns: 30px 1fr auto; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px dashed var(--line); }
+.item:last-child { border-bottom: 0; }
+.item input[type=checkbox] { width: 24px; height: 24px; accent-color: var(--accent); margin: 0; }
+.item .name { min-width: 0; overflow-wrap: anywhere; }
+.item .name strong { font-weight: 600; }
+.item .name small { display: block; color: var(--muted); font-size: .8rem; }
+.item.done .name strong { text-decoration: line-through; color: var(--muted); }
+.qty { text-align: right; display: grid; gap: 2px; justify-items: end; }
+.qty b { font-family: var(--f-mono); font-weight: 500; font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+.qty .ed { display: flex; gap: 4px; }
+.iconbtn { border: 0; background: transparent; padding: 2px 6px; font-size: .8rem; color: var(--muted); text-decoration: underline; font-weight: 500; }
+
+.empty { border: 1px dashed var(--line); border-radius: var(--r); padding: 18px; display: grid; gap: 10px; }
+.empty p { margin: 0; }
+.picker { border: 1px solid var(--accent); border-radius: var(--r); padding: 14px; display: grid; gap: 12px; background: var(--bg); }
+.tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; }
+.tab { flex: none; border-radius: 999px; padding: 6px 12px; font-size: .85rem; background: transparent; }
+.tab[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.plist { display: grid; gap: 16px; }
+.prow { display: grid; grid-template-columns: 26px 1fr; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px dashed var(--line); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.prow:last-child { border-bottom: 0; }
+.prow input { width: 22px; height: 22px; margin: 0; accent-color: var(--accent); }
+.prow span { min-width: 0; overflow-wrap: anywhere; }
+.prow small { display: block; color: var(--muted); font-size: .8rem; }
+.prow.off { opacity: .55; }
+.cat h3 .iconbtn { text-transform: none; letter-spacing: 0; font-family: var(--f-body); }
+.pfoot { position: sticky; bottom: env(safe-area-inset-bottom, 0px); padding-top: 8px; background: var(--bg); }
+button:disabled { opacity: .55; cursor: default; }
+
+.dims { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 4px; align-items: center; color: var(--muted); }
+.gear { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px dashed var(--line); }
+.gear:last-child { border-bottom: 0; }
+.gear .name { min-width: 0; overflow-wrap: anywhere; }
+.gear small { display: block; color: var(--muted); font-size: .8rem; }
+.gear .ed { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+.preview { min-height: 2.8em; }
+button.big { width: 100%; padding: 14px; font-size: 1.05rem; touch-action: manipulation; }
+.brand { display: flex; gap: 12px; align-items: center; }
+.logo { width: 48px; height: 48px; flex: none; }
+.ver { font-size: .7rem; color: var(--muted); }
+.errbar { position: fixed; left: 0; right: 0; top: 0; z-index: 9; background: var(--laterite); color: #fff; font-size: .85rem; padding: calc(10px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px)); overflow-wrap: anywhere; }
+.confirm { border: 1px solid var(--laterite); border-radius: 8px; padding: 10px; display: grid; gap: 8px; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 8px; font-weight: 600; font-size: .9rem; opacity: 0; transition: opacity .2s; pointer-events: none; max-width: calc(100% - 32px); }
+.toast.show { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <canvas id="topo" aria-hidden="true"></canvas>
+    <div class="toprow">
+      <div>
+        <div class="brand">
+          <svg class="logo" viewBox="0 0 48 48" aria-hidden="true">
+            <rect x="1" y="1" width="46" height="46" rx="11" fill="var(--accent)"/>
+            <path d="M5 37 q19 -9 38 0 M5 42 q19 -8 38 0" fill="none" stroke="var(--accent-ink)" stroke-width="1.6" opacity=".55"/>
+            <rect x="15" y="12" width="18" height="23" rx="5" fill="var(--accent-ink)"/>
+            <rect x="19" y="8" width="10" height="7" rx="3" fill="none" stroke="var(--accent-ink)" stroke-width="2"/>
+            <rect x="18.5" y="22" width="11" height="7" rx="2" fill="var(--accent)"/>
+          </svg>
+          <div>
+            <div class="label">Guyane · checklist de matériel</div>
+            <h1>Sac de Layon</h1>
+          </div>
+        </div>
+      </div>
+      <span class="sync" id="sync"><i></i><span>Enregistré sur ce téléphone</span></span>
+      <span class="ver mono">v6</span>
+    </div>
+    <div class="expbar">
+      <select id="expSelect" aria-label="Expédition"></select>
+      <button id="btnNew" class="small">Nouvelle</button>
+      <button id="btnDup" class="small ghost">Dupliquer</button>
+    </div>
+  </header>
+
+  <section class="panel" aria-labelledby="hParams">
+    <h2 id="hParams">Paramètres</h2>
+    <div class="grid">
+      <div class="field wide"><label class="label" for="pName">Nom de l'expédition</label><input id="pName" placeholder="Ex. Aïmara saut Takari"></div>
+      <div class="field wide"><label class="label" for="pType">Type</label>
+        <input id="pType" list="typeList" placeholder="Choisis ou écris le tien">
+        <datalist id="typeList">
+          <option value="Pêche · fleuve Sinnamary"></option>
+          <option value="Pêche · lac de Petit-Saut"></option>
+          <option value="Raid forêt / layon"></option>
+          <option value="Topo / reconnaissance"></option>
+          <option value="Bivouac carbet"></option>
+          <option value="Remontée de fleuve en pirogue"></option>
+        </datalist>
+      </div>
+      <div class="field"><label class="label" for="pDays">Jours</label><input id="pDays" type="number" min="1" inputmode="numeric"></div>
+      <div class="field"><label class="label" for="pNights">Nuits</label><input id="pNights" type="number" min="0" inputmode="numeric"></div>
+      <div class="field"><label class="label" for="pPeople">Personnes</label><input id="pPeople" type="number" min="1" inputmode="numeric"></div>
+      <div class="field"><label class="label" for="pReserve">Jours de réserve</label><input id="pReserve" type="number" min="0" inputmode="numeric"></div>
+    </div>
+    <p class="hint">La réserve s'ajoute aux jours et aux nuits pour tout ce qui se consomme (vivres, eau, carburant). En forêt, une crue ou une blessure peut te bloquer : une journée de marge minimum.</p>
+    <div class="stats">
+      <div><span class="label">Articles</span><b id="sItems">0</b></div>
+      <div><span class="label">Prêts</span><b id="sDone">0/0</b></div>
+      <div><span class="label">Poids total</span><b id="sWeight">–</b></div>
+      <div><span class="label">Poids / pers.</span><b id="sWpp">–</b></div>
+      <div><span class="label">Volume total</span><b id="sVol">–</b></div>
+      <div><span class="label">Volume / pers.</span><b id="sVpp">–</b></div>
+    </div>
+    <p class="hint" id="sKnown"></p>
+    <div class="bar" aria-hidden="true"><span id="sBar"></span></div>
+  </section>
+
+  <section class="panel">
+    <div class="add" id="addBox">
+      <h2 id="formTitle">Ajouter un article</h2>
+      <div id="itemForm" class="formbody">
+        <div class="grid">
+          <div class="field wide"><label class="label" for="fName">Article</label><input id="fName" list="catalog" autocomplete="off" placeholder="Ex. Hamac, pastilles de purification…"><datalist id="catalog"></datalist></div>
+          <div class="field"><label class="label" for="fCat">Catégorie</label><input id="fCat" list="catList" placeholder="Bivouac"><datalist id="catList"></datalist></div>
+          <div class="field"><label class="label" for="fQty">Quantité</label><input id="fQty" type="number" min="0" step="any" value="1" inputmode="decimal"></div>
+          <div class="field"><label class="label" for="fMode">Règle</label>
+            <select id="fMode">
+              <option value="fixe">fixe (pour le groupe)</option>
+              <option value="p">par personne</option>
+              <option value="j">par jour</option>
+              <option value="n">par nuit</option>
+              <option value="pj">par personne et par jour</option>
+              <option value="pn">par personne et par nuit</option>
+            </select></div>
+          <div class="field"><label class="label" for="fUnit">Unité</label><input id="fUnit" placeholder="pièce, sachet, L…"></div>
+          <div class="field"><label class="label" for="fW">Poids unitaire (g)</label><input id="fW" type="number" min="0" step="any" inputmode="decimal" placeholder="ex. 900"></div>
+          <div class="field wide"><span class="label" id="lDims">Dimensions unitaires (cm) : long. × larg. × haut.</span>
+            <div class="dims" role="group" aria-labelledby="lDims">
+              <input id="fLen" type="number" min="0" step="any" inputmode="decimal" placeholder="L" aria-label="Longueur en cm"><span>×</span>
+              <input id="fWid" type="number" min="0" step="any" inputmode="decimal" placeholder="l" aria-label="Largeur en cm"><span>×</span>
+              <input id="fHei" type="number" min="0" step="any" inputmode="decimal" placeholder="h" aria-label="Hauteur en cm">
+            </div></div>
+          <div class="field"><label class="label" for="fV">Volume unitaire (L)</label><input id="fV" type="number" min="0" step="any" inputmode="decimal" placeholder="calculé"></div>
+          <div class="field wide"><label class="label" for="fNote">Note</label><input id="fNote" placeholder="optionnel"></div>
+        </div>
+        <div class="preview" id="fPreview" aria-live="polite"></div>
+        <div class="actions">
+          <button type="button" class="primary big" id="fSubmit">Ajouter à la liste</button>
+          <button type="button" class="ghost" id="fCancel" hidden>Annuler</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="hList">
+    <div class="toolbar">
+      <h2 id="hList">Liste</h2>
+      <label class="chk"><input type="checkbox" id="onlyTodo"> Seulement ce qui reste</label>
+    </div>
+    <div id="packBox" class="picker" hidden></div>
+    <div id="list" class="cat-list" style="display:grid;gap:18px"></div>
+    <div class="actions" id="listActions">
+      <button class="small" id="btnShare">Copier la liste (texte)</button>
+      <button class="small ghost" id="btnPacks">Choisir dans les listes</button>
+      <button class="small ghost" id="btnUncheck">Tout décocher</button>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="hGear">
+    <details id="gearBox">
+      <summary style="cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center"><h2 id="hGear">Mon matériel</h2><span class="mono" id="gearCount">0</span></summary>
+      <div class="formbody">
+        <p class="hint">Chaque article que tu ajoutes ou modifies est retenu ici avec son poids, ses dimensions et son volume. Tape son nom dans une prochaine expédition : tout est rempli tout seul.</p>
+        <input id="gearSearch" placeholder="Chercher dans mon matériel" aria-label="Chercher dans mon matériel">
+        <div id="gearList"></div>
+      </div>
+    </details>
+  </section>
+
+  <section class="panel">
+    <details>
+      <summary class="label" style="cursor:pointer">Sauvegarde et suppression</summary>
+      <div class="formbody">
+        <p class="hint">Copie toutes tes expéditions en texte pour les garder ailleurs, ou colle une sauvegarde pour les restaurer.</p>
+        <div class="actions"><button class="small" id="btnExport">Copier la sauvegarde</button></div>
+        <label class="label" for="importTxt">Coller une sauvegarde</label>
+        <textarea id="importTxt" placeholder='{"exps":[…]}'></textarea>
+        <div class="actions"><button class="small" id="btnImport">Restaurer</button></div>
+        <div class="actions"><button class="small danger" id="btnDel">Supprimer cette expédition</button></div>
+        <div id="delBox"></div>
+      </div>
+    </details>
+  </section>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<div class="errbar" id="errbar" role="alert" hidden></div>
+<script>
+function __sdlErr(msg) { try { const b = document.getElementById("errbar"); b.textContent = "Erreur (fais une capture et envoie-la) : " + msg; b.hidden = false; } catch (e) {} }
+window.addEventListener("error", ev => __sdlErr((ev.message || "inconnue") + " @" + (ev.lineno || "?")));
+window.addEventListener("unhandledrejection", ev => __sdlErr("promesse : " + ((ev.reason && (ev.reason.message || ev.reason.code)) || ev.reason)));
+(() => {
+const MODES = { fixe: "fixe", p: "/ pers.", j: "/ jour", n: "/ nuit", pj: "/ pers. / jour", pn: "/ pers. / nuit" };
+const CATS = ["Bivouac","Eau","Vivres","Feu & cuisine","Navigation & topo","Outils","Éclairage & énergie","Sécurité & secours","Vêtements","Hygiène","Pêche","Pirogue"];
+const PACKS = {
+  foret: { label: "Base forêt guyanaise", desc: "Hamac, bâche, machette, eau, vivres, navigation, secours.", items: [
+    ["Hamac","Bivouac",1,"p","pièce",900],["Moustiquaire (si hamac sans)","Bivouac",1,"p","pièce",300],["Bâche 3 × 3 m","Bivouac",1,"p","pièce",600],["Paracorde","Bivouac",15,"p","m",8],
+    ["Gourde 1,5 L","Eau",1,"p","pièce",200],["Pastilles de purification","Eau",3,"pj","pastille",1],["Filtre à eau","Eau",1,"fixe","pièce",250],
+    ["Ration lyophilisée","Vivres",2,"pj","sachet",130],["Couac","Vivres",150,"pj","g",1],["Barres énergétiques","Vivres",2,"pj","barre",40],["Sel, café, sucre","Vivres",1,"fixe","lot",300],
+    ["Briquet","Feu & cuisine",2,"p","pièce",20],["Allume-feu","Feu & cuisine",2,"n","pastille",10],["Réchaud","Feu & cuisine",1,"fixe","pièce",300],["Cartouche gaz 230 g","Feu & cuisine",0.25,"pj","cartouche",380],["Marmite","Feu & cuisine",1,"fixe","pièce",350],
+    ["Boussole","Navigation & topo",1,"p","pièce",50],["GPS","Navigation & topo",1,"fixe","pièce",230],["Piles AA (GPS)","Navigation & topo",1,"j","pile",23],["Carte IGN 1:25 000 sous pochette","Navigation & topo",1,"fixe","pièce",100],["Rubalise","Navigation & topo",1,"fixe","rouleau",80],
+    ["Machette","Outils",1,"p","pièce",600],["Lime à machette","Outils",1,"fixe","pièce",100],["Couteau","Outils",1,"p","pièce",120],
+    ["Lampe frontale","Éclairage & énergie",1,"p","pièce",100],["Piles de rechange frontale","Éclairage & énergie",1,"p","jeu",40],["Batterie externe","Éclairage & énergie",1,"p","pièce",250],
+    ["Balise satellite / inReach","Sécurité & secours",1,"fixe","pièce",110],["Trousse de secours","Sécurité & secours",1,"fixe","pièce",500],["Sifflet","Sécurité & secours",1,"p","pièce",10],["Répulsif moustiques","Sécurité & secours",1,"p","flacon",100],["Sac étanche","Sécurité & secours",2,"p","pièce",100],
+    ["Tenue sèche de bivouac","Vêtements",1,"p","tenue",500],["Chaussettes","Vêtements",1,"pj","paire",60],["Poncho","Vêtements",1,"p","pièce",350],
+    ["Papier toilette","Hygiène",1,"p","rouleau",80],["Sacs poubelle","Hygiène",3,"fixe","sac",20]
+  ]},
+  peche: { label: "Pack pêche", desc: "Sinnamary, Petit-Saut : aïmara, piraï, tucunaré.", items: [
+    ["Canne + moulinet","Pêche",1,"p","ensemble",450],["Tresse de rechange","Pêche",1,"fixe","bobine",120],["Bas de ligne acier","Pêche",4,"p","pièce",10],["Leurres","Pêche",6,"p","pièce",25],["Hameçons assortis","Pêche",1,"fixe","boîte",80],["Pince à dégorger","Pêche",1,"fixe","pièce",150],["Épuisette","Pêche",1,"fixe","pièce",700],["Couteau à fileter","Pêche",1,"fixe","pièce",120],["Glacière + glace","Pêche",1,"fixe","pièce",4000]
+  ]},
+  pirogue: { label: "Pack pirogue / lac", desc: "Gilets, carburant, matériel moteur.", items: [
+    ["Gilet de sauvetage","Pirogue",1,"p","pièce",600],["Essence moteur","Pirogue",10,"j","L",750],["Huile 2 temps","Pirogue",1,"fixe","bidon",1000],["Pagaie","Pirogue",2,"fixe","pièce",900],["Écope","Pirogue",1,"fixe","pièce",200],["Bougie + clé à bougie","Pirogue",1,"fixe","lot",250],["Goupilles d'hélice","Pirogue",3,"fixe","pièce",5],["Corde d'amarrage","Pirogue",2,"fixe","pièce",500]
+  ]}
+};
+
+const $ = id => document.getElementById(id);
+const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+const LS_KEY = "sacdelayon.v1";
+let state = { exps: {}, current: null, gear: {} };
+const GEAR_ID = "__materiel";
+let gearDirty = false;
+let db = null, col = null;
+const dirty = new Set();
+let editingId = null;
+
+function blankExp() {
+  return { id: uid(), name: "Nouvelle expédition", type: "Pêche · fleuve Sinnamary", days: 3, nights: 2, people: 2, reserve: 1, items: [], updatedAt: Date.now(), draft: true };
+}
+function cur() { return state.exps[state.current]; }
+
+// ---------- persistance ----------
+function lsSave() { try { localStorage.setItem(LS_KEY, JSON.stringify({ exps: Object.values(state.exps).filter(e => !e.draft), current: state.current, gear: state.gear })); } catch (e) {} }
+function lsLoad() {
+  try { const raw = localStorage.getItem(LS_KEY); if (!raw) return; const d = JSON.parse(raw);
+    (d.exps || []).forEach(e => state.exps[e.id] = e); if (d.gear) state.gear = d.gear; if (d.current && state.exps[d.current]) state.current = d.current; } catch (e) {}
+}
+const timers = {};
+function persist(exp) {
+  exp.updatedAt = Date.now(); delete exp.draft; lsSave();
+  if (!col) return;
+  dirty.add(exp.id); clearTimeout(timers[exp.id]);
+  timers[exp.id] = setTimeout(async () => {
+    try { const { draft, ...data } = exp; await col.doc(exp.id).set(JSON.parse(JSON.stringify(data))); }
+    catch (e) { setSync(false, "Pas de synchro, gardé sur cet appareil"); }
+    finally { dirty.delete(exp.id); }
+  }, 600);
+}
+async function removeExp(id) {
+  delete state.exps[id]; lsSave();
+  if (col) { try { await col.doc(id).delete(); } catch (e) {} }
+}
+function gkey(n) { return (n || "").trim().toLowerCase(); }
+function rememberGear(f) {
+  const k = gkey(f.name); if (!k) return; const old = state.gear[k] || {};
+  state.gear[k] = { name: f.name, cat: f.cat, qty: f.qty, mode: f.mode, unit: f.unit, w: f.w, L: f.L, l: f.l, H: f.H, v: f.v, note: f.note, uses: (old.uses || 0) + 1, updatedAt: Date.now() };
+  persistGear();
+}
+function persistGear() {
+  lsSave(); if (!col) return;
+  gearDirty = true; clearTimeout(timers.__gear);
+  timers.__gear = setTimeout(async () => {
+    try { await col.doc(GEAR_ID).set(JSON.parse(JSON.stringify({ items: state.gear, updatedAt: Date.now() }))); }
+    catch (e) { setSync(false, "Pas de synchro, gardé sur cet appareil"); }
+    finally { gearDirty = false; }
+  }, 600);
+}
+function setSync(on, text) { $("sync").classList.toggle("on", on); $("sync").lastElementChild.textContent = text; }
+
+async function connectDb() {
+  if (!window.claude || !window.claude.use) return;
+  try {
+    const [d, u] = await Promise.all([window.claude.use("db"), window.claude.use("user")]);
+    if (!d || !u) return;
+    const me = await u.id(); if (!me) return;
+    db = d; col = db.collection("data/users/" + me);
+    let first = true;
+    col.onSnapshot(snap => {
+      const remote = {};
+      let rgear = null;
+      snap.docs.forEach(doc => { const d0 = doc.data(); if (!d0) return; const v = JSON.parse(JSON.stringify(d0)); if (doc.id === GEAR_ID) rgear = v.items || {}; else remote[doc.id] = { ...v, id: doc.id }; });
+      if (!gearDirty) {
+        if (rgear) Object.entries(rgear).forEach(([k, g]) => { const l = state.gear[k]; if (!l || (g.updatedAt || 0) >= (l.updatedAt || 0)) state.gear[k] = g; });
+        if (first && Object.keys(state.gear).length && (!rgear || Object.keys(state.gear).some(k => !rgear[k]))) persistGear();
+      }
+      if (first) {
+        first = false;
+        // migration : ce qui n'existe que sur l'appareil part dans la synchro
+        Object.values(state.exps).forEach(e => { if (!e.draft && !remote[e.id]) persist(e); });
+      } else {
+        // supprimée depuis un autre appareil
+        Object.keys(state.exps).forEach(id => { if (!remote[id] && !dirty.has(id) && !state.exps[id].draft) delete state.exps[id]; });
+      }
+      Object.values(remote).forEach(r => {
+        const l = state.exps[r.id];
+        if (dirty.has(r.id)) return;
+        if (!l || (r.updatedAt || 0) >= (l.updatedAt || 0)) state.exps[r.id] = r;
+      });
+      if (!state.exps[state.current]) pickDefault();
+      lsSave(); renderAll(false);
+      setSync(true, "Synchronisé sur ton compte");
+    }, () => setSync(false, "Pas de synchro, gardé sur cet appareil"));
+  } catch (e) {}
+}
+
+// ---------- calcul ----------
+function mult(mode, e) {
+  const days = Math.max(1, +e.days || 1) + (+e.reserve || 0);
+  const nights = Math.max(0, +e.nights || 0) + (+e.reserve || 0);
+  const p = Math.max(1, +e.people || 1);
+  return { fixe: 1, p, j: days, n: nights, pj: p * days, pn: p * nights }[mode] ?? 1;
+}
+function total(it, e) { const raw = (+it.qty || 0) * mult(it.mode, e); return Math.ceil(raw - 1e-9); }
+function fmtW(g) { if (!g) return "–"; return g >= 1000 ? (g / 1000).toLocaleString("fr-FR", { maximumFractionDigits: 1 }) + " kg" : Math.round(g) + " g"; }
+function vol(i) { if (+i.v) return +i.v; const d = (+i.L || 0) * (+i.l || 0) * (+i.H || 0); return d ? d / 1000 : 0; }
+function fmtV(l) { if (!l) return "–"; return l.toLocaleString("fr-FR", { maximumFractionDigits: l < 10 ? 1 : 0 }) + " L"; }
+function specs(i) {
+  const a = []; if (+i.w) a.push(fmtW(+i.w));
+  if (+i.L && +i.l && +i.H) a.push(`${fmtN(i.L)}×${fmtN(i.l)}×${fmtN(i.H)} cm`);
+  if (vol(i)) a.push(fmtV(vol(i)));
+  return a.join(" · ");
+}
+function fmtN(n) { return (+n).toLocaleString("fr-FR", { maximumFractionDigits: 2 }); }
+
+// ---------- rendu ----------
+function pickDefault() {
+  const list = Object.values(state.exps).sort((a, b) => b.updatedAt - a.updatedAt);
+  if (list.length) state.current = list[0].id;
+  else { const e = blankExp(); state.exps[e.id] = e; state.current = e.id; }
+}
+function renderSelect() {
+  const s = $("expSelect"); s.innerHTML = "";
+  Object.values(state.exps).sort((a, b) => b.updatedAt - a.updatedAt).forEach(e => {
+    const o = document.createElement("option"); o.value = e.id;
+    o.textContent = `${e.name || "Sans nom"} · ${e.days} j · ${e.people} pers.`; s.appendChild(o);
+  });
+  s.value = state.current;
+}
+function renderParams(force) {
+  const e = cur();
+  [["pName","name"],["pType","type"],["pDays","days"],["pNights","nights"],["pPeople","people"],["pReserve","reserve"]].forEach(([id, k]) => {
+    const el = $(id); if (force || document.activeElement !== el) el.value = e[k] ?? "";
+  });
+}
+function renderStats() {
+  const e = cur(); const n = e.items.length; const d = e.items.filter(i => i.done).length;
+  const w = e.items.reduce((s, i) => s + total(i, e) * (+i.w || 0), 0);
+  const v = e.items.reduce((s, i) => s + total(i, e) * vol(i), 0);
+  const pp = Math.max(1, +e.people || 1);
+  $("sItems").textContent = n; $("sDone").textContent = `${d}/${n}`;
+  $("sWeight").textContent = fmtW(w); $("sWpp").textContent = fmtW(w / pp);
+  $("sVol").textContent = fmtV(v); $("sVpp").textContent = fmtV(v / pp);
+  const kw = e.items.filter(i => +i.w).length, kv = e.items.filter(i => vol(i)).length;
+  $("sKnown").textContent = n && (kw < n || kv < n) ? `Totaux partiels : poids connu pour ${kw}/${n} articles, volume pour ${kv}/${n}. Complète les fiches pour des chiffres justes.` : "";
+  $("sBar").style.width = n ? (d / n * 100) + "%" : "0";
+}
+function renderCatalog() {
+  const names = new Map(), cats = new Set(CATS);
+  Object.values(state.gear).forEach(g => { names.set(g.name, g); if (g.cat) cats.add(g.cat); });
+  Object.values(state.exps).forEach(e => e.items.forEach(i => { if (!names.has(i.name)) names.set(i.name, i); if (i.cat) cats.add(i.cat); }));
+  Object.values(PACKS).forEach(p => p.items.forEach(([n]) => { if (!names.has(n)) names.set(n, null); }));
+  $("catalog").innerHTML = ""; [...names.keys()].sort((a, b) => a.localeCompare(b, "fr")).forEach(n => { const o = document.createElement("option"); o.value = n; $("catalog").appendChild(o); });
+  $("catList").innerHTML = ""; [...cats].forEach(c => { const o = document.createElement("option"); o.value = c; $("catList").appendChild(o); });
+}
+function renderList() {
+  const e = cur(), box = $("list"); box.innerHTML = "";
+  const only = $("onlyTodo").checked;
+  $("listActions").hidden = !e.items.length;
+  if (!e.items.length) { box.appendChild(emptyState()); return; }
+  const groups = {};
+  e.items.forEach(i => { const c = i.cat || "Autre"; (groups[c] = groups[c] || []).push(i); });
+  const order = [...CATS, ...Object.keys(groups).filter(c => !CATS.includes(c)).sort()];
+  let shown = 0;
+  order.filter(c => groups[c]).forEach(c => {
+    const items = groups[c].filter(i => !only || !i.done); if (!items.length) return;
+    const sec = document.createElement("div"); sec.className = "cat";
+    const h = document.createElement("h3"); const left = document.createElement("span"); left.textContent = c;
+    const right = document.createElement("span"); right.className = "mono"; right.textContent = `${groups[c].filter(i => i.done).length}/${groups[c].length}`;
+    h.append(left, right); sec.appendChild(h);
+    items.forEach(i => { sec.appendChild(row(i, e)); shown++; });
+    box.appendChild(sec);
+  });
+  if (!shown) { const p = document.createElement("p"); p.className = "hint"; p.textContent = "Tout est prêt. Bon layon."; box.appendChild(p); }
+}
+function row(i, e) {
+  const r = document.createElement("div"); r.className = "item" + (i.done ? " done" : "");
+  const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = !!i.done; cb.id = "cb-" + i.id;
+  cb.setAttribute("aria-label", "Prêt : " + i.name);
+  cb.addEventListener("change", () => { i.done = cb.checked; persist(e); renderList(); renderStats(); });
+  const nm = document.createElement("label"); nm.className = "name"; nm.htmlFor = cb.id;
+  const st = document.createElement("strong"); st.textContent = i.name;
+  const sm = document.createElement("small");
+  sm.textContent = `${fmtN(i.qty)} ${i.unit || ""} ${i.mode === "fixe" ? "" : MODES[i.mode]}`.replace(/\s+/g, " ").trim() + (specs(i) ? " · " + specs(i) + " l'unité" : "") + (i.note ? " · " + i.note : "");
+  nm.append(st, sm);
+  const q = document.createElement("div"); q.className = "qty";
+  const b = document.createElement("b"); const t = total(i, e);
+  b.textContent = `${t} ${i.unit || ""}`.trim();
+  const ed = document.createElement("div"); ed.className = "ed";
+  const bE = document.createElement("button"); bE.className = "iconbtn"; bE.textContent = "Modifier"; bE.onclick = () => startEdit(i);
+  const bD = document.createElement("button"); bD.className = "iconbtn"; bD.textContent = "Retirer";
+  bD.onclick = () => { e.items = e.items.filter(x => x.id !== i.id); persist(e); renderAll(false); toast(`« ${i.name} » retiré`); };
+  ed.append(bE, bD); q.append(b, ed);
+  r.append(cb, nm, q); return r;
+}
+function emptyState() {
+  const d = document.createElement("div"); d.className = "empty";
+  const p = document.createElement("p"); p.textContent = "Liste vide. Ajoute tes articles un par un avec le formulaire au-dessus, ou pioche dans ton matériel et dans les listes toutes faites.";
+  const b = document.createElement("button"); b.className = "primary"; b.textContent = "Choisir dans les listes";
+  b.onclick = openPicker;
+  d.append(p, b); return d;
+}
+// ---------- sélecteur : on coche ce qu'on veut, puis on valide ----------
+const pick = { src: null, sel: new Map(), q: "" };
+function packItem([name, cat, qty, mode, unit, w]) { return { name, cat, qty, mode, unit, w }; }
+function sourceItems(src) {
+  if (src === "gear") return Object.values(state.gear);
+  // si l'article existe dans ton matériel, ce sont tes propres caractéristiques qui comptent
+  return PACKS[src].items.map(t => { const it = packItem(t); return state.gear[gkey(it.name)] || it; });
+}
+function sources() {
+  const s = [];
+  if (Object.keys(state.gear).length) s.push(["gear", "Mon matériel"]);
+  Object.entries(PACKS).forEach(([k, p]) => s.push([k, p.label]));
+  return s;
+}
+function openPicker() {
+  const b = $("packBox");
+  if (!pick.src || !sources().some(([k]) => k === pick.src)) pick.src = sources()[0][0];
+  b.hidden = false; renderPicker(); b.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+function closePicker() { $("packBox").hidden = true; pick.sel.clear(); pick.q = ""; }
+function renderPicker() {
+  const b = $("packBox"); if (b.hidden) return; b.innerHTML = "";
+  const e = cur(); const have = new Set(e.items.map(i => gkey(i.name)));
+  const head = document.createElement("div"); head.className = "toolbar";
+  const h = document.createElement("h2"); h.textContent = "Choisir des articles";
+  const x = document.createElement("button"); x.className = "small ghost"; x.textContent = "Fermer"; x.onclick = closePicker;
+  head.append(h, x);
+  const tabs = document.createElement("div"); tabs.className = "tabs"; tabs.setAttribute("role", "tablist");
+  sources().forEach(([k, label]) => {
+    const t = document.createElement("button"); t.className = "tab"; t.textContent = label; t.setAttribute("role", "tab");
+    t.setAttribute("aria-selected", k === pick.src ? "true" : "false");
+    t.onclick = () => { pick.src = k; renderPicker(); };
+    tabs.appendChild(t);
+  });
+  const hint = document.createElement("p"); hint.className = "hint"; hint.textContent = "Rien n'est coché d'avance. Coche ce que tu emportes, change d'onglet si besoin, puis valide en bas.";
+  const search = document.createElement("input"); search.id = "pickSearch"; search.placeholder = "Chercher un article"; search.value = pick.q;
+  search.setAttribute("aria-label", "Chercher un article");
+  search.oninput = () => { pick.q = search.value; renderPickList(list, have); };
+  const list = document.createElement("div"); list.className = "plist";
+  const foot = document.createElement("div"); foot.className = "pfoot";
+  const ok = document.createElement("button"); ok.className = "primary big"; ok.id = "pickOk";
+  ok.onclick = validatePicker;
+  foot.appendChild(ok);
+  b.append(head, tabs, hint, search, list, foot);
+  renderPickList(list, have); updatePickCount();
+}
+function renderPickList(list, have) {
+  list.innerHTML = ""; const q = gkey(pick.q);
+  const items = sourceItems(pick.src).filter(it => !q || gkey(it.name).includes(q) || gkey(it.cat).includes(q));
+  const groups = {}; items.forEach(it => (groups[it.cat || "Autre"] = groups[it.cat || "Autre"] || []).push(it));
+  const order = [...CATS, ...Object.keys(groups).filter(c => !CATS.includes(c)).sort()].filter(c => groups[c]);
+  if (!order.length) { const p = document.createElement("p"); p.className = "hint"; p.textContent = "Aucun article."; list.appendChild(p); return; }
+  order.forEach(c => {
+    const sec = document.createElement("div"); sec.className = "cat";
+    const h = document.createElement("h3"); const l = document.createElement("span"); l.textContent = c;
+    const free = groups[c].filter(it => !have.has(gkey(it.name)));
+    const all = document.createElement("button"); all.className = "iconbtn"; all.type = "button";
+    const allOn = free.length && free.every(it => pick.sel.has(gkey(it.name)));
+    all.textContent = allOn ? "Tout décocher" : "Tout cocher"; all.hidden = !free.length;
+    all.onclick = () => { free.forEach(it => allOn ? pick.sel.delete(gkey(it.name)) : pick.sel.set(gkey(it.name), it)); renderPickList(list, have); updatePickCount(); };
+    h.append(l, all); sec.appendChild(h);
+    groups[c].sort((a, b) => a.name.localeCompare(b.name, "fr")).forEach(it => {
+      const k = gkey(it.name), already = have.has(k);
+      const r = document.createElement("label"); r.className = "prow" + (already ? " off" : "");
+      const cb = document.createElement("input"); cb.type = "checkbox"; cb.disabled = already; cb.checked = already || pick.sel.has(k);
+      cb.onchange = () => { cb.checked ? pick.sel.set(k, it) : pick.sel.delete(k); updatePickCount(); const a2 = sec.querySelector("h3 .iconbtn"); if (a2) { const on = free.every(f => pick.sel.has(gkey(f.name))); a2.textContent = on ? "Tout décocher" : "Tout cocher"; } };
+      const t = document.createElement("span"); const st = document.createElement("strong"); st.textContent = it.name;
+      const sm = document.createElement("small");
+      sm.textContent = already ? "déjà dans la liste" : [`${fmtN(it.qty ?? 1)} ${it.unit || ""} ${(it.mode || "fixe") === "fixe" ? "" : MODES[it.mode]}`.replace(/\s+/g, " ").trim(), specs(it)].filter(Boolean).join(" · ");
+      t.append(st, sm); r.append(cb, t); sec.appendChild(r);
+    });
+    list.appendChild(sec);
+  });
+}
+function updatePickCount() {
+  const ok = $("pickOk"); if (!ok) return; const n = pick.sel.size;
+  ok.textContent = n ? `Ajouter ${n} article${n > 1 ? "s" : ""} à la liste` : "Coche des articles";
+  ok.disabled = !n;
+}
+function validatePicker() {
+  const e = cur(); const have = new Set(e.items.map(i => gkey(i.name))); let n = 0;
+  pick.sel.forEach((it, k) => {
+    if (have.has(k)) return;
+    const item = { id: uid(), name: it.name, cat: it.cat || "Autre", qty: it.qty ?? 1, mode: it.mode || "fixe", unit: it.unit || "", w: it.w || 0, L: it.L || 0, l: it.l || 0, H: it.H || 0, v: it.v || 0, note: it.note || "", done: false };
+    e.items.push(item); n++;
+    if (!state.gear[k]) state.gear[k] = { ...item, id: undefined, done: undefined, uses: 1, updatedAt: Date.now() };
+  });
+  persistGear(); persist(e); closePicker(); renderAll(false);
+  toast(n ? `${n} article${n > 1 ? "s" : ""} ajouté${n > 1 ? "s" : ""}` : "Déjà dans la liste");
+  $("list").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+function renderGear() {
+  const box = $("gearList"); box.innerHTML = ""; const q = gkey($("gearSearch").value);
+  const all = Object.values(state.gear); $("gearCount").textContent = all.length;
+  if (!all.length) { const p = document.createElement("p"); p.className = "hint"; p.textContent = "Rien encore. Ajoute un article à une expédition et il apparaîtra ici."; box.appendChild(p); return; }
+  const list = all.filter(g => !q || gkey(g.name).includes(q) || gkey(g.cat).includes(q));
+  const groups = {}; list.forEach(g => (groups[g.cat || "Autre"] = groups[g.cat || "Autre"] || []).push(g));
+  const order = [...CATS, ...Object.keys(groups).filter(c => !CATS.includes(c)).sort()].filter(c => groups[c]);
+  const e = cur(); const inExp = new Set(e.items.map(i => gkey(i.name)));
+  order.forEach(c => {
+    const sec = document.createElement("div"); sec.className = "cat";
+    const h = document.createElement("h3"); const l = document.createElement("span"); l.textContent = c;
+    const n = document.createElement("span"); n.className = "mono"; n.textContent = groups[c].length; h.append(l, n); sec.appendChild(h);
+    groups[c].sort((a, b) => a.name.localeCompare(b.name, "fr")).forEach(g => {
+      const r = document.createElement("div"); r.className = "gear";
+      const nm = document.createElement("div"); nm.className = "name";
+      const st = document.createElement("strong"); st.textContent = g.name;
+      const sm = document.createElement("small"); sm.textContent = specs(g) || "pas encore de caractéristiques";
+      nm.append(st, sm);
+      const ed = document.createElement("div"); ed.className = "ed";
+      const add = document.createElement("button"); add.className = "small";
+      if (inExp.has(gkey(g.name))) { add.textContent = "Dans la liste"; add.disabled = true; }
+      else { add.textContent = "Ajouter"; add.onclick = () => { e.items.push({ id: uid(), name: g.name, cat: g.cat, qty: g.qty ?? 1, mode: g.mode || "fixe", unit: g.unit || "", w: g.w || 0, L: g.L || 0, l: g.l || 0, H: g.H || 0, v: g.v || 0, note: g.note || "", done: false }); persist(e); renderAll(false); toast(`« ${g.name} » ajouté à l'expédition`); }; }
+      const del = document.createElement("button"); del.className = "iconbtn"; del.textContent = "Oublier";
+      del.onclick = () => { delete state.gear[gkey(g.name)]; persistGear(); renderGear(); renderCatalog(); toast(`« ${g.name} » retiré de ton matériel`); };
+      ed.append(add, del); r.append(nm, ed); sec.appendChild(r);
+    });
+    box.appendChild(sec);
+  });
+}
+function renderAll(force) { renderSelect(); renderParams(force); renderStats(); renderCatalog(); renderList(); renderGear(); updatePreview(); }
+
+// ---------- formulaire ----------
+function readForm() {
+  return { name: $("fName").value.trim(), cat: $("fCat").value.trim() || "Autre", qty: parseFloat($("fQty").value) || 0,
+    mode: $("fMode").value, unit: $("fUnit").value.trim(), w: parseFloat($("fW").value) || 0,
+    L: parseFloat($("fLen").value) || 0, l: parseFloat($("fWid").value) || 0, H: parseFloat($("fHei").value) || 0, v: parseFloat($("fV").value) || 0,
+    note: $("fNote").value.trim() };
+}
+function updatePreview() {
+  const f = readForm(); const e = cur();
+  if (!f.name) { $("fPreview").textContent = ""; return; }
+  const t = total(f, e); const extra = [];
+  if (f.w) extra.push(fmtW(t * f.w)); if (vol(f)) extra.push(fmtV(t * vol(f)));
+  $("fPreview").textContent = `→ ${t} ${f.unit} à emporter pour ${e.people} pers. sur ${e.days} j (+${e.reserve || 0} de réserve)`.replace(/\s+/g, " ") + (extra.length ? ` · ${extra.join(" · ")} au total` : "");
+  const d = (f.L || 0) * (f.l || 0) * (f.H || 0); $("fV").placeholder = d ? fmtN(d / 1000) + " (calculé)" : "calculé";
+}
+function resetForm() {
+  editingId = null; ["fName","fCat","fUnit","fW","fLen","fWid","fHei","fV","fNote"].forEach(id => $(id).value = ""); $("fMode").value = "fixe"; $("fQty").value = 1; $("fSubmit").textContent = "Ajouter à la liste";
+  $("formTitle").textContent = "Ajouter un article"; $("fCancel").hidden = true; updatePreview();
+}
+function startEdit(i) {
+  editingId = i.id;
+  $("fName").value = i.name; $("fCat").value = i.cat; $("fQty").value = i.qty; $("fMode").value = i.mode;
+  fillSpecs(i); $("fNote").value = i.note || "";
+  $("fSubmit").textContent = "Enregistrer"; $("formTitle").textContent = "Modifier l'article"; $("fCancel").hidden = false;
+  updatePreview(); $("addBox").scrollIntoView({ behavior: "smooth", block: "start" }); $("fName").focus({ preventScroll: true });
+}
+function submitItem() {
+  const f = readForm(); const e = cur();
+  if (!f.name) { toast("Donne un nom à l'article"); $("fName").focus(); return; }
+  if (editingId) { const it = e.items.find(x => x.id === editingId); if (it) Object.assign(it, f); toast("Article modifié"); }
+  else { e.items.push({ id: uid(), ...f, done: false }); toast(`« ${f.name} » ajouté`); }
+  rememberGear(f); persist(e); resetForm(); renderAll(false); $("fName").focus();
+}
+function fillSpecs(s) {
+  $("fUnit").value = s.unit || ""; $("fW").value = s.w || "";
+  $("fLen").value = s.L || ""; $("fWid").value = s.l || ""; $("fHei").value = s.H || ""; $("fV").value = s.v || "";
+}
+$("fSubmit").addEventListener("click", () => { try { submitItem(); } catch (err) { __sdlErr((err && err.message) || String(err)); } });
+["fName","fCat","fQty","fUnit","fW","fLen","fWid","fHei","fV","fNote"].forEach(id => $(id).addEventListener("keydown", ev => { if (ev.key === "Enter") { ev.preventDefault(); submitItem(); } }));
+$("fCancel").onclick = resetForm;
+["fName","fCat","fQty","fMode","fUnit","fW","fLen","fWid","fHei","fV"].forEach(id => $(id).addEventListener("input", updatePreview));
+$("gearSearch").addEventListener("input", renderGear);
+$("fName").addEventListener("change", () => {
+  // reprend les réglages d'un article déjà utilisé ou d'un pack
+  if (editingId) return; const n = $("fName").value.trim().toLowerCase(); let src = state.gear[n] || null;
+  if (!src) Object.values(state.exps).forEach(e => e.items.forEach(i => { if (i.name.toLowerCase() === n) src = i; }));
+  if (!src) Object.values(PACKS).forEach(p => p.items.forEach(([name, cat, qty, mode, unit, w]) => { if (name.toLowerCase() === n) src = { cat, qty, mode, unit, w }; }));
+  if (src) { $("fCat").value = src.cat || ""; $("fQty").value = src.qty ?? 1; $("fMode").value = src.mode || "fixe"; fillSpecs(src); if (src.note) $("fNote").value = src.note; updatePreview(); if (state.gear[n]) toast("Repris de ton matériel"); }
+});
+
+// ---------- paramètres ----------
+[["pName","name",false],["pType","type",false],["pDays","days",true],["pNights","nights",true],["pPeople","people",true],["pReserve","reserve",true]].forEach(([id, k, num]) => {
+  $(id).addEventListener("input", () => {
+    const e = cur(); let v = $(id).value;
+    if (num) { if (v === "") return; v = Math.max(k === "days" || k === "people" ? 1 : 0, Math.round(+v)); }
+    if (k === "days" && +e.nights === Math.max(0, +e.days - 1)) { e.nights = Math.max(0, v - 1); $("pNights").value = e.nights; }
+    e[k] = v; persist(e); renderSelect(); renderStats(); renderList(); updatePreview();
+  });
+});
+
+// ---------- expéditions ----------
+$("expSelect").addEventListener("change", () => { state.current = $("expSelect").value; lsSave(); resetForm(); renderAll(true); });
+$("btnNew").onclick = () => { const e = blankExp(); state.exps[e.id] = e; state.current = e.id; persist(e); resetForm(); renderAll(true); $("pName").focus(); $("pName").select(); };
+$("btnDup").onclick = () => {
+  const s = cur(); const e = JSON.parse(JSON.stringify(s)); e.id = uid(); e.name = (s.name || "Expédition") + " (copie)";
+  e.items.forEach(i => { i.id = uid(); i.done = false; }); state.exps[e.id] = e; state.current = e.id; persist(e); renderAll(true); toast("Expédition dupliquée, cases décochées");
+};
+$("btnDel").onclick = () => {
+  const box = $("delBox"); box.innerHTML = "";
+  const c = document.createElement("div"); c.className = "confirm";
+  const p = document.createElement("p"); p.style.margin = "0"; p.textContent = `Supprimer « ${cur().name} » et ses ${cur().items.length} articles ? C'est définitif.`;
+  const a = document.createElement("div"); a.className = "actions";
+  const y = document.createElement("button"); y.className = "danger small"; y.textContent = "Oui, supprimer";
+  const n = document.createElement("button"); n.className = "small ghost"; n.textContent = "Annuler";
+  y.onclick = async () => { const id = state.current; box.innerHTML = ""; await removeExp(id); pickDefault(); renderAll(true); toast("Expédition supprimée"); };
+  n.onclick = () => box.innerHTML = "";
+  a.append(y, n); c.append(p, a); box.appendChild(c);
+};
+$("btnUncheck").onclick = () => { const e = cur(); e.items.forEach(i => i.done = false); persist(e); renderAll(false); toast("Toutes les cases décochées"); };
+$("onlyTodo").addEventListener("change", renderList);
+$("btnPacks").onclick = () => { if (!$("packBox").hidden) closePicker(); else openPicker(); };
+
+// ---------- partage / sauvegarde ----------
+async function copy(text, okMsg, fallbackEl) {
+  try { await navigator.clipboard.writeText(text); toast(okMsg); }
+  catch (e) { const t = fallbackEl || $("importTxt"); t.value = text; t.closest("details") && (t.closest("details").open = true); t.focus(); t.select(); toast("Copie bloquée : texte sélectionné, copie-le à la main"); }
+}
+$("btnShare").onclick = () => {
+  const e = cur(); const lines = [`${e.name} · ${e.type}`, `${e.days} j / ${e.nights} nuits · ${e.people} pers. · réserve ${e.reserve || 0} j`, ""];
+  const groups = {}; e.items.forEach(i => (groups[i.cat || "Autre"] = groups[i.cat || "Autre"] || []).push(i));
+  [...CATS, ...Object.keys(groups).filter(c => !CATS.includes(c))].filter(c => groups[c]).forEach(c => {
+    lines.push(c.toUpperCase()); groups[c].forEach(i => lines.push(`${i.done ? "☑" : "☐"} ${i.name} : ${total(i, e)} ${i.unit || ""}`.trim())); lines.push("");
+  });
+  copy(lines.join("\n").trim(), "Liste copiée, colle-la dans WhatsApp ou tes notes");
+};
+$("btnExport").onclick = () => copy(JSON.stringify({ app: "sac-de-layon", v: 1, exps: Object.values(state.exps).filter(e => !e.draft), gear: state.gear }), "Sauvegarde copiée");
+$("btnImport").onclick = () => {
+  try {
+    const d = JSON.parse($("importTxt").value); const list = Array.isArray(d) ? d : d.exps; if (!Array.isArray(list)) throw 0;
+    let n = 0; list.forEach(e => { if (!e || !e.id || !Array.isArray(e.items)) return; state.exps[e.id] = e; persist(e); n++; });
+    if (d.gear && typeof d.gear === "object") { Object.assign(state.gear, d.gear); persistGear(); }
+    if (!n) throw 0; state.current = list[0].id; $("importTxt").value = ""; renderAll(true); toast(`${n} expédition(s) restaurée(s)`);
+  } catch (e) { toast("Ce texte n'est pas une sauvegarde valide"); }
+};
+
+let tt; function toast(m) { const t = $("toast"); t.textContent = m; t.classList.add("show"); clearTimeout(tt); tt = setTimeout(() => t.classList.remove("show"), 2400); }
+
+// ---------- décor : courbes de niveau ----------
+function drawTopo() {
+  const c = $("topo"), r = c.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+  c.width = r.width * dpr; c.height = r.height * dpr; const g = c.getContext("2d"); g.scale(dpr, dpr);
+  g.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue("--contour").trim(); g.lineWidth = 1;
+  const cx = r.width * 0.86, cy = r.height * 0.15;
+  for (let k = 1; k < 16; k++) {
+    g.beginPath();
+    for (let a = 0; a <= Math.PI * 2 + 0.01; a += 0.05) {
+      const rad = k * 17 * (1 + 0.18 * Math.sin(3 * a + k * 0.4) + 0.08 * Math.cos(5 * a - k * 0.3));
+      const x = cx + Math.cos(a) * rad * 1.5, y = cy + Math.sin(a) * rad;
+      a === 0 ? g.moveTo(x, y) : g.lineTo(x, y);
+    }
+    g.stroke();
+  }
+}
+window.addEventListener("resize", drawTopo);
+try { matchMedia("(prefers-color-scheme: dark)").addEventListener("change", drawTopo); } catch (e) {}
+new MutationObserver(drawTopo).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
+// ---------- démarrage ----------
+lsLoad(); if (!state.exps[state.current]) pickDefault();
+renderAll(true); drawTopo();
+connectDb();
+})();
+</script>
+
+<script>
+if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+</script>
+</body>
+</html>
