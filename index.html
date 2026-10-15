@@ -67,6 +67,12 @@ header.top > * { position: relative; }
 .sync.on i { background: var(--accent); }
 .expbar { display: flex; gap: 8px; flex-wrap: wrap; }
 .expbar select { flex: 1 1 200px; min-width: 0; }
+.danger-text { color: var(--laterite); }
+.manage { margin-top: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px; display: grid; gap: 8px; }
+.manage .mrow { display: flex; gap: 10px; align-items: center; padding: 6px 0; border-bottom: 1px dashed var(--line); cursor: pointer; }
+.manage .mrow:last-of-type { border-bottom: 0; }
+.manage .mrow input { width: auto; flex: none; width: 20px; height: 20px; }
+.manage .mrow small { display: block; color: var(--muted); font-size: .8rem; }
 
 input, select, textarea, button { font: inherit; color: inherit; }
 input, select, textarea { width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 9px 10px; min-width: 0; }
@@ -83,7 +89,7 @@ section.panel { background: var(--surface); border: 1px solid var(--line); borde
 .grid .wide { grid-column: 1 / -1; }
 .field { display: grid; gap: 4px; min-width: 0; }
 .cwrap { position: relative; min-width: 0; }
-.clist { position: absolute; z-index: 40; top: calc(100% + 4px); left: 0; right: 0; max-height: 260px; overflow-y: auto; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.18); -webkit-overflow-scrolling: touch; }
+.clist { position: absolute; z-index: 40; top: calc(100% + 4px); left: 0; right: 0; max-height: 260px; overflow-y: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.18); -webkit-overflow-scrolling: touch; }
 .clist button { display: block; width: 100%; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: 12px 10px; min-height: 44px; cursor: pointer; }
 .clist button:last-child { border-bottom: 0; }
 .clist button[aria-selected="true"], .clist button:hover { background: var(--line); }
@@ -183,7 +189,9 @@ button.big { width: 100%; padding: 14px; font-size: 1.05rem; touch-action: manip
       <select id="expSelect" aria-label="Expédition"></select>
       <button id="btnNew" class="small">Nouvelle</button>
       <button id="btnDup" class="small ghost">Dupliquer</button>
+      <button id="btnManage" class="small ghost danger-text">Supprimer…</button>
     </div>
+    <div id="manageBox" class="manage" hidden></div>
   </header>
 
   <section class="panel" aria-labelledby="hParams">
@@ -393,7 +401,7 @@ function persist(exp) {
   }, 600);
 }
 async function removeExp(id) {
-  delete state.exps[id]; lsSave();
+  clearTimeout(timers[id]); dirty.delete(id); delete state.exps[id]; lsSave();
   if (col) { try { await col.doc(id).delete(); } catch (e) {} }
 }
 function gkey(n) { return (n || "").trim().toLowerCase(); }
@@ -800,6 +808,40 @@ $("btnDel").onclick = () => {
   n.onclick = () => box.innerHTML = "";
   a.append(y, n); c.append(p, a); box.appendChild(c);
 };
+// ---------- faire le ménage : supprimer une ou plusieurs expéditions avec leurs listes ----------
+const manageSel = new Set();
+function renderManage() {
+  const box = $("manageBox"); if (box.hidden) return; box.innerHTML = "";
+  const list = Object.values(state.exps).sort((a, b) => b.updatedAt - a.updatedAt);
+  const h = document.createElement("div"); h.className = "toolbar";
+  const t = document.createElement("strong"); t.textContent = "Coche les expéditions à supprimer";
+  const x = document.createElement("button"); x.className = "small ghost"; x.textContent = "Fermer"; x.onclick = () => { box.hidden = true; manageSel.clear(); };
+  h.append(t, x); box.appendChild(h);
+  list.forEach(e => {
+    const r = document.createElement("label"); r.className = "mrow";
+    const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = manageSel.has(e.id);
+    cb.onchange = () => { cb.checked ? manageSel.add(e.id) : manageSel.delete(e.id); renderManage(); };
+    const sp = document.createElement("span"); const st = document.createElement("strong"); st.textContent = e.name || "Sans nom";
+    const sm = document.createElement("small"); sm.textContent = `${e.type ? e.type + " · " : ""}${e.days} j · ${e.people} pers. · ${e.items.length} article${e.items.length > 1 ? "s" : ""}`;
+    sp.append(st, sm); r.append(cb, sp); box.appendChild(r);
+  });
+  const n = manageSel.size; const a = document.createElement("div"); a.className = "actions";
+  const del = document.createElement("button"); del.className = "danger small"; del.disabled = !n;
+  del.textContent = n ? `Supprimer ${n} expédition${n > 1 ? "s" : ""}` : "Coche au moins une expédition";
+  del.onclick = () => {
+    a.innerHTML = ""; const c = document.createElement("div"); c.className = "confirm";
+    const p = document.createElement("p"); p.style.margin = "0";
+    const nb = [...manageSel].reduce((s2, id) => s2 + (state.exps[id] ? state.exps[id].items.length : 0), 0);
+    p.textContent = `Supprimer ${n} expédition${n > 1 ? "s" : ""} et ${nb} article${nb > 1 ? "s" : ""} de liste ? C'est définitif. Ton matériel (« Mon matériel ») est conservé.`;
+    const aa = document.createElement("div"); aa.className = "actions";
+    const y = document.createElement("button"); y.className = "danger small"; y.textContent = "Oui, supprimer";
+    const no = document.createElement("button"); no.className = "small ghost"; no.textContent = "Annuler"; no.onclick = renderManage;
+    y.onclick = async () => { const ids = [...manageSel]; manageSel.clear(); for (const id of ids) await removeExp(id); if (!state.exps[state.current]) pickDefault(); box.hidden = true; renderAll(true); toast(`${ids.length} expédition${ids.length > 1 ? "s" : ""} supprimée${ids.length > 1 ? "s" : ""}`); };
+    aa.append(y, no); c.append(p, aa); a.appendChild(c);
+  };
+  a.appendChild(del); box.appendChild(a);
+}
+$("btnManage").onclick = () => { const box = $("manageBox"); if (!box.hidden) { box.hidden = true; manageSel.clear(); return; } manageSel.clear(); manageSel.add(state.current); box.hidden = false; renderManage(); };
 $("btnUncheck").onclick = () => { const e = cur(); e.items.forEach(i => i.done = false); persist(e); renderAll(false); toast("Toutes les cases décochées"); };
 $("onlyTodo").addEventListener("change", renderList);
 $("btnPacks").onclick = () => { if (!$("packBox").hidden) closePicker(); else openPicker(); };
