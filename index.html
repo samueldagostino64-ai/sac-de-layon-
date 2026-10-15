@@ -65,8 +65,10 @@ header.top > * { position: relative; }
 .sync { font-size: .78rem; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
 .sync i { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); display: inline-block; }
 .sync.on i { background: var(--accent); }
-.expbar { display: flex; gap: 8px; flex-wrap: wrap; }
-.expbar select { flex: 1 1 200px; min-width: 0; }
+.expbar { display: flex; gap: 8px; flex-wrap: nowrap; align-items: stretch; }
+.expbar select { flex: 1 1 auto; min-width: 0; }
+.expbar > button, .expbar .morewrap { flex: none; }
+@media (max-width: 440px) { .expbar { flex-wrap: wrap; } .expbar select { flex-basis: 100%; } #btnNew { margin-left: auto; } }
 .danger-text { color: var(--laterite); }
 .manage { margin-top: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px; display: grid; gap: 8px; }
 .manage .mrow { display: flex; gap: 10px; align-items: center; padding: 6px 0; border-bottom: 1px dashed var(--line); cursor: pointer; }
@@ -190,8 +192,8 @@ button.big { width: 100%; padding: 14px; font-size: 1.05rem; touch-action: manip
 .toprow { align-items: center; }
 .morewrap { position: relative; }
 #btnMore { font-size: 1.2rem; line-height: 1; min-width: 44px; min-height: 40px; }
-.menu { position: absolute; right: 0; top: calc(100% + 6px); z-index: 20; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.18); display: grid; min-width: 240px; overflow: hidden; }
-.menu button { border: 0; border-radius: 0; background: none; text-align: left; padding: 14px; border-bottom: 1px solid var(--line); }
+.menu { position: absolute; right: 0; max-width: calc(100vw - 32px); top: calc(100% + 6px); z-index: 20; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.18); display: grid; min-width: 240px; overflow: hidden; }
+.menu button { white-space: normal; border: 0; border-radius: 0; background: none; text-align: left; padding: 14px; border-bottom: 1px solid var(--line); }
 .menu button:last-child { border-bottom: 0; }
 .sumbar { position: sticky; top: 0; z-index: 8; display: grid; gap: 6px; text-align: left; width: 100%; padding: 10px 14px; border-radius: var(--r); background: var(--surface); border: 1px solid var(--line); box-shadow: 0 2px 10px rgba(0,0,0,.06); font-weight: 500; }
 .sumbar .l1 { display: flex; justify-content: space-between; gap: 8px; font-size: .92rem; }
@@ -409,7 +411,7 @@ header.top canvas { border-radius: var(--r); }
     <p class="hint">Supprime les expéditions de test ou passées, avec leur liste. Ton matériel est conservé.</p>
     <div class="actions"><button class="small danger" id="btnManage2">Supprimer des expéditions…</button></div>
     <div id="manageBox" class="manage" hidden></div>
-    <p class="ver mono">Sac de Layon · version 15</p>
+    <p class="ver mono">Sac de Layon · version 16</p>
   </section>
 </div>
 
@@ -1442,7 +1444,8 @@ document.addEventListener("keydown", ev => { if (ev.key !== "Escape") return; if
 
 // ---------- menu ⋯ ----------
 function closeMenu() { $("moreMenu").hidden = true; $("btnMore").setAttribute("aria-expanded", "false"); }
-$("btnMore").onclick = ev => { ev.stopPropagation(); const m = $("moreMenu"); m.hidden = !m.hidden; $("btnMore").setAttribute("aria-expanded", m.hidden ? "false" : "true"); };
+$("btnMore").onclick = ev => { ev.stopPropagation(); const m = $("moreMenu"); m.hidden = !m.hidden; $("btnMore").setAttribute("aria-expanded", m.hidden ? "false" : "true");
+  if (!m.hidden) { m.style.left = m.style.right = ""; m.style.right = "0"; const r = m.getBoundingClientRect(); if (r.left < 8) { m.style.right = "auto"; m.style.left = "0"; } } };
 document.addEventListener("click", ev => { if (!$("moreMenu").hidden && !ev.target.closest(".morewrap")) closeMenu(); });
 
 // ---------- ligne résumé, collée en haut ----------
