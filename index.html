@@ -82,6 +82,11 @@ section.panel { background: var(--surface); border: 1px solid var(--line); borde
 .grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
 .grid .wide { grid-column: 1 / -1; }
 .field { display: grid; gap: 4px; min-width: 0; }
+.cwrap { position: relative; min-width: 0; }
+.clist { position: absolute; z-index: 40; top: calc(100% + 4px); left: 0; right: 0; max-height: 260px; overflow-y: auto; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.18); -webkit-overflow-scrolling: touch; }
+.clist button { display: block; width: 100%; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: 12px 10px; min-height: 44px; cursor: pointer; }
+.clist button:last-child { border-bottom: 0; }
+.clist button[aria-selected="true"], .clist button:hover { background: var(--line); }
 .hint { font-size: .82rem; color: var(--muted); margin: 0; }
 
 .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border-radius: 8px; overflow: hidden; border: 1px solid var(--line); }
@@ -186,7 +191,7 @@ button.big { width: 100%; padding: 14px; font-size: 1.05rem; touch-action: manip
     <div class="grid">
       <div class="field wide"><label class="label" for="pName">Nom de l'expédition</label><input id="pName" placeholder="Ex. Aïmara saut Takari"></div>
       <div class="field wide"><label class="label" for="pType">Type</label>
-        <input id="pType" list="typeList" placeholder="Choisis ou écris le tien">
+        <input id="pType" data-list="typeList" placeholder="Choisis ou écris le tien">
         <datalist id="typeList">
           <option value="Pêche · fleuve Sinnamary"></option>
           <option value="Pêche · lac de Petit-Saut"></option>
@@ -219,8 +224,8 @@ button.big { width: 100%; padding: 14px; font-size: 1.05rem; touch-action: manip
       <h2 id="formTitle">Ajouter un article</h2>
       <div id="itemForm" class="formbody">
         <div class="grid">
-          <div class="field wide"><label class="label" for="fName">Article</label><input id="fName" list="catalog" autocomplete="off" placeholder="Ex. Hamac, pastilles de purification…"><datalist id="catalog"></datalist></div>
-          <div class="field"><label class="label" for="fCat">Catégorie</label><input id="fCat" list="catList" placeholder="Bivouac"><datalist id="catList"></datalist></div>
+          <div class="field wide"><label class="label" for="fName">Article</label><input id="fName" data-list="catalog" autocomplete="off" placeholder="Ex. Hamac, pastilles de purification…"><datalist id="catalog"></datalist></div>
+          <div class="field"><label class="label" for="fCat">Catégorie</label><input id="fCat" data-list="catList" placeholder="Bivouac"><datalist id="catList"></datalist></div>
           <div class="field"><label class="label" for="fQty">Quantité</label><input id="fQty" type="number" min="0" step="any" value="1" inputmode="decimal"></div>
           <div class="field"><label class="label" for="fMode">Règle</label>
             <select id="fMode">
@@ -272,10 +277,7 @@ button.big { width: 100%; padding: 14px; font-size: 1.05rem; touch-action: manip
         <p class="hint">Chaque article que tu ajoutes ou modifies est retenu ici avec son poids, ses dimensions et son volume. Tape son nom dans une prochaine expédition : tout est rempli tout seul.</p>
         <div class="actions">
           <button class="small" id="btnRef">Piocher dans le référentiel</button>
-          <button class="small" id="btnPhoto" hidden>Ajouter par photo</button>
-          <input type="file" id="photoIn" accept="image/*" multiple hidden>
         </div>
-        <div id="photoBox" hidden></div>
         <input id="gearSearch" placeholder="Chercher dans mon matériel" aria-label="Chercher dans mon matériel">
         <div id="gearList"></div>
       </div>
@@ -738,6 +740,38 @@ $("fName").addEventListener("change", () => {
   if (src) { $("fCat").value = src.cat || ""; $("fQty").value = src.qty ?? 1; $("fMode").value = src.mode || "fixe"; fillSpecs(src); if (src.note) $("fNote").value = src.note; updatePreview(); if (state.gear[n]) toast("Repris de ton matériel"); }
 });
 
+// ---------- listes de choix : remplacent les <datalist>, qui s'ouvrent mal sur téléphone ----------
+function combo(input, listId) {
+  const wrap = document.createElement("div"); wrap.className = "cwrap"; input.parentNode.insertBefore(wrap, input); wrap.appendChild(input);
+  const box = document.createElement("div"); box.className = "clist"; box.setAttribute("role", "listbox"); box.hidden = true; wrap.appendChild(box);
+  input.setAttribute("role", "combobox"); input.setAttribute("aria-autocomplete", "list"); input.setAttribute("aria-expanded", "false"); input.autocomplete = "off";
+  let sel = -1, showAll = false;
+  const opts = () => [...document.getElementById(listId).options].map(o => o.value).filter(Boolean);
+  function open() {
+    const q = gkey(input.value), all = opts();
+    const list = (showAll || !q ? all : all.filter(v => gkey(v).includes(q))).slice(0, 80);
+    box.innerHTML = ""; sel = -1;
+    if (!list.length || (list.length === 1 && gkey(list[0]) === q)) { close(); return; }
+    list.forEach(v => { const b = document.createElement("button"); b.type = "button"; b.setAttribute("role", "option"); b.textContent = v;
+      b.addEventListener("pointerdown", ev => ev.preventDefault()); b.onclick = () => pickV(v); box.appendChild(b); });
+    box.hidden = false; input.setAttribute("aria-expanded", "true");
+  }
+  function close() { box.hidden = true; input.setAttribute("aria-expanded", "false"); }
+  function pickV(v) { input.value = v; close(); input.dispatchEvent(new Event("input", { bubbles: true })); input.dispatchEvent(new Event("change", { bubbles: true })); }
+  function mark(i) { const bs = box.querySelectorAll("button"); if (!bs.length) return; sel = (i + bs.length) % bs.length; bs.forEach((b, j) => b.setAttribute("aria-selected", j === sel ? "true" : "false")); bs[sel].scrollIntoView({ block: "nearest" }); }
+  input.addEventListener("focus", () => { showAll = true; open(); });
+  input.addEventListener("click", () => { if (box.hidden) { showAll = true; open(); } });
+  input.addEventListener("input", e => { if (!e.isTrusted) return; showAll = false; open(); });
+  input.addEventListener("blur", () => setTimeout(close, 150));
+  input.addEventListener("keydown", e => {
+    if (e.key === "ArrowDown") { e.preventDefault(); if (box.hidden) open(); mark(sel + 1); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); mark(sel - 1); }
+    else if (e.key === "Enter" && !box.hidden && sel >= 0) { e.preventDefault(); pickV(box.querySelectorAll("button")[sel].textContent); }
+    else if (e.key === "Escape") close();
+  });
+}
+document.querySelectorAll("input[data-list]").forEach(i => combo(i, i.dataset.list));
+
 // ---------- paramètres ----------
 [["pName","name",false],["pType","type",false],["pDays","days",true],["pNights","nights",true],["pPeople","people",true],["pReserve","reserve",true]].forEach(([id, k, num]) => {
   $(id).addEventListener("input", () => {
@@ -770,71 +804,6 @@ $("btnUncheck").onclick = () => { const e = cur(); e.items.forEach(i => i.done =
 $("onlyTodo").addEventListener("change", renderList);
 $("btnPacks").onclick = () => { if (!$("packBox").hidden) closePicker(); else openPicker(); };
 $("btnRef").onclick = () => openPicker("gear");
-
-// ---------- ajout par photo : Claude reconnaît l'article (appli Claude seulement) ----------
-let sampler = null, photoMax = 3;
-(async () => {
-  if (!window.claude || !window.claude.use) return;
-  try { const s = await window.claude.use("sample"); if (!s) return; const lim = await s.limits(); if (!lim || !lim.images) return; sampler = s; photoMax = Math.max(1, Math.min(3, lim.images.maxCount || 1)); $("btnPhoto").hidden = false; } catch (e) {}
-})();
-$("btnPhoto").onclick = () => $("photoIn").click();
-function shrink(file) {
-  return new Promise((ok, ko) => {
-    const img = new Image(); const url = URL.createObjectURL(file);
-    img.onload = () => { const k = Math.min(1, 1280 / Math.max(img.width, img.height)); const c = document.createElement("canvas");
-      c.width = Math.round(img.width * k); c.height = Math.round(img.height * k); c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
-      URL.revokeObjectURL(url); c.toBlob(b => b ? ok(b) : ko(), "image/jpeg", 0.82); };
-    img.onerror = () => { URL.revokeObjectURL(url); ko(); }; img.src = url;
-  });
-}
-const PHOTO_PROMPT = `Tu aides à remplir l'inventaire de matériel d'expédition en forêt guyanaise.
-Les photos montrent UN article (plusieurs angles ou son étiquette possibles). Identifie la marque et le modèle si c'est lisible ou reconnaissable, sinon le type d'objet.
-Donne les caractéristiques du fabricant que tu connais pour ce modèle ; si tu ne les connais pas avec certitude, estime-les et dis-le.
-Réponds UNIQUEMENT avec ce JSON :
-{"name": "nom court en français, avec marque et modèle si connus", "cat": "une de : ${CATS.join(", ")}", "unit": "pièce, paire, lot…", "w": poids en grammes (nombre), "L": longueur rangé en cm, "l": largeur rangé en cm, "H": hauteur rangé en cm, "v": volume rangé en litres ou 0, "source": "fabricant" ou "estimé", "identified": true si tu as reconnu le modèle précis sinon false, "remark": "une phrase : ce qui est incertain, ou la référence à vérifier"}`;
-$("photoIn").onchange = async () => {
-  const files = [...$("photoIn").files].slice(0, photoMax); $("photoIn").value = ""; if (!files.length || !sampler) return;
-  const box = $("photoBox"); box.hidden = false; box.innerHTML = '<p class="hint">Claude regarde la photo…</p>';
-  let r;
-  try { const images = await Promise.all(files.map(shrink)); r = await sampler.json(PHOTO_PROMPT, { images, modelTier: "default" }); }
-  catch (e) {
-    box.innerHTML = ""; const p = document.createElement("p"); p.className = "hint";
-    p.textContent = e && e.code === "not_granted" ? "Tu as refusé l'accès à Claude : l'ajout par photo est désactivé." : e && e.code === "rate_limited" ? "Trop de demandes d'un coup. Réessaie dans un moment." : "Je n'ai pas pu analyser la photo. Réessaie avec une photo plus nette ou l'étiquette.";
-    if (e && e.code === "not_granted") $("btnPhoto").hidden = true;
-    box.appendChild(p); return;
-  }
-  photoForm(r || {});
-};
-function photoForm(r) {
-  const box = $("photoBox"); box.innerHTML = "";
-  const num = x => { const n = parseFloat(String(x ?? "").replace(",", ".")); return isFinite(n) && n > 0 ? Math.round(n * 10) / 10 : ""; };
-  const est = r.source !== "fabricant";
-  const h = document.createElement("p"); h.className = "hint";
-  h.textContent = (r.identified ? "Modèle reconnu. " : "Modèle pas reconnu avec certitude : vérifie le nom. ") + (est ? "Valeurs estimées par Claude, sans fiche fabricant consultée. " : "Valeurs tirées de ce que Claude sait du fabricant, sans vérification en ligne. ") + (r.remark || "");
-  const g = document.createElement("div"); g.className = "grid";
-  const fields = [["name","Article","text",r.name || ""],["cat","Catégorie","text",CATS.includes(r.cat) ? r.cat : (r.cat || "")],["unit","Unité","text",r.unit || "pièce"],["w","Poids (g)","number",num(r.w)],["L","Long. (cm)","number",num(r.L)],["l","Larg. (cm)","number",num(r.l)],["H","Haut. (cm)","number",num(r.H)],["v","Volume (L)","number",num(r.v)]];
-  const inp = {};
-  fields.forEach(([k, lab, type, val]) => {
-    const f = document.createElement("div"); f.className = "field" + (k === "name" ? " wide" : "");
-    const l = document.createElement("label"); l.className = "label"; l.textContent = lab; l.htmlFor = "ph_" + k;
-    const i = document.createElement("input"); i.id = "ph_" + k; i.type = type; i.value = val; if (type === "number") { i.min = "0"; i.step = "any"; i.inputMode = "decimal"; }
-    if (k === "cat") i.setAttribute("list", "catList");
-    inp[k] = i; f.append(l, i); g.appendChild(f);
-  });
-  const act = document.createElement("div"); act.className = "actions";
-  const ok = document.createElement("button"); ok.className = "primary"; ok.textContent = "Enregistrer dans mon matériel";
-  const no = document.createElement("button"); no.className = "small ghost"; no.textContent = "Annuler";
-  no.onclick = () => { box.hidden = true; box.innerHTML = ""; };
-  ok.onclick = () => {
-    const name = inp.name.value.trim(); if (!name) { inp.name.focus(); toast("Donne un nom à l'article"); return; }
-    const k = gkey(name), old = state.gear[k] || {};
-    state.gear[k] = { ...old, name, cat: inp.cat.value.trim() || "Autre", qty: old.qty ?? 1, mode: old.mode || "fixe", unit: inp.unit.value.trim(), w: +inp.w.value || 0, L: +inp.L.value || 0, l: +inp.l.value || 0, H: +inp.H.value || 0, v: +inp.v.value || 0,
-      note: est ? "estimé par Claude (photo), à vérifier" : "d'après Claude (photo), à vérifier", uses: old.uses || 0, updatedAt: Date.now() };
-    persistGear(); box.hidden = true; box.innerHTML = ""; renderAll(false); toast(`« ${name} » ajouté à ton matériel`);
-  };
-  act.append(ok, no); box.append(h, g, act);
-}
-
 
 // ---------- partage / sauvegarde ----------
 async function copy(text, okMsg, fallbackEl) {
