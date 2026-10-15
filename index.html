@@ -270,6 +270,12 @@ button.big { width: 100%; padding: 14px; font-size: 1.05rem; touch-action: manip
       <summary style="cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center"><h2 id="hGear">Mon matériel</h2><span class="mono" id="gearCount">0</span></summary>
       <div class="formbody">
         <p class="hint">Chaque article que tu ajoutes ou modifies est retenu ici avec son poids, ses dimensions et son volume. Tape son nom dans une prochaine expédition : tout est rempli tout seul.</p>
+        <div class="actions">
+          <button class="small" id="btnRef">Piocher dans le référentiel</button>
+          <button class="small" id="btnPhoto" hidden>Ajouter par photo</button>
+          <input type="file" id="photoIn" accept="image/*" multiple hidden>
+        </div>
+        <div id="photoBox" hidden></div>
         <input id="gearSearch" placeholder="Chercher dans mon matériel" aria-label="Chercher dans mon matériel">
         <div id="gearList"></div>
       </div>
@@ -321,6 +327,36 @@ const PACKS = {
     ["Gilet de sauvetage","Pirogue",1,"p","pièce",600],["Essence moteur","Pirogue",10,"j","L",750],["Huile 2 temps","Pirogue",1,"fixe","bidon",1000],["Pagaie","Pirogue",2,"fixe","pièce",900],["Écope","Pirogue",1,"fixe","pièce",200],["Bougie + clé à bougie","Pirogue",1,"fixe","lot",250],["Goupilles d'hélice","Pirogue",3,"fixe","pièce",5],["Corde d'amarrage","Pirogue",2,"fixe","pièce",500]
   ]}
 };
+
+// ---------- référentiel : valeurs typiques (poids g, dimensions rangé cm), à ajuster sur ton propre matériel ----------
+const REF_NOTE = "valeur typique du référentiel, à ajuster";
+const REF = { label: "Référentiel", items: [
+  ["Hamac","Bivouac","p","pièce",900,25,15,15],["Hamac moustiquaire intégrée","Bivouac","p","pièce",1100,30,18,18],["Hamac ultraléger nylon parachute","Bivouac","p","pièce",450,15,12,10],
+  ["Moustiquaire (si hamac sans)","Bivouac","p","pièce",300,20,10,10],["Bâche 3 × 3 m","Bivouac","p","pièce",600,25,15,8],["Bâche 4 × 3 m","Bivouac","p","pièce",850,28,17,9],
+  ["Paracorde","Bivouac","p","m",8],["Sangles d'arbre (paire)","Bivouac","p","paire",180,15,10,5],["Mousquetons (lot de 4)","Bivouac","p","lot",120,10,6,4],
+  ["Sac de couchage léger (25 °C)","Bivouac","p","pièce",600,25,15,15],["Drap de sac","Bivouac","p","pièce",250,15,8,8],["Oreiller gonflable","Bivouac","p","pièce",80,10,6,4],
+  ["Gourde 1,5 L","Eau","p","pièce",200,30,9,9],["Poche à eau 3 L","Eau","p","pièce",180,35,20,3],["Bidon souple 10 L","Eau","fixe","pièce",250,25,15,4],
+  ["Filtre à eau","Eau","fixe","pièce",250,18,8,6],["Filtre à eau compact (type Sawyer Squeeze)","Eau","fixe","pièce",85,13,5,5],["Pastilles de purification","Eau","pj","pastille",1],["Quart inox","Eau","p","pièce",110,10,10,8],
+  ["Ration lyophilisée","Vivres","pj","sachet",130,25,17,5],["Ration de combat 24 h","Vivres","pj","ration",1500,25,18,12],["Couac","Vivres","pj","g",1],["Barres énergétiques","Vivres","pj","barre",40,12,4,2],["Sel, café, sucre","Vivres","fixe","lot",300,15,10,8],
+  ["Briquet","Feu & cuisine","p","pièce",20,8,2.5,1.5],["Allume-feu","Feu & cuisine","n","pastille",10],["Pierre à feu (ferro)","Feu & cuisine","p","pièce",50,10,2,1],
+  ["Réchaud","Feu & cuisine","fixe","pièce",300,12,10,10],["Réchaud gaz compact","Feu & cuisine","fixe","pièce",85,8,5,5],["Cartouche gaz 230 g","Feu & cuisine","pj","cartouche",380,11,11,10],
+  ["Marmite","Feu & cuisine","fixe","pièce",350,16,16,12],["Popote titane 900 ml","Feu & cuisine","p","pièce",150,13,13,11],["Cuillère longue","Feu & cuisine","p","pièce",20,22,4,1],["Grille de feu","Feu & cuisine","fixe","pièce",300,30,20,1],
+  ["Boussole","Navigation & topo","p","pièce",50,10,6,1.5],["GPS","Navigation & topo","fixe","pièce",230,16,6,4],["Piles AA (GPS)","Navigation & topo","j","pile",23],["Carte IGN 1:25 000 sous pochette","Navigation & topo","fixe","pièce",100,30,22,0.5],
+  ["Rubalise","Navigation & topo","fixe","rouleau",80,10,10,3],["Topofil","Navigation & topo","fixe","pièce",300,15,10,8],["Carnet étanche + crayon","Navigation & topo","p","pièce",120,18,11,1.5],["Montre GPS / altimètre","Navigation & topo","p","pièce",60,5,5,1.5],
+  ["Machette","Outils","p","pièce",600,62,8,3],["Lime à machette","Outils","fixe","pièce",100,25,3,1],["Couteau","Outils","p","pièce",120,22,4,2],["Scie pliante","Outils","fixe","pièce",200,23,5,2],["Pince multifonction","Outils","fixe","pièce",250,11,4,3],["Rouleau de chatterton","Outils","fixe","rouleau",100,10,10,5],
+  ["Lampe frontale","Éclairage & énergie","p","pièce",100,8,5,4],["Piles de rechange frontale","Éclairage & énergie","p","jeu",40],["Batterie externe","Éclairage & énergie","p","pièce",250,10,6,2.5],["Panneau solaire pliant 21 W","Éclairage & énergie","fixe","pièce",500,28,16,3],["Lanterne","Éclairage & énergie","fixe","pièce",150,12,6,6],["Câbles de charge","Éclairage & énergie","p","lot",60,10,8,3],
+  ["Balise satellite / inReach","Sécurité & secours","fixe","pièce",110,10,6,3],["Trousse de secours","Sécurité & secours","fixe","pièce",500,22,15,8],["Sifflet","Sécurité & secours","p","pièce",10],["Répulsif moustiques","Sécurité & secours","p","flacon",100,12,4,4],
+  ["Sac étanche","Sécurité & secours","p","pièce",100,20,10,3],["Couverture de survie","Sécurité & secours","p","pièce",60,10,7,1],["Garrot tourniquet","Sécurité & secours","fixe","pièce",80,19,6,4],
+  ["Tenue sèche de bivouac","Vêtements","p","tenue",500,25,20,8],["Chaussettes","Vêtements","pj","paire",60],["Poncho","Vêtements","p","pièce",350,20,15,6],["Pantalon de forêt","Vêtements","p","pièce",600,25,20,5],["Rangers jungle","Vêtements","p","paire",1600,32,28,14],["Chapeau de brousse","Vêtements","p","pièce",100],
+  ["Papier toilette","Hygiène","p","rouleau",80,11,11,10],["Sacs poubelle","Hygiène","fixe","sac",20],["Savon","Hygiène","fixe","pièce",100,8,5,3],["Serviette microfibre","Hygiène","p","pièce",150,20,10,5],["Brosse à dents + dentifrice","Hygiène","p","lot",60],["Crème anti-frottements","Hygiène","p","tube",50],
+  ["Canne + moulinet","Pêche","p","ensemble",450],["Tresse de rechange","Pêche","fixe","bobine",120,10,10,5],["Bas de ligne acier","Pêche","p","pièce",10],["Leurres","Pêche","p","pièce",25],["Hameçons assortis","Pêche","fixe","boîte",80,15,10,3],
+  ["Pince à dégorger","Pêche","fixe","pièce",150,20,5,2],["Épuisette","Pêche","fixe","pièce",700],["Couteau à fileter","Pêche","fixe","pièce",120,30,4,2],["Boîte à leurres","Pêche","fixe","pièce",300,27,18,5],["Glacière + glace","Pêche","fixe","pièce",4000,50,32,35],
+  ["Gilet de sauvetage","Pirogue","p","pièce",600,45,35,8],["Essence moteur","Pirogue","j","L",750],["Huile 2 temps","Pirogue","fixe","bidon",1000],["Pagaie","Pirogue","fixe","pièce",900],["Écope","Pirogue","fixe","pièce",200],
+  ["Bougie + clé à bougie","Pirogue","fixe","lot",250],["Goupilles d'hélice","Pirogue","fixe","pièce",5],["Corde d'amarrage","Pirogue","fixe","pièce",500]
+]};
+const REF_BY = new Map(REF.items.map(([name, cat, mode, unit, w, L, l, H]) => [gkey(name), { name, cat, qty: 1, mode, unit, w, L: L || 0, l: l || 0, H: H || 0, v: 0, note: REF_NOTE }]));
+// article d'un pack complété par le référentiel (dimensions), en gardant la quantité du pack
+function refFill(it) { const r = REF_BY.get(gkey(it.name)); return r ? { ...r, ...it, L: r.L, l: r.l, H: r.H } : it; }
 
 const $ = id => document.getElementById(id);
 const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
@@ -467,6 +503,7 @@ function renderCatalog() {
   Object.values(state.gear).forEach(g => { names.set(g.name, g); if (g.cat) cats.add(g.cat); });
   Object.values(state.exps).forEach(e => e.items.forEach(i => { if (!names.has(i.name)) names.set(i.name, i); if (i.cat) cats.add(i.cat); }));
   Object.values(PACKS).forEach(p => p.items.forEach(([n]) => { if (!names.has(n)) names.set(n, null); }));
+  REF_BY.forEach(r => { if (!names.has(r.name)) names.set(r.name, null); });
   $("catalog").innerHTML = ""; [...names.keys()].sort((a, b) => a.localeCompare(b, "fr")).forEach(n => { const o = document.createElement("option"); o.value = n; $("catalog").appendChild(o); });
   $("catList").innerHTML = ""; [...cats].forEach(c => { const o = document.createElement("option"); o.value = c; $("catList").appendChild(o); });
 }
@@ -518,20 +555,24 @@ function emptyState() {
   d.append(p, b); return d;
 }
 // ---------- sélecteur : on coche ce qu'on veut, puis on valide ----------
-const pick = { src: null, sel: new Map(), q: "" };
+const pick = { src: null, sel: new Map(), q: "", target: "exp" };
 function packItem([name, cat, qty, mode, unit, w]) { return { name, cat, qty, mode, unit, w }; }
 function sourceItems(src) {
   if (src === "gear") return Object.values(state.gear);
+  if (src === "ref") return [...REF_BY.values()].map(r => pick.target === "gear" ? r : state.gear[gkey(r.name)] || r);
   // si l'article existe dans ton matériel, ce sont tes propres caractéristiques qui comptent
-  return PACKS[src].items.map(t => { const it = packItem(t); return state.gear[gkey(it.name)] || it; });
+  return PACKS[src].items.map(t => { const it = packItem(t); return state.gear[gkey(it.name)] || refFill(it); });
 }
 function sources() {
+  if (pick.target === "gear") return [["ref", REF.label]];
   const s = [];
   if (Object.keys(state.gear).length) s.push(["gear", "Mon matériel"]);
   Object.entries(PACKS).forEach(([k, p]) => s.push([k, p.label]));
+  s.push(["ref", REF.label]);
   return s;
 }
-function openPicker() {
+function openPicker(target) {
+  pick.target = target === "gear" ? "gear" : "exp"; pick.sel.clear(); pick.q = "";
   const b = $("packBox");
   if (!pick.src || !sources().some(([k]) => k === pick.src)) pick.src = sources()[0][0];
   b.hidden = false; renderPicker(); b.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -539,9 +580,9 @@ function openPicker() {
 function closePicker() { $("packBox").hidden = true; pick.sel.clear(); pick.q = ""; }
 function renderPicker() {
   const b = $("packBox"); if (b.hidden) return; b.innerHTML = "";
-  const e = cur(); const have = new Set(e.items.map(i => gkey(i.name)));
+  const have = pickHave();
   const head = document.createElement("div"); head.className = "toolbar";
-  const h = document.createElement("h2"); h.textContent = "Choisir des articles";
+  const h = document.createElement("h2"); h.textContent = pick.target === "gear" ? "Ajouter à mon matériel" : "Choisir des articles";
   const x = document.createElement("button"); x.className = "small ghost"; x.textContent = "Fermer"; x.onclick = closePicker;
   head.append(h, x);
   const tabs = document.createElement("div"); tabs.className = "tabs"; tabs.setAttribute("role", "tablist");
@@ -563,6 +604,7 @@ function renderPicker() {
   b.append(head, tabs, hint, search, list, foot);
   renderPickList(list, have); updatePickCount();
 }
+function pickHave() { return new Set(pick.target === "gear" ? Object.keys(state.gear) : cur().items.map(i => gkey(i.name))); }
 function renderPickList(list, have) {
   list.innerHTML = ""; const q = gkey(pick.q);
   const items = sourceItems(pick.src).filter(it => !q || gkey(it.name).includes(q) || gkey(it.cat).includes(q));
@@ -585,7 +627,7 @@ function renderPickList(list, have) {
       cb.onchange = () => { cb.checked ? pick.sel.set(k, it) : pick.sel.delete(k); updatePickCount(); const a2 = sec.querySelector("h3 .iconbtn"); if (a2) { const on = free.every(f => pick.sel.has(gkey(f.name))); a2.textContent = on ? "Tout décocher" : "Tout cocher"; } };
       const t = document.createElement("span"); const st = document.createElement("strong"); st.textContent = it.name;
       const sm = document.createElement("small");
-      sm.textContent = already ? "déjà dans la liste" : [`${fmtN(it.qty ?? 1)} ${it.unit || ""} ${(it.mode || "fixe") === "fixe" ? "" : MODES[it.mode]}`.replace(/\s+/g, " ").trim(), specs(it)].filter(Boolean).join(" · ");
+      sm.textContent = already ? (pick.target === "gear" ? "déjà dans ton matériel" : "déjà dans la liste") : [`${fmtN(it.qty ?? 1)} ${it.unit || ""} ${(it.mode || "fixe") === "fixe" ? "" : MODES[it.mode]}`.replace(/\s+/g, " ").trim(), specs(it)].filter(Boolean).join(" · ");
       t.append(st, sm); r.append(cb, t); sec.appendChild(r);
     });
     list.appendChild(sec);
@@ -593,10 +635,16 @@ function renderPickList(list, have) {
 }
 function updatePickCount() {
   const ok = $("pickOk"); if (!ok) return; const n = pick.sel.size;
-  ok.textContent = n ? `Ajouter ${n} article${n > 1 ? "s" : ""} à la liste` : "Coche des articles";
+  ok.textContent = n ? `Ajouter ${n} article${n > 1 ? "s" : ""} ${pick.target === "gear" ? "à mon matériel" : "à la liste"}` : "Coche des articles";
   ok.disabled = !n;
 }
 function validatePicker() {
+  if (pick.target === "gear") {
+    let g = 0; pick.sel.forEach((it, k) => { if (state.gear[k]) return; state.gear[k] = { name: it.name, cat: it.cat || "Autre", qty: it.qty ?? 1, mode: it.mode || "fixe", unit: it.unit || "", w: it.w || 0, L: it.L || 0, l: it.l || 0, H: it.H || 0, v: it.v || 0, note: it.note || "", uses: 0, updatedAt: Date.now() }; g++; });
+    persistGear(); closePicker(); renderAll(false); $("gearBox").open = true;
+    toast(g ? `${g} article${g > 1 ? "s" : ""} ajouté${g > 1 ? "s" : ""} à ton matériel` : "Déjà dans ton matériel");
+    $("gearBox").scrollIntoView({ behavior: "smooth", block: "start" }); return;
+  }
   const e = cur(); const have = new Set(e.items.map(i => gkey(i.name))); let n = 0;
   pick.sel.forEach((it, k) => {
     if (have.has(k)) return;
@@ -685,7 +733,8 @@ $("fName").addEventListener("change", () => {
   // reprend les réglages d'un article déjà utilisé ou d'un pack
   if (editingId) return; const n = $("fName").value.trim().toLowerCase(); let src = state.gear[n] || null;
   if (!src) Object.values(state.exps).forEach(e => e.items.forEach(i => { if (i.name.toLowerCase() === n) src = i; }));
-  if (!src) Object.values(PACKS).forEach(p => p.items.forEach(([name, cat, qty, mode, unit, w]) => { if (name.toLowerCase() === n) src = { cat, qty, mode, unit, w }; }));
+  if (!src) Object.values(PACKS).forEach(p => p.items.forEach(([name, cat, qty, mode, unit, w]) => { if (name.toLowerCase() === n) src = refFill({ name, cat, qty, mode, unit, w }); }));
+  if (!src && REF_BY.has(n)) src = REF_BY.get(n);
   if (src) { $("fCat").value = src.cat || ""; $("fQty").value = src.qty ?? 1; $("fMode").value = src.mode || "fixe"; fillSpecs(src); if (src.note) $("fNote").value = src.note; updatePreview(); if (state.gear[n]) toast("Repris de ton matériel"); }
 });
 
@@ -720,6 +769,72 @@ $("btnDel").onclick = () => {
 $("btnUncheck").onclick = () => { const e = cur(); e.items.forEach(i => i.done = false); persist(e); renderAll(false); toast("Toutes les cases décochées"); };
 $("onlyTodo").addEventListener("change", renderList);
 $("btnPacks").onclick = () => { if (!$("packBox").hidden) closePicker(); else openPicker(); };
+$("btnRef").onclick = () => openPicker("gear");
+
+// ---------- ajout par photo : Claude reconnaît l'article (appli Claude seulement) ----------
+let sampler = null, photoMax = 3;
+(async () => {
+  if (!window.claude || !window.claude.use) return;
+  try { const s = await window.claude.use("sample"); if (!s) return; const lim = await s.limits(); if (!lim || !lim.images) return; sampler = s; photoMax = Math.max(1, Math.min(3, lim.images.maxCount || 1)); $("btnPhoto").hidden = false; } catch (e) {}
+})();
+$("btnPhoto").onclick = () => $("photoIn").click();
+function shrink(file) {
+  return new Promise((ok, ko) => {
+    const img = new Image(); const url = URL.createObjectURL(file);
+    img.onload = () => { const k = Math.min(1, 1280 / Math.max(img.width, img.height)); const c = document.createElement("canvas");
+      c.width = Math.round(img.width * k); c.height = Math.round(img.height * k); c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url); c.toBlob(b => b ? ok(b) : ko(), "image/jpeg", 0.82); };
+    img.onerror = () => { URL.revokeObjectURL(url); ko(); }; img.src = url;
+  });
+}
+const PHOTO_PROMPT = `Tu aides à remplir l'inventaire de matériel d'expédition en forêt guyanaise.
+Les photos montrent UN article (plusieurs angles ou son étiquette possibles). Identifie la marque et le modèle si c'est lisible ou reconnaissable, sinon le type d'objet.
+Donne les caractéristiques du fabricant que tu connais pour ce modèle ; si tu ne les connais pas avec certitude, estime-les et dis-le.
+Réponds UNIQUEMENT avec ce JSON :
+{"name": "nom court en français, avec marque et modèle si connus", "cat": "une de : ${CATS.join(", ")}", "unit": "pièce, paire, lot…", "w": poids en grammes (nombre), "L": longueur rangé en cm, "l": largeur rangé en cm, "H": hauteur rangé en cm, "v": volume rangé en litres ou 0, "source": "fabricant" ou "estimé", "identified": true si tu as reconnu le modèle précis sinon false, "remark": "une phrase : ce qui est incertain, ou la référence à vérifier"}`;
+$("photoIn").onchange = async () => {
+  const files = [...$("photoIn").files].slice(0, photoMax); $("photoIn").value = ""; if (!files.length || !sampler) return;
+  const box = $("photoBox"); box.hidden = false; box.innerHTML = '<p class="hint">Claude regarde la photo…</p>';
+  let r;
+  try { const images = await Promise.all(files.map(shrink)); r = await sampler.json(PHOTO_PROMPT, { images, modelTier: "default" }); }
+  catch (e) {
+    box.innerHTML = ""; const p = document.createElement("p"); p.className = "hint";
+    p.textContent = e && e.code === "not_granted" ? "Tu as refusé l'accès à Claude : l'ajout par photo est désactivé." : e && e.code === "rate_limited" ? "Trop de demandes d'un coup. Réessaie dans un moment." : "Je n'ai pas pu analyser la photo. Réessaie avec une photo plus nette ou l'étiquette.";
+    if (e && e.code === "not_granted") $("btnPhoto").hidden = true;
+    box.appendChild(p); return;
+  }
+  photoForm(r || {});
+};
+function photoForm(r) {
+  const box = $("photoBox"); box.innerHTML = "";
+  const num = x => { const n = parseFloat(String(x ?? "").replace(",", ".")); return isFinite(n) && n > 0 ? Math.round(n * 10) / 10 : ""; };
+  const est = r.source !== "fabricant";
+  const h = document.createElement("p"); h.className = "hint";
+  h.textContent = (r.identified ? "Modèle reconnu. " : "Modèle pas reconnu avec certitude : vérifie le nom. ") + (est ? "Valeurs estimées par Claude, sans fiche fabricant consultée. " : "Valeurs tirées de ce que Claude sait du fabricant, sans vérification en ligne. ") + (r.remark || "");
+  const g = document.createElement("div"); g.className = "grid";
+  const fields = [["name","Article","text",r.name || ""],["cat","Catégorie","text",CATS.includes(r.cat) ? r.cat : (r.cat || "")],["unit","Unité","text",r.unit || "pièce"],["w","Poids (g)","number",num(r.w)],["L","Long. (cm)","number",num(r.L)],["l","Larg. (cm)","number",num(r.l)],["H","Haut. (cm)","number",num(r.H)],["v","Volume (L)","number",num(r.v)]];
+  const inp = {};
+  fields.forEach(([k, lab, type, val]) => {
+    const f = document.createElement("div"); f.className = "field" + (k === "name" ? " wide" : "");
+    const l = document.createElement("label"); l.className = "label"; l.textContent = lab; l.htmlFor = "ph_" + k;
+    const i = document.createElement("input"); i.id = "ph_" + k; i.type = type; i.value = val; if (type === "number") { i.min = "0"; i.step = "any"; i.inputMode = "decimal"; }
+    if (k === "cat") i.setAttribute("list", "catList");
+    inp[k] = i; f.append(l, i); g.appendChild(f);
+  });
+  const act = document.createElement("div"); act.className = "actions";
+  const ok = document.createElement("button"); ok.className = "primary"; ok.textContent = "Enregistrer dans mon matériel";
+  const no = document.createElement("button"); no.className = "small ghost"; no.textContent = "Annuler";
+  no.onclick = () => { box.hidden = true; box.innerHTML = ""; };
+  ok.onclick = () => {
+    const name = inp.name.value.trim(); if (!name) { inp.name.focus(); toast("Donne un nom à l'article"); return; }
+    const k = gkey(name), old = state.gear[k] || {};
+    state.gear[k] = { ...old, name, cat: inp.cat.value.trim() || "Autre", qty: old.qty ?? 1, mode: old.mode || "fixe", unit: inp.unit.value.trim(), w: +inp.w.value || 0, L: +inp.L.value || 0, l: +inp.l.value || 0, H: +inp.H.value || 0, v: +inp.v.value || 0,
+      note: est ? "estimé par Claude (photo), à vérifier" : "d'après Claude (photo), à vérifier", uses: old.uses || 0, updatedAt: Date.now() };
+    persistGear(); box.hidden = true; box.innerHTML = ""; renderAll(false); toast(`« ${name} » ajouté à ton matériel`);
+  };
+  act.append(ok, no); box.append(h, g, act);
+}
+
 
 // ---------- partage / sauvegarde ----------
 async function copy(text, okMsg, fallbackEl) {
