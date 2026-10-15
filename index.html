@@ -144,7 +144,10 @@ details.add[open] > summary::after { content: "−"; }
 .sechead { display: grid; gap: 10px; border: 1px solid var(--accent); border-radius: var(--r); padding: 12px; background: var(--surface); }
 .sechead .t { display: flex; align-items: center; gap: 10px; justify-content: space-between; }
 .sechead .t h3 { margin: 0; font-family: var(--f-display); font-size: 1.25rem; text-transform: uppercase; letter-spacing: .04em; display: flex; gap: 8px; align-items: center; }
-.qadd { display: grid; grid-template-columns: 1fr 70px auto; gap: 6px; align-items: start; }
+.qadd { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; align-items: start; }
+.qadd .qn { grid-column: 1 / -1; }
+.qadd .ql { display: grid; gap: 2px; min-width: 0; }
+.qadd .ql span { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
 .cat h3 .ic { margin-right: 6px; }
 .empty { border: 1px dashed var(--line); border-radius: var(--r); padding: 18px; display: grid; gap: 10px; }
 .empty p { margin: 0; }
@@ -262,7 +265,7 @@ button.big { width: 100%; padding: 14px; font-size: 1.05rem; touch-action: manip
               <option value="pj">par personne et par jour</option>
               <option value="pn">par personne et par nuit</option>
             </select></div>
-          <div class="field"><label class="label" for="fUnit">Unité</label><input id="fUnit" placeholder="pièce, sachet, L…"></div>
+          <div class="field"><label class="label" for="fUnit">Unité</label><input id="fUnit" data-list="unitList" placeholder="pièce, L, kg…"><datalist id="unitList"></datalist></div>
           <div class="field"><label class="label" for="fW">Poids unitaire (g)</label><input id="fW" type="number" min="0" step="any" inputmode="decimal" placeholder="ex. 900"></div>
           <div class="field wide"><span class="label" id="lDims">Dimensions unitaires (cm) : long. × larg. × haut.</span>
             <div class="dims" role="group" aria-labelledby="lDims">
@@ -291,9 +294,11 @@ button.big { width: 100%; padding: 14px; font-size: 1.05rem; touch-action: manip
     <div id="secHead" class="sechead" hidden>
       <div class="t"><h3 id="secTitle"></h3><button class="small ghost" id="secBack">Toutes les sections</button></div>
       <div class="qadd">
-        <input id="qName" data-list="qList" placeholder="Ajouter un article" aria-label="Article à ajouter dans cette section"><datalist id="qList"></datalist>
-        <input id="qQty" type="number" min="0" step="any" inputmode="decimal" placeholder="Qté" aria-label="Quantité">
-        <button class="small" id="qAdd">Ajouter</button>
+        <div class="qn"><input id="qName" data-list="qList" placeholder="Ajouter un article" aria-label="Article à ajouter dans cette section"><datalist id="qList"></datalist></div>
+        <label class="ql"><span>Quantité</span><input id="qQty" type="number" min="0" step="any" inputmode="decimal" placeholder="1"></label>
+        <label class="ql"><span>Unité</span><input id="qUnit" data-list="unitList" placeholder="pièce"></label>
+        <label class="ql"><span>Catégorie</span><input id="qCat" data-list="catList"></label>
+        <label class="ql"><span>&nbsp;</span><button class="small primary" id="qAdd">Ajouter</button></label>
       </div>
       <p class="hint" id="secSum" style="margin:0"></p>
     </div>
@@ -358,6 +363,17 @@ const SECTIONS = [
   { k: "pirogue", icon: "🛶", label: "Pirogue", cats: ["Pirogue"] },
   { k: "autre", icon: "📦", label: "Divers", cats: [] }
 ];
+// unités : pour les liquides et les poids, le poids et le volume unitaires se calculent tout seuls
+const UNITS = ["pièce","paire","lot","sachet","boîte","rouleau","bidon","L","cl","ml","kg","g","m"];
+const UNIT_L = { l: 1, cl: 0.01, ml: 0.001 }, UNIT_G = { kg: 1000, g: 1 };
+function density(name) { const n = gkey(name); return /essence|carburant|gasoil|gazole|diesel|m[eé]lange/.test(n) ? 0.75 : /huile/.test(n) ? 0.92 : /rhum|alcool/.test(n) ? 0.95 : 1; }
+// poids (g) et volume (L) d'une unité, ou null si l'unité ne permet pas de les déduire
+function unitSpecs(unit, name) {
+  const u = (unit || "").trim().toLowerCase();
+  if (UNIT_G[u]) return { w: UNIT_G[u], v: 0 };
+  if (UNIT_L[u]) return { w: Math.round(UNIT_L[u] * density(name) * 1000 * 100) / 100, v: UNIT_L[u] };
+  return null;
+}
 const SEC_BY_CAT = {}; SECTIONS.forEach(x => x.cats.forEach(c => SEC_BY_CAT[c] = x.k));
 const secOf = cat => SEC_BY_CAT[cat] || "autre";
 const secDef = k => SECTIONS.find(x => x.k === k);
@@ -512,7 +528,7 @@ function mult(mode, e) {
 function total(it, e) { const raw = (+it.qty || 0) * mult(it.mode, e); return Math.ceil(raw - 1e-9); }
 function fmtW(g) { if (!g) return "–"; return g >= 1000 ? (g / 1000).toLocaleString("fr-FR", { maximumFractionDigits: 1 }) + " kg" : Math.round(g) + " g"; }
 function vol(i) { if (+i.v) return +i.v; const d = (+i.L || 0) * (+i.l || 0) * (+i.H || 0); return d ? d / 1000 : 0; }
-function fmtV(l) { if (!l) return "–"; return l.toLocaleString("fr-FR", { maximumFractionDigits: l < 10 ? 1 : 0 }) + " L"; }
+function fmtV(l) { if (!l) return "–"; return l.toLocaleString("fr-FR", { maximumFractionDigits: l < 1 ? 2 : l < 10 ? 1 : 0 }) + " L"; }
 function specs(i) {
   const a = []; if (+i.w) a.push(fmtW(+i.w));
   if (+i.L && +i.l && +i.H) a.push(`${fmtN(i.L)}×${fmtN(i.l)}×${fmtN(i.H)} cm`);
@@ -597,6 +613,7 @@ function renderList() {
   if (x) {
     $("secTitle").textContent = `${x.icon} ${x.label}`;
     $("qName").placeholder = "Ajouter un article…";
+    if (!$("qName").value) { $("qCat").value = x.cats[0] || ""; $("qCat").placeholder = x.cats[0] || "Autre"; }
     $("qList").innerHTML = ""; secCatalog(curSec).forEach(n => { const o = document.createElement("option"); o.value = n; $("qList").appendChild(o); });
     const w = pool.reduce((s0, i) => s0 + total(i, e) * (+i.w || 0), 0), v = pool.reduce((s0, i) => s0 + total(i, e) * vol(i), 0);
     $("secSum").textContent = pool.length ? `${pool.filter(i => i.done).length}/${pool.length} prêts · ${fmtW(w)} · ${fmtV(v)}` : "Rien encore dans cette section. Tape un article ci-dessus ou pioche dans les listes.";
@@ -630,13 +647,18 @@ function quickAdd() {
   if (e.items.some(i => gkey(i.name) === k)) { toast(`« ${name} » est déjà dans la liste`); return; }
   let src = state.gear[k] || REF_BY.get(k) || null;
   if (!src) Object.values(PACKS).forEach(pk => pk.items.forEach(t => { if (!src && gkey(t[0]) === k) src = refFill(packItem(t)); }));
-  const fallback = x.cats[0] || "Autre";
-  const cat = src && src.cat && secOf(src.cat) === curSec ? src.cat : fallback;
+  const cat = $("qCat").value.trim() || (src && src.cat) || x.cats[0] || "Autre";
+  const unit = $("qUnit").value.trim() || (src && src.unit) || "pièce";
   const q = parseFloat($("qQty").value);
-  const it = { id: uid(), name: src ? src.name : name, cat, qty: q > 0 ? q : (src && src.qty) || 1, mode: (src && src.mode) || "fixe", unit: (src && src.unit) || "pièce",
-    w: (src && src.w) || 0, L: (src && src.L) || 0, l: (src && src.l) || 0, H: (src && src.H) || 0, v: (src && src.v) || 0, note: (src && src.note) || "", done: false };
+  const same = src && gkey(src.unit) === gkey(unit);
+  const sp = same ? null : unitSpecs(unit, name);
+  const it = { id: uid(), name: src ? src.name : name, cat, qty: q > 0 ? q : (same && src.qty) || 1, mode: (same && src.mode) || "fixe", unit,
+    w: sp ? sp.w : same ? src.w || 0 : 0, L: sp ? 0 : same ? src.L || 0 : 0, l: sp ? 0 : same ? src.l || 0 : 0, H: sp ? 0 : same ? src.H || 0 : 0, v: sp ? sp.v : same ? src.v || 0 : 0,
+    note: (same && src.note) || "", done: false };
   e.items.push(it); rememberGear(it); persist(e);
-  $("qName").value = ""; $("qQty").value = ""; renderAll(false); toast(`« ${it.name} » ajouté${src ? " avec ses caractéristiques" : ""}`); $("qName").focus();
+  $("qName").value = ""; $("qQty").value = ""; $("qUnit").value = ""; $("qCat").value = "";
+  const moved = secOf(cat) !== curSec ? ` (rangé dans ${secDef(secOf(cat)).label})` : "";
+  renderAll(false); toast(`« ${it.name} » ajouté${it.w ? " · " + fmtW(total(it, e) * it.w) : ""}${moved}`); $("qName").focus();
 }
 function row(i, e) {
   const r = document.createElement("div"); r.className = "item" + (i.done ? " done" : "");
@@ -806,6 +828,10 @@ function readForm() {
     L: parseFloat($("fLen").value) || 0, l: parseFloat($("fWid").value) || 0, H: parseFloat($("fHei").value) || 0, v: parseFloat($("fV").value) || 0,
     note: $("fNote").value.trim() };
 }
+function autoUnit() {
+  const sp = unitSpecs($("fUnit").value, $("fName").value); if (!sp) return;
+  $("fW").value = sp.w; $("fV").value = sp.v || ""; $("fLen").value = $("fWid").value = $("fHei").value = ""; updatePreview();
+}
 function updatePreview() {
   const f = readForm(); const e = cur();
   if (!f.name) { $("fPreview").textContent = ""; return; }
@@ -945,8 +971,15 @@ function renderManage() {
 }
 $("btnManage").onclick = () => { const box = $("manageBox"); if (!box.hidden) { box.hidden = true; manageSel.clear(); return; } manageSel.clear(); manageSel.add(state.current); box.hidden = false; renderManage(); };
 $("secBack").onclick = () => openSection("");
+$("unitList").innerHTML = UNITS.map(u => `<option value="${u}"></option>`).join("");
+$("fUnit").addEventListener("change", autoUnit);
+$("qName").addEventListener("change", () => {
+  const k = gkey($("qName").value); let src = state.gear[k] || REF_BY.get(k) || null;
+  if (!src) Object.values(PACKS).forEach(pk => pk.items.forEach(t => { if (!src && gkey(t[0]) === k) src = packItem(t); }));
+  if (src) { if (src.unit) $("qUnit").value = src.unit; if (src.cat) $("qCat").value = src.cat; }
+});
 $("qAdd").onclick = quickAdd;
-["qName","qQty"].forEach(id => $(id).addEventListener("keydown", ev => { if (ev.key === "Enter") { ev.preventDefault(); quickAdd(); } }));
+["qName","qQty","qUnit","qCat"].forEach(id => $(id).addEventListener("keydown", ev => { if (ev.key === "Enter") { ev.preventDefault(); quickAdd(); } }));
 $("btnUncheck").onclick = () => { const e = cur(); e.items.forEach(i => i.done = false); persist(e); renderAll(false); toast("Toutes les cases décochées"); };
 $("onlyTodo").addEventListener("change", renderList);
 $("btnPacks").onclick = () => { if (!$("packBox").hidden) closePicker(); else openPicker(); };
