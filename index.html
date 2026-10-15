@@ -356,7 +356,7 @@ window.addEventListener("error", ev => __sdlErr((ev.message || "inconnue") + " @
 window.addEventListener("unhandledrejection", ev => __sdlErr("promesse : " + ((ev.reason && (ev.reason.message || ev.reason.code)) || ev.reason)));
 (() => {
 const MODES = { fixe: "fixe", p: "/ pers.", j: "/ jour", n: "/ nuit", pj: "/ pers. / jour", pn: "/ pers. / nuit" };
-const CATS = ["Bivouac","Eau","Vivres","Feu & cuisine","Navigation & topo","Outils","Éclairage & énergie","Sécurité & secours","Vêtements","Hygiène","Pêche","Pirogue"];
+const CATS = ["Bivouac","Eau","Vivres","Feu & cuisine","Navigation & topo","Outils","Éclairage & énergie","Sécurité & secours","Vêtements","Hygiène","Pêche","Pirogue","Caisse à outils pirogue","Caisse à outils voiture","Jeux de société"];
 // sections de préparation : on remplit la liste poste par poste
 const SECTIONS = [
   { k: "nourriture", icon: "🧊", label: "Nourriture & glacière", cats: ["Vivres","Eau"] },
@@ -368,6 +368,9 @@ const SECTIONS = [
   { k: "materiel", icon: "🔦", label: "Matériel & outils", cats: ["Outils","Éclairage & énergie"] },
   { k: "peche", icon: "🎣", label: "Pêche", cats: ["Pêche"] },
   { k: "pirogue", icon: "🛶", label: "Pirogue", cats: ["Pirogue"] },
+  { k: "outpirogue", icon: "🔧", label: "Caisse à outils pirogue", cats: ["Caisse à outils pirogue"] },
+  { k: "voiture", icon: "🚙", label: "Caisse à outils voiture", cats: ["Caisse à outils voiture"] },
+  { k: "jeux", icon: "🎲", label: "Jeux de société", cats: ["Jeux de société"] },
   { k: "autre", icon: "📦", label: "Divers", cats: [] }
 ];
 // unités : pour les liquides et les poids, le poids et le volume unitaires se calculent tout seuls
@@ -402,7 +405,7 @@ const PACKS = {
     ["Canne + moulinet","Pêche",1,"p","ensemble",450],["Tresse de rechange","Pêche",1,"fixe","bobine",120],["Bas de ligne acier","Pêche",4,"p","pièce",10],["Leurres","Pêche",6,"p","pièce",25],["Hameçons assortis","Pêche",1,"fixe","boîte",80],["Pince à dégorger","Pêche",1,"fixe","pièce",150],["Épuisette","Pêche",1,"fixe","pièce",700],["Couteau à fileter","Pêche",1,"fixe","pièce",120],["Glacière + glace","Vivres",1,"fixe","pièce",4000]
   ]},
   pirogue: { label: "Pack pirogue / lac", desc: "Gilets, carburant, matériel moteur.", items: [
-    ["Gilet de sauvetage","Pirogue",1,"p","pièce",600],["Essence moteur","Pirogue",10,"j","L",750],["Huile 2 temps","Pirogue",1,"fixe","bidon",1000],["Pagaie","Pirogue",2,"fixe","pièce",900],["Écope","Pirogue",1,"fixe","pièce",200],["Bougie + clé à bougie","Pirogue",1,"fixe","lot",250],["Goupilles d'hélice","Pirogue",3,"fixe","pièce",5],["Corde d'amarrage","Pirogue",2,"fixe","pièce",500]
+    ["Gilet de sauvetage","Pirogue",1,"p","pièce",600],["Essence moteur","Pirogue",10,"j","L",750],["Huile 2 temps","Pirogue",1,"fixe","bidon",1000],["Pagaie","Pirogue",2,"fixe","pièce",900],["Écope","Pirogue",1,"fixe","pièce",200],["Bougie + clé à bougie","Caisse à outils pirogue",1,"fixe","lot",250],["Goupilles d'hélice","Caisse à outils pirogue",3,"fixe","pièce",5],["Corde d'amarrage","Pirogue",2,"fixe","pièce",500]
   ]}
 };
 
@@ -430,7 +433,12 @@ const REF = { label: "Référentiel", items: [
   ["Canne + moulinet","Pêche","p","ensemble",450],["Tresse de rechange","Pêche","fixe","bobine",120,10,10,5],["Bas de ligne acier","Pêche","p","pièce",10],["Leurres","Pêche","p","pièce",25],["Hameçons assortis","Pêche","fixe","boîte",80,15,10,3],
   ["Pince à dégorger","Pêche","fixe","pièce",150,20,5,2],["Épuisette","Pêche","fixe","pièce",700],["Couteau à fileter","Pêche","fixe","pièce",120,30,4,2],["Boîte à leurres","Pêche","fixe","pièce",300,27,18,5],["Glacière + glace","Vivres","fixe","pièce",4000,50,32,35],
   ["Gilet de sauvetage","Pirogue","p","pièce",600,45,35,8],["Essence moteur","Pirogue","j","L",750],["Huile 2 temps","Pirogue","fixe","bidon",1000],["Pagaie","Pirogue","fixe","pièce",900],["Écope","Pirogue","fixe","pièce",200],
-  ["Bougie + clé à bougie","Pirogue","fixe","lot",250],["Goupilles d'hélice","Pirogue","fixe","pièce",5],["Corde d'amarrage","Pirogue","fixe","pièce",500]
+  ["Bougie + clé à bougie","Caisse à outils pirogue","fixe","lot",250,15,8,3],["Goupilles d'hélice","Caisse à outils pirogue","fixe","pièce",5],["Corde d'amarrage","Pirogue","fixe","pièce",500],
+  ["Hélice de rechange","Caisse à outils pirogue","fixe","pièce",1500,25,25,10],["Jeu de clés et tournevis","Caisse à outils pirogue","fixe","lot",1200,30,20,6],["Corde de lanceur de rechange","Caisse à outils pirogue","fixe","pièce",100,15,10,3],
+  ["Filtre à essence","Caisse à outils pirogue","fixe","pièce",50,8,4,4],["Poire d'amorçage + durite","Caisse à outils pirogue","fixe","pièce",200,30,10,6],["Fil de fer + pince coupante","Caisse à outils pirogue","fixe","lot",400,20,8,4],["Ruban adhésif américain","Caisse à outils pirogue","fixe","rouleau",200,12,12,5],
+  ["Cric","Caisse à outils voiture","fixe","pièce",2500,35,10,10],["Clé en croix","Caisse à outils voiture","fixe","pièce",1200,40,40,3],["Câbles de démarrage","Caisse à outils voiture","fixe","pièce",1500,30,25,8],["Sangle de remorquage","Caisse à outils voiture","fixe","pièce",1500,25,25,10],
+  ["Compresseur 12 V","Caisse à outils voiture","fixe","pièce",1500,25,15,15],["Bombe anti-crevaison","Caisse à outils voiture","fixe","pièce",500,25,7,7],["Jerrican 20 L (vide)","Caisse à outils voiture","fixe","pièce",3000,46,35,17],["Trousse à outils","Caisse à outils voiture","fixe","pièce",2500,40,25,8],["Pelle pliante","Caisse à outils voiture","fixe","pièce",1000,25,15,6],
+  ["Jeu de cartes","Jeux de société","fixe","jeu",100,9,6,2],["Uno","Jeux de société","fixe","jeu",200,14,9,4],["Dominos","Jeux de société","fixe","boîte",400,19,6,4],["Dés (yams)","Jeux de société","fixe","lot",150,10,8,3],["Jeu de société (boîte)","Jeux de société","fixe","boîte",1000,30,30,8]
 ]};
 const REF_BY = new Map(REF.items.map(([name, cat, mode, unit, w, L, l, H]) => [gkey(name), { name, cat, qty: 1, mode, unit, w, L: L || 0, l: l || 0, H: H || 0, v: 0, note: REF_NOTE }]));
 // article d'un pack complété par le référentiel (dimensions), en gardant la quantité du pack
