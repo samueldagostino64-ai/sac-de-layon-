@@ -171,6 +171,10 @@ button:disabled { opacity: .55; cursor: default; }
 .gear:last-child { border-bottom: 0; }
 .gear .name { min-width: 0; overflow-wrap: anywhere; }
 .gear small { display: block; color: var(--muted); font-size: .8rem; }
+.gedit { display: grid; gap: 8px; padding: 10px; margin: 6px 0 10px; border: 1px solid var(--accent); border-radius: 8px; background: var(--surface); }
+.prow2 { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px dashed var(--line); }
+.prow2.off strong { color: var(--muted); text-decoration: line-through; }
+.prow2 small { display: block; color: var(--muted); font-size: .8rem; }
 .gear .ed { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
 .preview { min-height: 2.8em; }
 button.big { width: 100%; padding: 14px; font-size: 1.05rem; touch-action: manipulation; }
@@ -305,6 +309,7 @@ button.big { width: 100%; padding: 14px; font-size: 1.05rem; touch-action: manip
     <div id="packBox" class="picker" hidden></div>
     <div id="list" class="cat-list" style="display:grid;gap:18px"></div>
     <div class="actions" id="listActions">
+      <button class="small primary" id="btnPdf">📄 PDF de la liste</button>
       <button class="small" id="btnShare">Copier la liste (texte)</button>
       <button class="small ghost" id="btnPacks">Choisir dans les listes</button>
       <button class="small ghost" id="btnUncheck">Tout décocher</button>
@@ -318,7 +323,9 @@ button.big { width: 100%; padding: 14px; font-size: 1.05rem; touch-action: manip
         <p class="hint">Chaque article que tu ajoutes ou modifies est retenu ici avec son poids, ses dimensions et son volume. Tape son nom dans une prochaine expédition : tout est rempli tout seul.</p>
         <div class="actions">
           <button class="small" id="btnRef">Piocher dans le référentiel</button>
+          <button class="small ghost" id="btnPerso">Personnaliser les suggestions</button>
         </div>
+        <div id="persoBox" class="manage" hidden></div>
         <input id="gearSearch" placeholder="Chercher dans mon matériel" aria-label="Chercher dans mon matériel">
         <div id="gearList"></div>
       </div>
@@ -432,7 +439,7 @@ function refFill(it) { const r = REF_BY.get(gkey(it.name)); return r ? { ...r, .
 const $ = id => document.getElementById(id);
 const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
 const LS_KEY = "sacdelayon.v1";
-let state = { exps: {}, current: null, gear: {} };
+let state = { exps: {}, current: null, gear: {}, hidden: [] };
 const GEAR_ID = "__materiel";
 let gearDirty = false;
 let db = null, col = null;
@@ -445,10 +452,10 @@ function blankExp() {
 function cur() { return state.exps[state.current]; }
 
 // ---------- persistance ----------
-function lsSave() { try { localStorage.setItem(LS_KEY, JSON.stringify({ exps: Object.values(state.exps).filter(e => !e.draft), current: state.current, gear: state.gear })); } catch (e) {} }
+function lsSave() { try { localStorage.setItem(LS_KEY, JSON.stringify({ exps: Object.values(state.exps).filter(e => !e.draft), current: state.current, gear: state.gear, hidden: state.hidden })); } catch (e) {} }
 function lsLoad() {
   try { const raw = localStorage.getItem(LS_KEY); if (!raw) return; const d = JSON.parse(raw);
-    (d.exps || []).forEach(e => state.exps[e.id] = e); if (d.gear) state.gear = d.gear; if (d.current && state.exps[d.current]) state.current = d.current; } catch (e) {}
+    (d.exps || []).forEach(e => state.exps[e.id] = e); if (d.gear) state.gear = d.gear; if (Array.isArray(d.hidden)) state.hidden = d.hidden; if (d.current && state.exps[d.current]) state.current = d.current; } catch (e) {}
 }
 const timers = {};
 function persist(exp) {
@@ -466,6 +473,8 @@ async function removeExp(id) {
   if (col) { try { await col.doc(id).delete(); } catch (e) {} }
 }
 function gkey(n) { return (n || "").trim().toLowerCase(); }
+// suggestions masquées par l'utilisateur (référentiel et packs) ; un article de « Mon matériel » reste toujours visible
+function isHidden(n) { const k = gkey(n); return !state.gear[k] && state.hidden.includes(k); }
 function rememberGear(f) {
   const k = gkey(f.name); if (!k) return; const old = state.gear[k] || {};
   state.gear[k] = { name: f.name, cat: f.cat, qty: f.qty, mode: f.mode, unit: f.unit, w: f.w, L: f.L, l: f.l, H: f.H, v: f.v, note: f.note, uses: (old.uses || 0) + 1, updatedAt: Date.now() };
@@ -475,7 +484,7 @@ function persistGear() {
   lsSave(); if (!col) return;
   gearDirty = true; clearTimeout(timers.__gear);
   timers.__gear = setTimeout(async () => {
-    try { await col.doc(GEAR_ID).set(JSON.parse(JSON.stringify({ items: state.gear, updatedAt: Date.now() }))); }
+    try { await col.doc(GEAR_ID).set(JSON.parse(JSON.stringify({ items: state.gear, hidden: state.hidden, updatedAt: Date.now() }))); }
     catch (e) { setSync(false, "Pas de synchro, gardé sur cet appareil"); }
     finally { gearDirty = false; }
   }, 600);
@@ -492,11 +501,12 @@ async function connectDb() {
     let first = true;
     col.onSnapshot(snap => {
       const remote = {};
-      let rgear = null;
-      snap.docs.forEach(doc => { const d0 = doc.data(); if (!d0) return; const v = JSON.parse(JSON.stringify(d0)); if (doc.id === GEAR_ID) rgear = v.items || {}; else remote[doc.id] = { ...v, id: doc.id }; });
+      let rgear = null, rhidden = null;
+      snap.docs.forEach(doc => { const d0 = doc.data(); if (!d0) return; const v = JSON.parse(JSON.stringify(d0)); if (doc.id === GEAR_ID) { rgear = v.items || {}; rhidden = Array.isArray(v.hidden) ? v.hidden : null; } else remote[doc.id] = { ...v, id: doc.id }; });
       if (!gearDirty) {
         if (rgear) Object.entries(rgear).forEach(([k, g]) => { const l = state.gear[k]; if (!l || (g.updatedAt || 0) >= (l.updatedAt || 0)) state.gear[k] = g; });
-        if (first && Object.keys(state.gear).length && (!rgear || Object.keys(state.gear).some(k => !rgear[k]))) persistGear();
+        if (rhidden) state.hidden = first ? [...new Set([...state.hidden, ...rhidden])] : rhidden;
+        if (first && (Object.keys(state.gear).length || state.hidden.length) && (!rgear || Object.keys(state.gear).some(k => !rgear[k]) || (rhidden || []).length !== state.hidden.length)) persistGear();
       }
       if (first) {
         first = false;
@@ -573,8 +583,8 @@ function renderCatalog() {
   const names = new Map(), cats = new Set(CATS);
   Object.values(state.gear).forEach(g => { names.set(g.name, g); if (g.cat) cats.add(g.cat); });
   Object.values(state.exps).forEach(e => e.items.forEach(i => { if (!names.has(i.name)) names.set(i.name, i); if (i.cat) cats.add(i.cat); }));
-  Object.values(PACKS).forEach(p => p.items.forEach(([n]) => { if (!names.has(n)) names.set(n, null); }));
-  REF_BY.forEach(r => { if (!names.has(r.name)) names.set(r.name, null); });
+  Object.values(PACKS).forEach(p => p.items.forEach(([n]) => { if (!names.has(n) && !isHidden(n)) names.set(n, null); }));
+  REF_BY.forEach(r => { if (!names.has(r.name) && !isHidden(r.name)) names.set(r.name, null); });
   $("catalog").innerHTML = ""; [...names.keys()].sort((a, b) => a.localeCompare(b, "fr")).forEach(n => { const o = document.createElement("option"); o.value = n; $("catalog").appendChild(o); });
   $("catList").innerHTML = ""; [...cats].forEach(c => { const o = document.createElement("option"); o.value = c; $("catList").appendChild(o); });
 }
@@ -599,8 +609,8 @@ function secCatalog(k) {
   const x = secDef(k), names = new Set();
   const ok = c => k === "autre" ? secOf(c) === "autre" : x.cats.includes(c);
   Object.values(state.gear).forEach(g => ok(g.cat) && names.add(g.name));
-  REF_BY.forEach(r => ok(r.cat) && names.add(r.name));
-  Object.values(PACKS).forEach(pk => pk.items.forEach(([n, c]) => ok(c) && names.add(n)));
+  REF_BY.forEach(r => ok(r.cat) && !isHidden(r.name) && names.add(r.name));
+  Object.values(PACKS).forEach(pk => pk.items.forEach(([n, c]) => ok(c) && !isHidden(n) && names.add(n)));
   return [...names].sort((a2, b2) => a2.localeCompare(b2, "fr"));
 }
 function renderList() {
@@ -692,9 +702,9 @@ const pick = { src: null, sel: new Map(), q: "", target: "exp" };
 function packItem([name, cat, qty, mode, unit, w]) { return { name, cat, qty, mode, unit, w }; }
 function sourceItems(src) {
   if (src === "gear") return Object.values(state.gear);
-  if (src === "ref") return [...REF_BY.values()].map(r => pick.target === "gear" ? r : state.gear[gkey(r.name)] || r);
+  if (src === "ref") return [...REF_BY.values()].filter(r => !isHidden(r.name)).map(r => pick.target === "gear" ? r : state.gear[gkey(r.name)] || r);
   // si l'article existe dans ton matériel, ce sont tes propres caractéristiques qui comptent
-  return PACKS[src].items.map(t => { const it = packItem(t); return state.gear[gkey(it.name)] || refFill(it); });
+  return PACKS[src].items.filter(t => !isHidden(t[0])).map(t => { const it = packItem(t); return state.gear[gkey(it.name)] || refFill(it); });
 }
 function sources() {
   if (pick.target === "gear") return [["ref", REF.label]];
@@ -812,12 +822,81 @@ function renderGear() {
       const add = document.createElement("button"); add.className = "small";
       if (inExp.has(gkey(g.name))) { add.textContent = "Dans la liste"; add.disabled = true; }
       else { add.textContent = "Ajouter"; add.onclick = () => { e.items.push({ id: uid(), name: g.name, cat: g.cat, qty: g.qty ?? 1, mode: g.mode || "fixe", unit: g.unit || "", w: g.w || 0, L: g.L || 0, l: g.l || 0, H: g.H || 0, v: g.v || 0, note: g.note || "", done: false }); persist(e); renderAll(false); toast(`« ${g.name} » ajouté à l'expédition`); }; }
+      const mod = document.createElement("button"); mod.className = "iconbtn"; mod.textContent = "Modifier";
+      mod.onclick = () => { const ex = r.nextElementSibling; if (ex && ex.classList.contains("gedit")) { ex.remove(); return; } r.after(gearEditor(g, () => { renderAll(false); })); };
       const del = document.createElement("button"); del.className = "iconbtn"; del.textContent = "Oublier";
       del.onclick = () => { delete state.gear[gkey(g.name)]; persistGear(); renderGear(); renderCatalog(); toast(`« ${g.name} » retiré de ton matériel`); };
-      ed.append(add, del); r.append(nm, ed); sec.appendChild(r);
+      ed.append(add, mod, del); r.append(nm, ed); sec.appendChild(r);
     });
     box.appendChild(sec);
   });
+}
+// fiche modifiable : enregistre dans « Mon matériel » ; si le nom change, l'ancien est masqué des suggestions
+function gearEditor(src, done) {
+  const box = document.createElement("div"); box.className = "gedit";
+  const g = document.createElement("div"); g.className = "grid"; const inp = {};
+  [["name","Article","text",src.name],["cat","Catégorie","text",src.cat || ""],["unit","Unité","text",src.unit || "pièce"],["w","Poids unitaire (g)","number",src.w || ""],
+   ["L","Long. (cm)","number",src.L || ""],["l","Larg. (cm)","number",src.l || ""],["H","Haut. (cm)","number",src.H || ""],["v","Volume (L)","number",src.v || ""]].forEach(([k, lab, type, val]) => {
+    const f = document.createElement("label"); f.className = "field" + (k === "name" ? " wide" : "");
+    const l = document.createElement("span"); l.className = "label"; l.textContent = lab;
+    const i = document.createElement("input"); i.type = type; i.value = val; if (type === "number") { i.min = "0"; i.step = "any"; i.inputMode = "decimal"; }
+    inp[k] = i; f.append(l, i); g.appendChild(f);
+  });
+  combo(inp.cat, "catList"); combo(inp.unit, "unitList");
+  inp.unit.addEventListener("change", () => { const sp = unitSpecs(inp.unit.value, inp.name.value); if (sp) { inp.w.value = sp.w; inp.v.value = sp.v || ""; inp.L.value = inp.l.value = inp.H.value = ""; } });
+  const a = document.createElement("div"); a.className = "actions";
+  const ok = document.createElement("button"); ok.className = "small primary"; ok.textContent = "Enregistrer";
+  const no = document.createElement("button"); no.className = "small ghost"; no.textContent = "Annuler"; no.onclick = () => box.remove();
+  ok.onclick = () => {
+    const name = inp.name.value.trim(); if (!name) { inp.name.focus(); return; }
+    const k = gkey(name), ok0 = gkey(src.name), old = state.gear[ok0] || {};
+    if (k !== ok0) { if (state.gear[ok0]) delete state.gear[ok0]; if (!state.hidden.includes(ok0) && (REF_BY.has(ok0) || Object.values(PACKS).some(pk => pk.items.some(t => gkey(t[0]) === ok0)))) state.hidden.push(ok0); }
+    state.gear[k] = { ...old, name, cat: inp.cat.value.trim() || "Autre", qty: src.qty ?? old.qty ?? 1, mode: src.mode || old.mode || "fixe", unit: inp.unit.value.trim(),
+      w: +inp.w.value || 0, L: +inp.L.value || 0, l: +inp.l.value || 0, H: +inp.H.value || 0, v: +inp.v.value || 0, note: "", uses: old.uses || 0, updatedAt: Date.now() };
+    persistGear(); box.remove(); toast(`« ${name} » enregistré dans ton matériel`); done && done();
+  };
+  a.append(ok, no); box.append(g, a); return box;
+}
+let persoQ = "";
+function renderPerso() {
+  const box = $("persoBox"); if (box.hidden) return; box.innerHTML = "";
+  const h = document.createElement("div"); h.className = "toolbar";
+  const t = document.createElement("strong"); t.textContent = "Suggestions des menus";
+  const x = document.createElement("button"); x.className = "small ghost"; x.textContent = "Fermer"; x.onclick = () => { box.hidden = true; };
+  h.append(t, x);
+  const hint = document.createElement("p"); hint.className = "hint"; hint.style.margin = "0";
+  hint.textContent = "Masque ce que tu n'as pas : ça disparaît des menus et des listes à cocher. « Modifier » l'adapte à ton modèle et le range dans ton matériel.";
+  const q = document.createElement("input"); q.placeholder = "Chercher"; q.value = persoQ; q.setAttribute("aria-label", "Chercher une suggestion");
+  const list = document.createElement("div");
+  q.oninput = () => { persoQ = q.value; fill(); };
+  box.append(h, hint, q, list);
+  function fill() {
+    list.innerHTML = ""; const qq = gkey(persoQ); const all = new Map();
+    REF_BY.forEach(r => all.set(gkey(r.name), r));
+    Object.values(PACKS).forEach(pk => pk.items.forEach(tp => { const k = gkey(tp[0]); if (!all.has(k)) all.set(k, refFill(packItem(tp))); }));
+    const items = [...all.entries()].filter(([k, it]) => !state.gear[k] && (!qq || k.includes(qq) || gkey(it.cat).includes(qq)));
+    const shown = items.filter(([k]) => !state.hidden.includes(k)).length;
+    const cnt = document.createElement("p"); cnt.className = "hint"; cnt.style.margin = "0"; cnt.textContent = `${shown} proposées · ${items.length - shown} masquées`; list.appendChild(cnt);
+    SECTIONS.forEach(sx => {
+      const grp = items.filter(([, it]) => secOf(it.cat) === sx.k).sort((a2, b2) => a2[1].name.localeCompare(b2[1].name, "fr")); if (!grp.length) return;
+      const sec = document.createElement("div"); sec.className = "cat";
+      const h3 = document.createElement("h3"); h3.textContent = `${sx.icon} ${sx.label}`; sec.appendChild(h3);
+      grp.forEach(([k, it]) => {
+        const off = state.hidden.includes(k);
+        const r = document.createElement("div"); r.className = "prow2" + (off ? " off" : "");
+        const nm = document.createElement("div"); const st = document.createElement("strong"); st.textContent = it.name;
+        const sm = document.createElement("small"); sm.textContent = off ? "masqué" : specs(it) || "pas de caractéristiques"; nm.append(st, sm);
+        const ed = document.createElement("div"); ed.className = "ed"; ed.style.display = "flex"; ed.style.gap = "4px";
+        const mod = document.createElement("button"); mod.className = "iconbtn"; mod.textContent = "Modifier"; mod.hidden = off;
+        mod.onclick = () => { const ex = r.nextElementSibling; if (ex && ex.classList.contains("gedit")) { ex.remove(); return; } r.after(gearEditor(it, () => { renderAll(false); renderPerso(); })); };
+        const hd = document.createElement("button"); hd.className = "iconbtn"; hd.textContent = off ? "Réafficher" : "Masquer";
+        hd.onclick = () => { state.hidden = off ? state.hidden.filter(z => z !== k) : [...state.hidden, k]; persistGear(); renderCatalog(); fill(); };
+        ed.append(mod, hd); r.append(nm, ed); sec.appendChild(r);
+      });
+      list.appendChild(sec);
+    });
+  }
+  fill();
 }
 function renderAll(force) { renderSelect(); renderParams(force); renderStats(); renderCatalog(); renderList(); renderGear(); updatePreview(); }
 
@@ -984,6 +1063,7 @@ $("btnUncheck").onclick = () => { const e = cur(); e.items.forEach(i => i.done =
 $("onlyTodo").addEventListener("change", renderList);
 $("btnPacks").onclick = () => { if (!$("packBox").hidden) closePicker(); else openPicker(); };
 $("btnRef").onclick = () => openPicker("gear");
+$("btnPerso").onclick = () => { const b = $("persoBox"); b.hidden = !b.hidden; renderPerso(); };
 
 // ---------- partage / sauvegarde ----------
 async function copy(text, okMsg, fallbackEl) {
@@ -998,6 +1078,117 @@ $("btnShare").onclick = () => {
   });
   copy(lines.join("\n").trim(), curSec ? "Section copiée, colle-la dans WhatsApp" : "Liste copiée, colle-la dans WhatsApp ou tes notes");
 };
+// ---------- export PDF : une fiche lisible à garder sur le téléphone ou à imprimer ----------
+let pdfLib = null;
+function loadPdf() {
+  if (window.jspdf) return Promise.resolve(window.jspdf.jsPDF);
+  if (!pdfLib) pdfLib = new Promise((ok, ko) => { const sc = document.createElement("script"); sc.src = "jspdf.min.js"; sc.onload = () => window.jspdf ? ok(window.jspdf.jsPDF) : ko(); sc.onerror = () => { pdfLib = null; ko(); }; document.head.appendChild(sc); });
+  return pdfLib;
+}
+const pdfTxt = t => String(t ?? "").replace(/[  ]/g, " ").replace(/[’]/g, "'").replace(/[^\x20-\x7e -ÿŒœ…–—×]/g, "");
+function emojiPng(ch) {
+  try { const c = document.createElement("canvas"); c.width = c.height = 64; const x = c.getContext("2d");
+    x.font = '50px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif'; x.textAlign = "center"; x.textBaseline = "middle"; x.fillText(ch, 32, 36);
+    const px = x.getImageData(0, 0, 64, 64).data; let any = false; for (let i = 3; i < px.length; i += 4) if (px[i]) { any = true; break; }
+    return any ? c.toDataURL("image/png") : null; } catch (e) { return null; }
+}
+function buildPdf(JsPDF) {
+  const e = cur(), doc = new JsPDF({ unit: "mm", format: "a4" });
+  const W = 210, H = 297, M = 14, CW = W - 2 * M;
+  const C = { acc: [31, 106, 82], ink: [27, 42, 34], mut: [93, 107, 97], line: [211, 217, 204], soft: [220, 232, 223], zebra: [246, 248, 243], lat: [180, 83, 42] };
+  const col = (c, k) => k === "f" ? doc.setFillColor(...c) : k === "d" ? doc.setDrawColor(...c) : doc.setTextColor(...c);
+  const txt = (t, x, y, o) => doc.text(pdfTxt(t), x, y, o);
+  const n = e.items.length, d = e.items.filter(i => i.done).length;
+  const wT = e.items.reduce((s0, i) => s0 + total(i, e) * (+i.w || 0), 0), vT = e.items.reduce((s0, i) => s0 + total(i, e) * vol(i), 0);
+  const pp = Math.max(1, +e.people || 1);
+  // en-tête
+  col(C.acc, "f"); doc.rect(0, 0, W, 34, "F");
+  doc.setFont("helvetica", "bold"); doc.setFontSize(8.5); col([214, 232, 222]); txt("SAC DE LAYON  ·  CHECKLIST D'EXPÉDITION", M, 11, { charSpace: 0.6 });
+  doc.setFontSize(21); col([255, 255, 255]); txt(doc.splitTextToSize(pdfTxt(e.name || "Expédition"), CW)[0], M, 22);
+  doc.setFont("helvetica", "normal"); doc.setFontSize(10.5); col([226, 238, 230]); txt(e.type || "", M, 29);
+  // chiffres clés
+  let y = 42; const boxes = [["DURÉE", `${e.days} j · ${e.nights} nuit${+e.nights > 1 ? "s" : ""}`], ["ÉQUIPE", `${e.people} pers.`], ["RÉSERVE", `${e.reserve || 0} j`],
+    ["POIDS TOTAL", wT ? fmtW(wT) : "–", wT ? fmtW(wT / pp) + " / pers." : ""], ["VOLUME", vT ? fmtV(vT) : "–", vT ? fmtV(vT / pp) + " / pers." : ""]];
+  const bw = (CW - 4 * 3) / 5;
+  boxes.forEach(([l, v, sub], i) => { const x = M + i * (bw + 3); col(C.line, "d"); col([255, 255, 255], "f"); doc.setLineWidth(0.3); doc.roundedRect(x, y, bw, 19, 2, 2, "FD");
+    doc.setFont("helvetica", "bold"); doc.setFontSize(6.5); col(C.mut); txt(l, x + 3, y + 5, { charSpace: 0.3 });
+    doc.setFontSize(11.5); col(C.ink); txt(v, x + 3, y + 11.5); if (sub) { doc.setFont("helvetica", "normal"); doc.setFontSize(7); col(C.mut); txt(sub, x + 3, y + 16); } });
+  y += 25;
+  // avancement
+  doc.setFont("helvetica", "normal"); doc.setFontSize(9); col(C.mut);
+  txt(`${d} / ${n} articles prêts`, M, y); txt(`Édité le ${new Date().toLocaleDateString("fr-FR")}`, W - M, y, { align: "right" });
+  y += 2.5; col(C.soft, "f"); doc.roundedRect(M, y, CW, 2.2, 1.1, 1.1, "F"); if (n && d) { col(C.acc, "f"); doc.roundedRect(M, y, Math.max(2.2, CW * d / n), 2.2, 1.1, 1.1, "F"); }
+  y += 9;
+  const icons = {}; const QX = W - M - 32, WX = W - M - 2, NX = M + 9, NW = QX - NX - 6;
+  function newPage(cont) {
+    doc.addPage(); y = 16; doc.setFont("helvetica", "bold"); doc.setFontSize(9); col(C.mut); txt(`${e.name}  ·  suite`, M, y); y += 7;
+    if (cont) secTitle(cont, true);
+  }
+  function secTitle(sx, cont) {
+    const its = e.items.filter(i => secOf(i.cat) === sx.k), dd = its.filter(i => i.done).length, ww = its.reduce((s0, i) => s0 + total(i, e) * (+i.w || 0), 0);
+    col(C.soft, "f"); doc.roundedRect(M, y, CW, 9, 1.8, 1.8, "F");
+    if (!(sx.k in icons)) icons[sx.k] = emojiPng(sx.icon);
+    let tx = M + 3; if (icons[sx.k]) { doc.addImage(icons[sx.k], "PNG", M + 2.2, y + 1.3, 6.4, 6.4); tx = M + 10.5; }
+    doc.setFont("helvetica", "bold"); doc.setFontSize(10.5); col(C.acc); txt(sx.label.toUpperCase() + (cont ? "  (suite)" : ""), tx, y + 6.1, { charSpace: 0.3 });
+    doc.setFont("helvetica", "normal"); doc.setFontSize(8.5); col(C.mut); txt(`${dd}/${its.length} prêts${ww ? "  ·  " + fmtW(ww) : ""}`, W - M - 3, y + 6.1, { align: "right" });
+    y += 11;
+    doc.setFontSize(6.5); doc.setFont("helvetica", "bold"); txt("ARTICLE", NX, y + 1); txt("À EMPORTER", QX, y + 1, { align: "right" }); txt("POIDS", WX, y + 1, { align: "right" }); y += 3;
+  }
+  SECTIONS.forEach(sx => {
+    const its = e.items.filter(i => secOf(i.cat) === sx.k).sort((a2, b2) => (a2.cat || "").localeCompare(b2.cat || "", "fr") || a2.name.localeCompare(b2.name, "fr"));
+    if (!its.length) return;
+    if (y + 30 > H - 16) newPage(); else if (y > 80) y += 2;
+    secTitle(sx);
+    its.forEach((i, idx) => {
+      doc.setFont("helvetica", "bold"); doc.setFontSize(10);
+      const nameL = doc.splitTextToSize(pdfTxt(i.name), NW);
+      const det = [sx.cats.length > 1 || secOf(i.cat) === "autre" ? i.cat : "", i.mode !== "fixe" ? `${fmtN(i.qty)} ${i.unit || ""} ${MODES[i.mode]}`.replace(/\s+/g, " ") : "", i.note === REF_NOTE ? "" : i.note].filter(Boolean).join("  ·  ");
+      doc.setFont("helvetica", "normal"); doc.setFontSize(7.8); const detL = det ? doc.splitTextToSize(pdfTxt(det), NW) : [];
+      const rh = 4 + nameL.length * 4.4 + detL.length * 3.4 + 1.5;
+      if (y + rh > H - 16) newPage(sx);
+      if (idx % 2 === 0) { col(C.zebra, "f"); doc.rect(M, y, CW, rh, "F"); }
+      // case à cocher
+      const cy = y + 2.6; col(i.done ? C.acc : C.mut, "d"); doc.setLineWidth(0.35);
+      if (i.done) { col(C.acc, "f"); doc.roundedRect(M + 2.5, cy, 3.8, 3.8, 0.7, 0.7, "FD"); doc.setDrawColor(255, 255, 255); doc.setLineWidth(0.5); doc.lines([[1, 1], [1.8, -2.2]], M + 3.4, cy + 1.9); }
+      else doc.roundedRect(M + 2.5, cy, 3.8, 3.8, 0.7, 0.7, "S");
+      doc.setFont("helvetica", "bold"); doc.setFontSize(10); col(i.done ? C.mut : C.ink); doc.text(nameL, NX, y + 5.6);
+      if (detL.length) { doc.setFont("helvetica", "normal"); doc.setFontSize(7.8); col(C.mut); doc.text(detL, NX, y + 5.6 + nameL.length * 4.4 - 0.6); }
+      doc.setFont("helvetica", "bold"); doc.setFontSize(10); col(C.ink); txt(`${fmtN(total(i, e))} ${i.unit || ""}`.trim(), QX, y + 5.6, { align: "right" });
+      doc.setFont("helvetica", "normal"); doc.setFontSize(9); col(C.mut); txt(+i.w ? fmtW(total(i, e) * i.w) : "–", WX, y + 5.6, { align: "right" });
+      y += rh;
+    });
+    y += 4;
+  });
+  if (!n) { doc.setFont("helvetica", "normal"); doc.setFontSize(11); col(C.mut); txt("Liste vide.", M, y + 4); }
+  // pied de page
+  const pages = doc.getNumberOfPages();
+  for (let pg = 1; pg <= pages; pg++) { doc.setPage(pg); col(C.line, "d"); doc.setLineWidth(0.3); doc.line(M, H - 11, W - M, H - 11);
+    doc.setFont("helvetica", "normal"); doc.setFontSize(7.5); col(C.mut); txt(`Sac de Layon  ·  ${e.name}`, M, H - 7); txt(`page ${pg} / ${pages}`, W - M, H - 7, { align: "right" }); }
+  return doc;
+}
+async function exportPdf() {
+  const btn = $("btnPdf"); let JsPDF;
+  try { JsPDF = window.jspdf ? window.jspdf.jsPDF : null; if (!JsPDF) { btn.disabled = true; btn.textContent = "Préparation…"; JsPDF = await loadPdf(); } }
+  catch (err) { toast("Impossible de charger le module PDF. Ouvre l'appli une fois avec du réseau."); return; }
+  finally { btn.disabled = false; btn.textContent = "📄 PDF de la liste"; }
+  const e = cur(); const name = `Sac-de-Layon-${slug(e.name || "expedition")}.pdf`;
+  const blob = buildPdf(JsPDF).output("blob");
+  // appli Claude : téléchargement par la plateforme
+  if (window.claude && window.claude.use) {
+    try { const dl = await window.claude.use("downloads"); if (dl) { await dl.save({ filename: name, data: blob }); return; } }
+    catch (err) { if (err && err.code === "declined") return; }
+  }
+  // téléphone : feuille de partage (Fichiers, WhatsApp, impression…)
+  const file = new File([blob], name, { type: "application/pdf" });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file], title: e.name }); return; } catch (err) { if (err && err.name === "AbortError") return; }
+  }
+  const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 30000); toast("PDF enregistré dans tes téléchargements");
+}
+function slug(n) { return gkey(n).normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "expedition"; }
+$("btnPdf").onclick = exportPdf;
+setTimeout(() => { loadPdf().catch(() => {}); }, 2500);
 $("btnExport").onclick = () => copy(JSON.stringify({ app: "sac-de-layon", v: 1, exps: Object.values(state.exps).filter(e => !e.draft), gear: state.gear }), "Sauvegarde copiée");
 $("btnImport").onclick = () => {
   try {
