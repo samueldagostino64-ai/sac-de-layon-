@@ -128,6 +128,24 @@ details.add[open] > summary::after { content: "−"; }
 .qty .ed { display: flex; gap: 4px; }
 .iconbtn { border: 0; background: transparent; padding: 2px 6px; font-size: .8rem; color: var(--muted); text-decoration: underline; font-weight: 500; }
 
+.secs { display: grid; grid-template-columns: repeat(auto-fill, minmax(136px, 1fr)); gap: 8px; }
+.sec { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: 8px; align-items: center; text-align: left; padding: 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); min-height: 60px; cursor: pointer; }
+.sec .ic { grid-row: 1 / 3; font-size: 1.6rem; line-height: 1; }
+.sec b { font-weight: 600; font-size: .92rem; line-height: 1.15; }
+.sec small { color: var(--muted); font-size: .78rem; }
+.sec.full { background: var(--soft); }
+.sec[aria-pressed="true"] { border: 2px solid var(--accent); padding: 9px; }
+.secs.compact { display: flex; overflow-x: auto; gap: 6px; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
+.secs.compact .sec { flex: none; min-height: 0; padding: 6px 10px; grid-template-rows: auto; border-radius: 999px; }
+.secs.compact .sec[aria-pressed="true"] { padding: 5px 9px; }
+.secs.compact .sec .ic { grid-row: auto; font-size: 1.1rem; }
+.secs.compact .sec b { font-size: .85rem; white-space: nowrap; }
+.secs.compact .sec small { display: none; }
+.sechead { display: grid; gap: 10px; border: 1px solid var(--accent); border-radius: var(--r); padding: 12px; background: var(--surface); }
+.sechead .t { display: flex; align-items: center; gap: 10px; justify-content: space-between; }
+.sechead .t h3 { margin: 0; font-family: var(--f-display); font-size: 1.25rem; text-transform: uppercase; letter-spacing: .04em; display: flex; gap: 8px; align-items: center; }
+.qadd { display: grid; grid-template-columns: 1fr 70px auto; gap: 6px; align-items: start; }
+.cat h3 .ic { margin-right: 6px; }
 .empty { border: 1px dashed var(--line); border-radius: var(--r); padding: 18px; display: grid; gap: 10px; }
 .empty p { margin: 0; }
 .picker { border: 1px solid var(--accent); border-radius: var(--r); padding: 14px; display: grid; gap: 12px; background: var(--bg); }
@@ -269,6 +287,16 @@ button.big { width: 100%; padding: 14px; font-size: 1.05rem; touch-action: manip
       <h2 id="hList">Liste</h2>
       <label class="chk"><input type="checkbox" id="onlyTodo"> Seulement ce qui reste</label>
     </div>
+    <div id="secTiles" class="secs" role="group" aria-label="Sections de la liste"></div>
+    <div id="secHead" class="sechead" hidden>
+      <div class="t"><h3 id="secTitle"></h3><button class="small ghost" id="secBack">Toutes les sections</button></div>
+      <div class="qadd">
+        <input id="qName" data-list="qList" placeholder="Ajouter un article" aria-label="Article à ajouter dans cette section"><datalist id="qList"></datalist>
+        <input id="qQty" type="number" min="0" step="any" inputmode="decimal" placeholder="Qté" aria-label="Quantité">
+        <button class="small" id="qAdd">Ajouter</button>
+      </div>
+      <p class="hint" id="secSum" style="margin:0"></p>
+    </div>
     <div id="packBox" class="picker" hidden></div>
     <div id="list" class="cat-list" style="display:grid;gap:18px"></div>
     <div class="actions" id="listActions">
@@ -317,6 +345,23 @@ window.addEventListener("unhandledrejection", ev => __sdlErr("promesse : " + ((e
 (() => {
 const MODES = { fixe: "fixe", p: "/ pers.", j: "/ jour", n: "/ nuit", pj: "/ pers. / jour", pn: "/ pers. / nuit" };
 const CATS = ["Bivouac","Eau","Vivres","Feu & cuisine","Navigation & topo","Outils","Éclairage & énergie","Sécurité & secours","Vêtements","Hygiène","Pêche","Pirogue"];
+// sections de préparation : on remplit la liste poste par poste
+const SECTIONS = [
+  { k: "nourriture", icon: "🧊", label: "Nourriture & glacière", cats: ["Vivres","Eau"] },
+  { k: "popote", icon: "🍳", label: "Caisse popote", cats: ["Feu & cuisine"] },
+  { k: "bivouac", icon: "⛺", label: "Bivouac", cats: ["Bivouac"] },
+  { k: "secu", icon: "⛑️", label: "Sécurité & infirmerie", cats: ["Sécurité & secours"] },
+  { k: "topo", icon: "🧭", label: "Topographie", cats: ["Navigation & topo"] },
+  { k: "vetements", icon: "👕", label: "Vêtements & hygiène", cats: ["Vêtements","Hygiène"] },
+  { k: "materiel", icon: "🔦", label: "Matériel & outils", cats: ["Outils","Éclairage & énergie"] },
+  { k: "peche", icon: "🎣", label: "Pêche", cats: ["Pêche"] },
+  { k: "pirogue", icon: "🛶", label: "Pirogue", cats: ["Pirogue"] },
+  { k: "autre", icon: "📦", label: "Divers", cats: [] }
+];
+const SEC_BY_CAT = {}; SECTIONS.forEach(x => x.cats.forEach(c => SEC_BY_CAT[c] = x.k));
+const secOf = cat => SEC_BY_CAT[cat] || "autre";
+const secDef = k => SECTIONS.find(x => x.k === k);
+let curSec = "";
 const PACKS = {
   foret: { label: "Base forêt guyanaise", desc: "Hamac, bâche, machette, eau, vivres, navigation, secours.", items: [
     ["Hamac","Bivouac",1,"p","pièce",900],["Moustiquaire (si hamac sans)","Bivouac",1,"p","pièce",300],["Bâche 3 × 3 m","Bivouac",1,"p","pièce",600],["Paracorde","Bivouac",15,"p","m",8],
@@ -331,7 +376,7 @@ const PACKS = {
     ["Papier toilette","Hygiène",1,"p","rouleau",80],["Sacs poubelle","Hygiène",3,"fixe","sac",20]
   ]},
   peche: { label: "Pack pêche", desc: "Sinnamary, Petit-Saut : aïmara, piraï, tucunaré.", items: [
-    ["Canne + moulinet","Pêche",1,"p","ensemble",450],["Tresse de rechange","Pêche",1,"fixe","bobine",120],["Bas de ligne acier","Pêche",4,"p","pièce",10],["Leurres","Pêche",6,"p","pièce",25],["Hameçons assortis","Pêche",1,"fixe","boîte",80],["Pince à dégorger","Pêche",1,"fixe","pièce",150],["Épuisette","Pêche",1,"fixe","pièce",700],["Couteau à fileter","Pêche",1,"fixe","pièce",120],["Glacière + glace","Pêche",1,"fixe","pièce",4000]
+    ["Canne + moulinet","Pêche",1,"p","ensemble",450],["Tresse de rechange","Pêche",1,"fixe","bobine",120],["Bas de ligne acier","Pêche",4,"p","pièce",10],["Leurres","Pêche",6,"p","pièce",25],["Hameçons assortis","Pêche",1,"fixe","boîte",80],["Pince à dégorger","Pêche",1,"fixe","pièce",150],["Épuisette","Pêche",1,"fixe","pièce",700],["Couteau à fileter","Pêche",1,"fixe","pièce",120],["Glacière + glace","Vivres",1,"fixe","pièce",4000]
   ]},
   pirogue: { label: "Pack pirogue / lac", desc: "Gilets, carburant, matériel moteur.", items: [
     ["Gilet de sauvetage","Pirogue",1,"p","pièce",600],["Essence moteur","Pirogue",10,"j","L",750],["Huile 2 temps","Pirogue",1,"fixe","bidon",1000],["Pagaie","Pirogue",2,"fixe","pièce",900],["Écope","Pirogue",1,"fixe","pièce",200],["Bougie + clé à bougie","Pirogue",1,"fixe","lot",250],["Goupilles d'hélice","Pirogue",3,"fixe","pièce",5],["Corde d'amarrage","Pirogue",2,"fixe","pièce",500]
@@ -360,7 +405,7 @@ const REF = { label: "Référentiel", items: [
   ["Tenue sèche de bivouac","Vêtements","p","tenue",500,25,20,8],["Chaussettes","Vêtements","pj","paire",60],["Poncho","Vêtements","p","pièce",350,20,15,6],["Pantalon de forêt","Vêtements","p","pièce",600,25,20,5],["Rangers jungle","Vêtements","p","paire",1600,32,28,14],["Chapeau de brousse","Vêtements","p","pièce",100],
   ["Papier toilette","Hygiène","p","rouleau",80,11,11,10],["Sacs poubelle","Hygiène","fixe","sac",20],["Savon","Hygiène","fixe","pièce",100,8,5,3],["Serviette microfibre","Hygiène","p","pièce",150,20,10,5],["Brosse à dents + dentifrice","Hygiène","p","lot",60],["Crème anti-frottements","Hygiène","p","tube",50],
   ["Canne + moulinet","Pêche","p","ensemble",450],["Tresse de rechange","Pêche","fixe","bobine",120,10,10,5],["Bas de ligne acier","Pêche","p","pièce",10],["Leurres","Pêche","p","pièce",25],["Hameçons assortis","Pêche","fixe","boîte",80,15,10,3],
-  ["Pince à dégorger","Pêche","fixe","pièce",150,20,5,2],["Épuisette","Pêche","fixe","pièce",700],["Couteau à fileter","Pêche","fixe","pièce",120,30,4,2],["Boîte à leurres","Pêche","fixe","pièce",300,27,18,5],["Glacière + glace","Pêche","fixe","pièce",4000,50,32,35],
+  ["Pince à dégorger","Pêche","fixe","pièce",150,20,5,2],["Épuisette","Pêche","fixe","pièce",700],["Couteau à fileter","Pêche","fixe","pièce",120,30,4,2],["Boîte à leurres","Pêche","fixe","pièce",300,27,18,5],["Glacière + glace","Vivres","fixe","pièce",4000,50,32,35],
   ["Gilet de sauvetage","Pirogue","p","pièce",600,45,35,8],["Essence moteur","Pirogue","j","L",750],["Huile 2 temps","Pirogue","fixe","bidon",1000],["Pagaie","Pirogue","fixe","pièce",900],["Écope","Pirogue","fixe","pièce",200],
   ["Bougie + clé à bougie","Pirogue","fixe","lot",250],["Goupilles d'hélice","Pirogue","fixe","pièce",5],["Corde d'amarrage","Pirogue","fixe","pièce",500]
 ]};
@@ -517,25 +562,81 @@ function renderCatalog() {
   $("catalog").innerHTML = ""; [...names.keys()].sort((a, b) => a.localeCompare(b, "fr")).forEach(n => { const o = document.createElement("option"); o.value = n; $("catalog").appendChild(o); });
   $("catList").innerHTML = ""; [...cats].forEach(c => { const o = document.createElement("option"); o.value = c; $("catList").appendChild(o); });
 }
+function renderTiles(e) {
+  const box = $("secTiles"); box.innerHTML = ""; box.classList.toggle("compact", !!curSec);
+  SECTIONS.forEach(x => {
+    const its = e.items.filter(i => secOf(i.cat) === x.k); if (x.k === "autre" && !its.length) return;
+    const d = its.filter(i => i.done).length, w = its.reduce((s0, i) => s0 + total(i, e) * (+i.w || 0), 0);
+    const t = document.createElement("button"); t.type = "button"; t.className = "sec" + (its.length && d === its.length ? " full" : "");
+    t.setAttribute("aria-pressed", curSec === x.k ? "true" : "false");
+    const ic = document.createElement("span"); ic.className = "ic"; ic.setAttribute("aria-hidden", "true"); ic.textContent = x.icon;
+    const b = document.createElement("b"); b.textContent = x.label;
+    const sm = document.createElement("small"); sm.textContent = its.length ? `${d}/${its.length} prêts${w ? " · " + fmtW(w) : ""}` : "vide";
+    t.append(ic, b, sm); t.onclick = () => openSection(curSec === x.k ? "" : x.k); box.appendChild(t);
+  });
+}
+function openSection(k) {
+  curSec = k; closePicker(); renderList(); updatePreview();
+  if (k) { $("secTiles").scrollIntoView({ behavior: "smooth", block: "start" }); const t = $("secTiles").querySelector('[aria-pressed="true"]'); if (t) t.scrollIntoView({ inline: "center", block: "nearest" }); }
+}
+function secCatalog(k) {
+  const x = secDef(k), names = new Set();
+  const ok = c => k === "autre" ? secOf(c) === "autre" : x.cats.includes(c);
+  Object.values(state.gear).forEach(g => ok(g.cat) && names.add(g.name));
+  REF_BY.forEach(r => ok(r.cat) && names.add(r.name));
+  Object.values(PACKS).forEach(pk => pk.items.forEach(([n, c]) => ok(c) && names.add(n)));
+  return [...names].sort((a2, b2) => a2.localeCompare(b2, "fr"));
+}
 function renderList() {
   const e = cur(), box = $("list"); box.innerHTML = "";
   const only = $("onlyTodo").checked;
-  $("listActions").hidden = !e.items.length;
-  if (!e.items.length) { box.appendChild(emptyState()); return; }
-  const groups = {};
-  e.items.forEach(i => { const c = i.cat || "Autre"; (groups[c] = groups[c] || []).push(i); });
-  const order = [...CATS, ...Object.keys(groups).filter(c => !CATS.includes(c)).sort()];
+  renderTiles(e);
+  const x = curSec && secDef(curSec);
+  $("secHead").hidden = !x;
+  const pool = x ? e.items.filter(i => secOf(i.cat) === curSec) : e.items;
+  if (x) {
+    $("secTitle").textContent = `${x.icon} ${x.label}`;
+    $("qName").placeholder = "Ajouter un article…";
+    $("qList").innerHTML = ""; secCatalog(curSec).forEach(n => { const o = document.createElement("option"); o.value = n; $("qList").appendChild(o); });
+    const w = pool.reduce((s0, i) => s0 + total(i, e) * (+i.w || 0), 0), v = pool.reduce((s0, i) => s0 + total(i, e) * vol(i), 0);
+    $("secSum").textContent = pool.length ? `${pool.filter(i => i.done).length}/${pool.length} prêts · ${fmtW(w)} · ${fmtV(v)}` : "Rien encore dans cette section. Tape un article ci-dessus ou pioche dans les listes.";
+  }
+  $("listActions").hidden = !e.items.length && !x;
+  $("btnShare").textContent = x ? "Copier cette section (texte)" : "Copier la liste (texte)";
+  if (!e.items.length && !x) { box.appendChild(emptyState()); return; }
+  // vue section : groupes par catégorie ; vue générale : groupes par section
+  const groups = new Map();
+  if (x) { const order = [...x.cats, ...[...new Set(pool.map(i => i.cat || "Autre"))].filter(c => !x.cats.includes(c)).sort()];
+    order.forEach(c => { const g = pool.filter(i => (i.cat || "Autre") === c); if (g.length) groups.set(c, { title: c, items: g }); }); }
+  else SECTIONS.forEach(sx => { const g = pool.filter(i => secOf(i.cat) === sx.k); if (g.length) groups.set(sx.k, { title: sx.label, icon: sx.icon, items: g }); });
   let shown = 0;
-  order.filter(c => groups[c]).forEach(c => {
-    const items = groups[c].filter(i => !only || !i.done); if (!items.length) return;
+  groups.forEach(g => {
+    const items = g.items.filter(i => !only || !i.done); if (!items.length) return;
     const sec = document.createElement("div"); sec.className = "cat";
-    const h = document.createElement("h3"); const left = document.createElement("span"); left.textContent = c;
-    const right = document.createElement("span"); right.className = "mono"; right.textContent = `${groups[c].filter(i => i.done).length}/${groups[c].length}`;
+    const h = document.createElement("h3"); const left = document.createElement("span");
+    if (g.icon) { const ic = document.createElement("span"); ic.className = "ic"; ic.setAttribute("aria-hidden", "true"); ic.textContent = g.icon; left.appendChild(ic); }
+    left.appendChild(document.createTextNode(g.title));
+    const right = document.createElement("span"); right.className = "mono"; right.textContent = `${g.items.filter(i => i.done).length}/${g.items.length}`;
     h.append(left, right); sec.appendChild(h);
-    items.forEach(i => { sec.appendChild(row(i, e)); shown++; });
+    items.sort((a2, b2) => a2.name.localeCompare(b2.name, "fr")).forEach(i => { sec.appendChild(row(i, e)); shown++; });
     box.appendChild(sec);
   });
-  if (!shown) { const p = document.createElement("p"); p.className = "hint"; p.textContent = "Tout est prêt. Bon layon."; box.appendChild(p); }
+  if (!shown && pool.length) { const p = document.createElement("p"); p.className = "hint"; p.textContent = x ? "Section prête." : "Tout est prêt. Bon layon."; box.appendChild(p); }
+}
+function quickAdd() {
+  const x = secDef(curSec); if (!x) return;
+  const name = $("qName").value.trim(); if (!name) { $("qName").focus(); return; }
+  const k = gkey(name), e = cur();
+  if (e.items.some(i => gkey(i.name) === k)) { toast(`« ${name} » est déjà dans la liste`); return; }
+  let src = state.gear[k] || REF_BY.get(k) || null;
+  if (!src) Object.values(PACKS).forEach(pk => pk.items.forEach(t => { if (!src && gkey(t[0]) === k) src = refFill(packItem(t)); }));
+  const fallback = x.cats[0] || "Autre";
+  const cat = src && src.cat && secOf(src.cat) === curSec ? src.cat : fallback;
+  const q = parseFloat($("qQty").value);
+  const it = { id: uid(), name: src ? src.name : name, cat, qty: q > 0 ? q : (src && src.qty) || 1, mode: (src && src.mode) || "fixe", unit: (src && src.unit) || "pièce",
+    w: (src && src.w) || 0, L: (src && src.L) || 0, l: (src && src.l) || 0, H: (src && src.H) || 0, v: (src && src.v) || 0, note: (src && src.note) || "", done: false };
+  e.items.push(it); rememberGear(it); persist(e);
+  $("qName").value = ""; $("qQty").value = ""; renderAll(false); toast(`« ${it.name} » ajouté${src ? " avec ses caractéristiques" : ""}`); $("qName").focus();
 }
 function row(i, e) {
   const r = document.createElement("div"); r.className = "item" + (i.done ? " done" : "");
@@ -582,7 +683,7 @@ function sources() {
   return s;
 }
 function openPicker(target) {
-  pick.target = target === "gear" ? "gear" : "exp"; pick.sel.clear(); pick.q = "";
+  pick.target = target === "gear" ? "gear" : "exp"; pick.sel.clear(); pick.q = ""; pick.sec = pick.target === "exp" ? curSec : "";
   const b = $("packBox");
   if (!pick.src || !sources().some(([k]) => k === pick.src)) pick.src = sources()[0][0];
   b.hidden = false; renderPicker(); b.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -592,7 +693,8 @@ function renderPicker() {
   const b = $("packBox"); if (b.hidden) return; b.innerHTML = "";
   const have = pickHave();
   const head = document.createElement("div"); head.className = "toolbar";
-  const h = document.createElement("h2"); h.textContent = pick.target === "gear" ? "Ajouter à mon matériel" : "Choisir des articles";
+  const h = document.createElement("h2"); const sx = pick.sec && secDef(pick.sec);
+  h.textContent = pick.target === "gear" ? "Ajouter à mon matériel" : sx ? `${sx.icon} Choisir : ${sx.label}` : "Choisir des articles";
   const x = document.createElement("button"); x.className = "small ghost"; x.textContent = "Fermer"; x.onclick = closePicker;
   head.append(h, x);
   const tabs = document.createElement("div"); tabs.className = "tabs"; tabs.setAttribute("role", "tablist");
@@ -617,7 +719,7 @@ function renderPicker() {
 function pickHave() { return new Set(pick.target === "gear" ? Object.keys(state.gear) : cur().items.map(i => gkey(i.name))); }
 function renderPickList(list, have) {
   list.innerHTML = ""; const q = gkey(pick.q);
-  const items = sourceItems(pick.src).filter(it => !q || gkey(it.name).includes(q) || gkey(it.cat).includes(q));
+  const items = sourceItems(pick.src).filter(it => (!pick.sec || secOf(it.cat) === pick.sec) && (!q || gkey(it.name).includes(q) || gkey(it.cat).includes(q)));
   const groups = {}; items.forEach(it => (groups[it.cat || "Autre"] = groups[it.cat || "Autre"] || []).push(it));
   const order = [...CATS, ...Object.keys(groups).filter(c => !CATS.includes(c)).sort()].filter(c => groups[c]);
   if (!order.length) { const p = document.createElement("p"); p.className = "hint"; p.textContent = "Aucun article."; list.appendChild(p); return; }
@@ -699,7 +801,7 @@ function renderAll(force) { renderSelect(); renderParams(force); renderStats(); 
 
 // ---------- formulaire ----------
 function readForm() {
-  return { name: $("fName").value.trim(), cat: $("fCat").value.trim() || "Autre", qty: parseFloat($("fQty").value) || 0,
+  return { name: $("fName").value.trim(), cat: $("fCat").value.trim() || (curSec && secDef(curSec).cats[0]) || "Autre", qty: parseFloat($("fQty").value) || 0,
     mode: $("fMode").value, unit: $("fUnit").value.trim(), w: parseFloat($("fW").value) || 0,
     L: parseFloat($("fLen").value) || 0, l: parseFloat($("fWid").value) || 0, H: parseFloat($("fHei").value) || 0, v: parseFloat($("fV").value) || 0,
     note: $("fNote").value.trim() };
@@ -842,6 +944,9 @@ function renderManage() {
   a.appendChild(del); box.appendChild(a);
 }
 $("btnManage").onclick = () => { const box = $("manageBox"); if (!box.hidden) { box.hidden = true; manageSel.clear(); return; } manageSel.clear(); manageSel.add(state.current); box.hidden = false; renderManage(); };
+$("secBack").onclick = () => openSection("");
+$("qAdd").onclick = quickAdd;
+["qName","qQty"].forEach(id => $(id).addEventListener("keydown", ev => { if (ev.key === "Enter") { ev.preventDefault(); quickAdd(); } }));
 $("btnUncheck").onclick = () => { const e = cur(); e.items.forEach(i => i.done = false); persist(e); renderAll(false); toast("Toutes les cases décochées"); };
 $("onlyTodo").addEventListener("change", renderList);
 $("btnPacks").onclick = () => { if (!$("packBox").hidden) closePicker(); else openPicker(); };
@@ -854,11 +959,11 @@ async function copy(text, okMsg, fallbackEl) {
 }
 $("btnShare").onclick = () => {
   const e = cur(); const lines = [`${e.name} · ${e.type}`, `${e.days} j / ${e.nights} nuits · ${e.people} pers. · réserve ${e.reserve || 0} j`, ""];
-  const groups = {}; e.items.forEach(i => (groups[i.cat || "Autre"] = groups[i.cat || "Autre"] || []).push(i));
-  [...CATS, ...Object.keys(groups).filter(c => !CATS.includes(c))].filter(c => groups[c]).forEach(c => {
-    lines.push(c.toUpperCase()); groups[c].forEach(i => lines.push(`${i.done ? "☑" : "☐"} ${i.name} : ${total(i, e)} ${i.unit || ""}`.trim())); lines.push("");
+  SECTIONS.filter(x => !curSec || x.k === curSec).forEach(x => {
+    const its = e.items.filter(i => secOf(i.cat) === x.k).sort((a2, b2) => a2.name.localeCompare(b2.name, "fr")); if (!its.length) return;
+    lines.push(`${x.icon} ${x.label.toUpperCase()}`); its.forEach(i => lines.push(`${i.done ? "☑" : "☐"} ${i.name} : ${total(i, e)} ${i.unit || ""}`.trim())); lines.push("");
   });
-  copy(lines.join("\n").trim(), "Liste copiée, colle-la dans WhatsApp ou tes notes");
+  copy(lines.join("\n").trim(), curSec ? "Section copiée, colle-la dans WhatsApp" : "Liste copiée, colle-la dans WhatsApp ou tes notes");
 };
 $("btnExport").onclick = () => copy(JSON.stringify({ app: "sac-de-layon", v: 1, exps: Object.values(state.exps).filter(e => !e.draft), gear: state.gear }), "Sauvegarde copiée");
 $("btnImport").onclick = () => {
