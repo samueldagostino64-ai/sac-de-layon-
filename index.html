@@ -280,7 +280,7 @@ button.big { width: 100%; padding: 14px; font-size: 1.05rem; touch-action: manip
     <details>
       <summary class="label" style="cursor:pointer">Sauvegarde et suppression</summary>
       <div class="formbody">
-        <p class="hint">Copie toutes tes expéditions en texte pour les garder ailleurs, ou colle une sauvegarde pour les restaurer.</p>
+        <p class="hint">Copie toutes tes expéditions en texte pour les garder ailleurs, ou colle une sauvegarde (ou une liste de matériel préparée par Claude) pour la charger.</p>
         <div class="actions"><button class="small" id="btnExport">Copier la sauvegarde</button></div>
         <label class="label" for="importTxt">Coller une sauvegarde</label>
         <textarea id="importTxt" placeholder='{"exps":[…]}'></textarea>
@@ -737,10 +737,13 @@ $("btnShare").onclick = () => {
 $("btnExport").onclick = () => copy(JSON.stringify({ app: "sac-de-layon", v: 1, exps: Object.values(state.exps).filter(e => !e.draft), gear: state.gear }), "Sauvegarde copiée");
 $("btnImport").onclick = () => {
   try {
-    const d = JSON.parse($("importTxt").value); const list = Array.isArray(d) ? d : d.exps; if (!Array.isArray(list)) throw 0;
+    const d = JSON.parse($("importTxt").value); const list = Array.isArray(d) ? d : (Array.isArray(d.exps) ? d.exps : []);
     let n = 0; list.forEach(e => { if (!e || !e.id || !Array.isArray(e.items)) return; state.exps[e.id] = e; persist(e); n++; });
-    if (d.gear && typeof d.gear === "object") { Object.assign(state.gear, d.gear); persistGear(); }
-    if (!n) throw 0; state.current = list[0].id; $("importTxt").value = ""; renderAll(true); toast(`${n} expédition(s) restaurée(s)`);
+    let g = 0; const gl = d && d.gear ? (Array.isArray(d.gear) ? d.gear : Object.values(d.gear)) : [];
+    gl.forEach(it => { const k = it && gkey(it.name); if (!k) return; const old = state.gear[k] || {}; state.gear[k] = { ...old, ...it, uses: old.uses || it.uses || 0, updatedAt: Date.now() }; g++; });
+    if (g) persistGear();
+    if (!n && !g) throw 0; if (n) state.current = list[0].id; $("importTxt").value = ""; renderAll(true);
+    toast([n ? `${n} expédition(s) restaurée(s)` : "", g ? `${g} article(s) ajouté(s) à ton matériel` : ""].filter(Boolean).join(", "));
   } catch (e) { toast("Ce texte n'est pas une sauvegarde valide"); }
 };
 
