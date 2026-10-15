@@ -185,7 +185,7 @@ button.big { width: 100%; padding: 14px; font-size: 1.05rem; touch-action: manip
 .ver { font-size: .7rem; color: var(--muted); }
 .errbar { position: fixed; left: 0; right: 0; top: 0; z-index: 9; background: var(--laterite); color: #fff; font-size: .85rem; padding: calc(10px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px)); overflow-wrap: anywhere; }
 .confirm { border: 1px solid var(--laterite); border-radius: 8px; padding: 10px; display: grid; gap: 8px; }
-.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 8px; font-weight: 600; font-size: .9rem; opacity: 0; transition: opacity .2s; pointer-events: none; max-width: calc(100% - 32px); }
+.toast { position: fixed; z-index: 60; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 8px; font-weight: 600; font-size: .9rem; opacity: 0; transition: opacity .2s; pointer-events: none; max-width: calc(100% - 32px); }
 .toast.show { opacity: 1; }
 /* ---- refonte : onglets, résumé, fiches qui montent du bas ---- */
 .wrap { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
@@ -283,8 +283,15 @@ body.noscroll { overflow: hidden; }
 .card.big { border: 2px solid var(--accent); padding: 18px; box-shadow: 0 6px 22px rgba(0,0,0,.08); }
 .card.past { opacity: .7; }
 .ctop { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; }
-.cic { font-size: 1.7rem; line-height: 1; }
-.card.big .cic { font-size: 2.2rem; }
+.cic { width: 42px; height: 42px; border-radius: 12px; background: var(--soft); color: var(--accent); display: grid; place-items: center; }
+.cic svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.card.big .cic { width: 52px; height: 52px; border-radius: 14px; }
+.card.big .cic svg { width: 30px; height: 30px; }
+.card.draft { background: transparent; border-style: dashed; padding: 12px 14px; gap: 6px; }
+.card.draft .cic { background: transparent; color: var(--muted); }
+.card.draft .ctt h3 { font-size: 1.1rem; }
+.card.draft .dnote { margin: 0; font-size: .85rem; color: var(--muted); }
+.cinfo .safe::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: currentColor; margin-right: 7px; vertical-align: 1px; }
 .ctt { min-width: 0; }
 .ctt h3 { margin: 0; font-family: var(--f-display); font-size: 1.25rem; line-height: 1.1; overflow-wrap: anywhere; }
 .card.big .ctt h3 { font-size: 1.6rem; }
@@ -299,6 +306,8 @@ body.noscroll { overflow: hidden; }
 .cinfo p + p { margin-top: 3px; color: var(--muted); }
 .cinfo .safe.todo { color: var(--laterite); font-weight: 600; }
 .cinfo .safe.ok { color: var(--accent); font-weight: 600; }
+.gmsg { display: block; margin-top: 6px; font-size: .82rem; color: var(--accent); line-height: 1.35; }
+.gmsg.bad { color: var(--laterite); }
 .ring circle { fill: none; stroke-width: 6; stroke-linecap: round; }
 .ring .bg { stroke: var(--soft); } .ring .fg { stroke: var(--accent); }
 .ring text { font-size: 12px; font-weight: 700; fill: var(--ink); font-family: var(--f-body); }
@@ -490,7 +499,7 @@ header.top canvas { border-radius: var(--r); }
     <p class="hint">Supprime les expéditions de test ou passées, avec leur liste. Ton matériel est conservé.</p>
     <div class="actions"><button class="small danger" id="btnManage2">Supprimer des expéditions…</button></div>
     <div id="manageBox" class="manage" hidden></div>
-    <p class="ver mono">Sac de Layon · version 17</p>
+    <p class="ver mono">Sac de Layon · version 18</p>
   </section>
 </div>
 
@@ -1748,6 +1757,16 @@ function phase(e) {
   if (dayDiff(t, end) >= 0) return { k: "during", label: `En cours · jour ${1 - d}/${dayDiff(e.start, end) + 1}` };
   return { k: "past", label: "Terminée" };
 }
+const TICO = {
+  peche: '<path d="M2.5 12c3-5 10-6.5 14.5 0-4.5 6.5-11.5 5-14.5 0z"/><path d="M17 12l4.5-3.5v7z"/><circle cx="7.5" cy="11" r="0.9"/>',
+  pirogue: '<path d="M2 14h20l-3 4H5z"/><path d="M12 14V4"/><path d="M12 5l6 7h-6"/>',
+  topo: '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
+  carbet: '<path d="M3 20L12 4l9 16"/><path d="M12 4v16"/><path d="M2 20h20"/>',
+  foret: '<path d="M12 3l6 9h-3l4 6H5l4-6H6z"/><path d="M12 18v3"/>',
+  sac: '<path d="M6 8a6 6 0 0 1 12 0v12H6z"/><path d="M9 4.5V3h6v1.5"/><path d="M9 13h6v4H9z"/>'
+};
+function typeKey(t) { const k = gkey(t || "").normalize("NFD").replace(/[̀-ͯ]/g, ""); return /peche/.test(k) ? "peche" : /pirogue|fleuve|lac|riviere/.test(k) ? "pirogue" : /topo|reco/.test(k) ? "topo" : /carbet|bivouac/.test(k) ? "carbet" : /foret|layon|raid/.test(k) ? "foret" : "sac"; }
+function typeSvg(t) { return `<svg viewBox="0 0 24 24" aria-hidden="true">${TICO[typeKey(t)]}</svg>`; }
 function typeIcon(t) { const k = gkey(t).normalize("NFD").replace(/[̀-ͯ]/g, ""); return /peche/.test(k) ? "🎣" : /pirogue|fleuve|lac|riviere/.test(k) ? "🛶" : /topo|reco/.test(k) ? "🧭" : /carbet|bivouac/.test(k) ? "⛺" : /foret|layon|raid/.test(k) ? "🌳" : "🎒"; }
 function datesTxt(e) { return e.start ? `${dShort(e.start)} → ${dShort(endOf(e))}` : "Pas encore de date"; }
 
@@ -1779,15 +1798,17 @@ function ring(d, n, size) {
 }
 function expCard(e, big) {
   const ph = phase(e), n = e.items.length, d = e.items.filter(i => i.done).length, s = e.safety || {};
-  const c = document.createElement("article"); c.className = "card" + (big ? " big" : "") + (ph.k === "past" ? " past" : "");
+  const draft = !n && !e.start && !big;
+  const c = document.createElement("article"); c.className = "card" + (big ? " big" : "") + (ph.k === "past" ? " past" : "") + (draft ? " draft" : "");
   const top = document.createElement("div"); top.className = "ctop";
-  const ic = document.createElement("span"); ic.className = "cic"; ic.setAttribute("aria-hidden", "true"); ic.textContent = typeIcon(e.type);
+  const ic = document.createElement("span"); ic.className = "cic"; ic.setAttribute("aria-hidden", "true"); ic.innerHTML = typeSvg(draft ? "" : e.type);
   const tt = document.createElement("div"); tt.className = "ctt";
   const h = document.createElement("h3"); h.textContent = e.name || "Sans nom";
   const sub = document.createElement("small"); sub.textContent = [e.type, `${e.people} pers.`].filter(Boolean).join(" · ");
   tt.append(h, sub);
   const cd = document.createElement("span"); cd.className = "cd " + ph.k; cd.textContent = ph.k === "none" ? "" : ph.label;
   top.append(ic, tt, cd);
+  if (draft) { const dn = document.createElement("p"); dn.className = "dnote"; dn.textContent = "À compléter : pas de date, liste vide"; c.append(top, dn); c.onclick = () => openExp(e.id, "liste"); return c; }
   const mid = document.createElement("div"); mid.className = "cmid";
   mid.appendChild(ring(d, n, big ? 64 : 44));
   const info = document.createElement("div"); info.className = "cinfo";
@@ -1796,8 +1817,8 @@ function expCard(e, big) {
   l2.textContent = n ? `${d}/${n} prêt${d > 1 ? "s" : ""}` : "Liste vide";
   if (wpp) { const w = document.createElement("span"); w.className = "w " + lv; w.textContent = ` · ${fmtW(wpp)} / pers.${lv === "over" ? " ⚠" : ""}`; l2.appendChild(w); }
   info.append(l1, l2);
-  if (ph.k !== "none" && ph.k !== "past") { const l3 = document.createElement("p"); l3.className = "safe " + (s.sentAt ? "ok" : "todo"); l3.textContent = s.sentAt ? "🛟 Fiche sécurité envoyée" : "🛟 Fiche sécurité à envoyer"; info.appendChild(l3); }
-  if (s.backAt) { const l3 = document.createElement("p"); l3.className = "safe ok"; l3.textContent = "✅ Retour signalé"; info.appendChild(l3); }
+  if (ph.k !== "none" && ph.k !== "past") { const l3 = document.createElement("p"); l3.className = "safe " + (s.sentAt ? "ok" : "todo"); l3.textContent = s.sentAt ? "Fiche sécurité envoyée" : "Fiche sécurité à envoyer"; info.appendChild(l3); }
+  if (s.backAt) { const l3 = document.createElement("p"); l3.className = "safe ok"; l3.textContent = "Retour signalé"; info.appendChild(l3); }
   mid.appendChild(info);
   c.append(top, mid);
   c.onclick = ev => { if (!ev.target.closest("button")) openExp(e.id, "liste"); };
@@ -1805,11 +1826,11 @@ function expCard(e, big) {
   if (big || back) {
     const a = document.createElement("div"); a.className = "actions";
     const btn = (txt, cls, fn) => { const b = document.createElement("button"); b.className = cls; b.textContent = txt; b.onclick = fn; a.appendChild(b); };
-    if (back) btn("✅ Je suis rentré", "primary", () => { state.current = e.id; renderAll(true); openSafety(true); });
+    if (back) btn("Je suis rentré", "primary", () => { state.current = e.id; renderAll(true); openSafety(true); });
     if (big) {
       btn("Ouvrir la liste", back ? "" : "primary", () => openExp(e.id, "liste"));
       btn("Faire le sac", "", () => openExp(e.id, "sac"));
-      if (!back && ph.k !== "past") btn("🛟 Fiche sécurité", "ghost", () => { state.current = e.id; renderAll(true); openSafety(); });
+      if (!back && ph.k !== "past") btn("Fiche sécurité", "ghost", () => { state.current = e.id; renderAll(true); openSafety(); });
     }
     c.appendChild(a);
   }
@@ -1968,13 +1989,26 @@ function renderSafety() {
     const [fFrom] = field("Point de départ", "from", { ph: "Dégrad, piste, début de layon…" });
     const [fGps, iGps] = field("Coordonnées GPS du départ", "gps", { ph: "4.9372, -52.3260" });
     const loc = document.createElement("button"); loc.type = "button"; loc.className = "small"; loc.textContent = "📍 Ma position actuelle";
+    const gmsg = document.createElement("small"); gmsg.className = "gmsg"; gmsg.hidden = true;
+    const say = (t, bad) => { gmsg.hidden = !t; gmsg.textContent = t || ""; gmsg.classList.toggle("bad", !!bad); };
+    const done = () => { loc.disabled = false; loc.textContent = "📍 Ma position actuelle"; };
+    const ok = p => { const c = p.coords; iGps.value = `${c.latitude.toFixed(5)}, ${c.longitude.toFixed(5)}`; s.gps = iGps.value; save(); done();
+      say(`Position enregistrée (précision ± ${Math.round(c.accuracy)} m).`); };
+    const ios = /iPhone|iPad|iPod/.test(navigator.userAgent);
+    const fail = err => { done();
+      if (err && err.code === 1) say(ios ? "Accès à la position refusé. Sur iPhone : Réglages > Confidentialité et sécurité > Service de localisation (activé), puis « Sites web Safari » (ou Chrome) > « Lorsque l'app est active ». Dans Safari, touche aA > Réglages du site web > Position > Autoriser. Puis réessaie." : "Accès à la position refusé. Autorise la position pour ce site dans les réglages du navigateur, puis réessaie.", true);
+      else if (!window.isSecureContext) say("La position ne marche que sur le lien sécurisé (https) de l'appli.", true);
+      else say("Pas de signal GPS pour l'instant. Mets-toi à découvert et réessaie, ou tape les coordonnées à la main.", true); };
     loc.onclick = () => {
-      if (!navigator.geolocation) { toast("Position indisponible sur cet appareil"); return; }
-      loc.disabled = true; loc.textContent = "Recherche…";
-      navigator.geolocation.getCurrentPosition(p => { iGps.value = `${p.coords.latitude.toFixed(5)}, ${p.coords.longitude.toFixed(5)}`; s.gps = iGps.value; save(); loc.disabled = false; loc.textContent = "📍 Ma position actuelle"; },
-        () => { toast("Position indisponible : tape-la à la main"); loc.disabled = false; loc.textContent = "📍 Ma position actuelle"; }, { enableHighAccuracy: true, timeout: 15000 });
+      if (!navigator.geolocation) { say("Cet appareil ne donne pas sa position : tape les coordonnées à la main.", true); return; }
+      loc.disabled = true; loc.textContent = "Recherche de la position…"; say("");
+      // d'abord une position rapide (réseau, dernière connue), puis le GPS précis si la première échoue
+      navigator.geolocation.getCurrentPosition(ok, err => {
+        if (err && err.code === 1) { fail(err); return; }
+        navigator.geolocation.getCurrentPosition(ok, fail, { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 });
+      }, { enableHighAccuracy: false, timeout: 8000, maximumAge: 600000 });
     };
-    fGps.appendChild(loc);
+    fGps.append(loc, gmsg);
     g.append(fFrom, fGps, field("Itinéraire, zone, campements", "route", { area: true, ph: "Remontée jusqu'au saut X, bivouac au carbet Y, retour par…" })[0]);
     const t3 = document.createElement("h3"); t3.className = "sfh"; t3.textContent = "Moyens et à savoir"; g.appendChild(t3);
     g.append(field("Véhicule", "car", { ph: "Modèle, couleur, immatriculation, où il est garé" })[0], field("Pirogue", "boat", { ph: "Longueur, couleur, moteur" })[0],
