@@ -18,7 +18,7 @@
 <title>Sac de Layon</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap">
 <style>
 /* Layout : carnet de terrain, une colonne lisible au téléphone, en-tête façon carte topo */
 :root {
@@ -34,7 +34,7 @@
   --contour: rgba(31,106,82,.13);
   --f-display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
   --f-body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --f-mono: var(--f-body);
   --r: 10px;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
@@ -260,7 +260,71 @@ body.noscroll { overflow: hidden; }
 .tip { background: var(--soft); border: 1px solid var(--accent); border-radius: var(--r); padding: 12px 14px; display: grid; gap: 8px; font-size: .92rem; }
 .tip p { margin: 0; }
 .ver { margin: 8px 0 0; }
-header.top { overflow: visible; z-index: 10; }
+/* ---- v17 : barre fine, accueil, sac bouclé, fiche sécurité ---- */
+.mono, .item .qt, .srow b, .stats b, .stepper .ctl b, .sumbar .w { font-variant-numeric: tabular-nums; font-weight: 600; }
+.item .qt { font-size: 1rem; }
+.appbar { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; padding: 2px 0; position: relative; z-index: 10; }
+.apphome { border: 0; background: none; padding: 0; line-height: 0; }
+.logo.sm { width: 36px; height: 36px; }
+.apptitle { border: 0; background: none; padding: 4px 0; text-align: left; display: grid; gap: 0; min-width: 0; }
+.apptitle b { font-family: var(--f-display); font-size: 1.45rem; line-height: 1.1; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.apptitle b::after { content: " ▾"; font-size: .8rem; color: var(--muted); }
+.apptitle small { color: var(--accent); font-size: .78rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.appbar #btnMore { font-size: 1.3rem; min-width: 44px; min-height: 44px; padding: 0; }
+.tabbar { grid-template-columns: repeat(5, 1fr); }
+.tabbar svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.tabbar button { font-size: .74rem; }
+.home { display: grid; gap: 12px; }
+.homehead { display: flex; justify-content: flex-end; }
+.homehead button { min-height: 44px; }
+.hlab { font-size: .8rem; color: var(--muted); letter-spacing: .1em; margin: 6px 2px 0; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: grid; gap: 12px; cursor: pointer; -webkit-tap-highlight-color: transparent; margin-top: 10px; }
+.card:first-child { margin-top: 0; }
+.card.big { border: 2px solid var(--accent); padding: 18px; box-shadow: 0 6px 22px rgba(0,0,0,.08); }
+.card.past { opacity: .7; }
+.ctop { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; }
+.cic { font-size: 1.7rem; line-height: 1; }
+.card.big .cic { font-size: 2.2rem; }
+.ctt { min-width: 0; }
+.ctt h3 { margin: 0; font-family: var(--f-display); font-size: 1.25rem; line-height: 1.1; overflow-wrap: anywhere; }
+.card.big .ctt h3 { font-size: 1.6rem; }
+.ctt small { color: var(--muted); font-size: .82rem; }
+.cd { font-family: var(--f-display); font-weight: 700; font-size: 1.05rem; color: var(--accent); white-space: nowrap; text-align: right; }
+.card.big .cd { font-size: 2rem; line-height: 1; }
+.cd.today, .cd.during { color: var(--laterite); }
+.cd.past { color: var(--muted); font-size: .9rem; }
+.card.big .cd.during, .card.big .cd.past { font-size: 1rem; }
+.cmid { display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: center; }
+.cinfo p { margin: 0; font-size: .9rem; }
+.cinfo p + p { margin-top: 3px; color: var(--muted); }
+.cinfo .safe.todo { color: var(--laterite); font-weight: 600; }
+.cinfo .safe.ok { color: var(--accent); font-weight: 600; }
+.ring circle { fill: none; stroke-width: 6; stroke-linecap: round; }
+.ring .bg { stroke: var(--soft); } .ring .fg { stroke: var(--accent); }
+.ring text { font-size: 12px; font-weight: 700; fill: var(--ink); font-family: var(--f-body); }
+.card .actions button { min-height: 44px; }
+.empty-home { cursor: default; }
+.empty-home p { margin: 0; color: var(--muted); }
+.pastbox summary { cursor: pointer; padding: 8px 0; list-style: none; }
+.pastbox summary::before { content: "▸ "; }
+.pastbox[open] summary::before { content: "▾ "; }
+.item, .srow { transition: opacity .3s, transform .3s; }
+.item.tick, .srow.tick { opacity: .45; transform: translateX(8px); }
+.ov.center { align-items: center; padding: 16px; }
+.celebrate { background: var(--bg); border-radius: 20px; padding: 24px 20px; max-width: 420px; width: 100%; display: grid; gap: 10px; justify-items: center; text-align: center; }
+.celebrate h2 { font-size: 1.8rem; color: var(--accent); text-transform: none; letter-spacing: 0; }
+.celebrate p { margin: 0; color: var(--muted); }
+#doneArt { width: 180px; height: 180px; }
+#doneArt path { fill: none; stroke: var(--accent); stroke-width: 1.4; stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 1.2s ease-out forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) { #doneArt path { animation: none; stroke-dashoffset: 0; } }
+.sfh { grid-column: 1 / -1; margin: 10px 0 0; font-family: var(--f-display); font-size: 1rem; text-transform: uppercase; letter-spacing: .08em; color: var(--accent); }
+.msgprev { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--f-body); font-size: .88rem; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+#safeForm textarea { min-height: 64px; font-family: var(--f-body); font-size: .95rem; }
+#safeForm .field button { margin-top: 6px; justify-self: start; }
+#safeActions .hint { flex-basis: 100%; }
+header.top { overflow: hidden; }
+header.top canvas { border-radius: 0; }
 header.top canvas { border-radius: var(--r); }
 .sheet { grid-auto-rows: max-content; }
 .cat h3 { align-items: center; }
@@ -273,7 +337,7 @@ header.top canvas { border-radius: var(--r); }
 </style>
 
 <div class="wrap">
-  <header class="top">
+  <header class="top" data-view="accueil">
     <canvas id="topo" aria-hidden="true"></canvas>
     <div class="toprow">
       <div class="brand">
@@ -291,15 +355,29 @@ header.top canvas { border-radius: var(--r); }
       </div>
       <span class="sync" id="sync"><i></i><span>Enregistré sur ce téléphone</span></span>
     </div>
-    <div class="expbar">
-      <select id="expSelect" aria-label="Expédition"></select>
-      <button id="btnNew" class="small primary">+ Nouvelle</button>
-      <div class="morewrap">
-        <button id="btnMore" class="small ghost" aria-label="Plus d'actions" aria-haspopup="true" aria-expanded="false">⋯</button>
-        <div id="moreMenu" class="menu" hidden>
-          <button id="btnDup">Dupliquer cette expédition</button>
-          <button id="btnManage" class="danger-text">Supprimer des expéditions…</button>
-        </div>
+  </header>
+
+  <section id="homeView" class="home" data-view="accueil" hidden>
+    <div class="homehead"><button id="btnNew" class="primary">+ Nouvelle expédition</button></div>
+    <div id="homeList"></div>
+  </section>
+  <div id="installTip" class="tip" data-view="accueil" hidden></div>
+
+  <header class="appbar" data-view="liste sac mat reglages" hidden>
+    <button id="appHome" class="apphome" aria-label="Mes expéditions"><svg class="logo sm" viewBox="0 0 48 48" aria-hidden="true">
+          <rect x="1" y="1" width="46" height="46" rx="11" fill="var(--accent)"/>
+          <path d="M5 37 q19 -9 38 0 M5 42 q19 -8 38 0" fill="none" stroke="var(--accent-ink)" stroke-width="1.6" opacity=".55"/>
+          <rect x="15" y="12" width="18" height="23" rx="5" fill="var(--accent-ink)"/>
+          <rect x="19" y="8" width="10" height="7" rx="3" fill="none" stroke="var(--accent-ink)" stroke-width="2"/>
+          <rect x="18.5" y="22" width="11" height="7" rx="2" fill="var(--accent)"/>
+        </svg></button>
+    <button id="appTitle" class="apptitle" aria-label="Changer d'expédition"><small id="appKicker"></small><b id="appName"></b></button>
+    <div class="morewrap">
+      <button id="btnMore" class="ghost" aria-label="Plus d'actions" aria-haspopup="true" aria-expanded="false">⋯</button>
+      <div id="moreMenu" class="menu" hidden>
+        <button id="btnSafety">🛟 Fiche sécurité</button>
+        <button id="btnDup">Dupliquer cette expédition</button>
+        <button id="btnManage" class="danger-text">Supprimer des expéditions…</button>
       </div>
     </div>
   </header>
@@ -321,6 +399,8 @@ header.top canvas { border-radius: var(--r); }
           <option value="Remontée de fleuve en pirogue"></option>
         </datalist>
       </div>
+      <div class="field"><label class="label" for="pStart">Départ</label><input id="pStart" type="date"></div>
+      <div class="field"><label class="label" for="pEnd">Retour</label><input id="pEnd" type="date"></div>
       <div class="field"><label class="label" for="pDays">Jours</label><input id="pDays" type="number" min="1" inputmode="numeric"></div>
       <div class="field"><label class="label" for="pNights">Nuits</label><input id="pNights" type="number" min="0" inputmode="numeric"></div>
       <div class="field"><label class="label" for="pPeople">Personnes</label><input id="pPeople" type="number" min="1" inputmode="numeric"></div>
@@ -364,7 +444,6 @@ header.top canvas { border-radius: var(--r); }
     </div>
   </section>
 
-  <div id="installTip" class="tip" data-view="liste" hidden></div>
 
   <!-- ===== Sac ===== -->
   <section class="panel" id="sacView" data-view="sac" hidden></section>
@@ -372,10 +451,10 @@ header.top canvas { border-radius: var(--r); }
   <!-- ===== Matériel ===== -->
   <section class="panel" aria-labelledby="hGear" data-view="mat" hidden>
     <div class="toolbar"><h2 id="hGear">Mon matériel</h2><span class="mono" id="gearCount">0</span></div>
-    <p class="hint">Chaque article que tu ajoutes ou modifies est retenu ici avec son poids, ses dimensions et son volume. Tape son nom dans une prochaine expédition : tout est rempli tout seul.</p>
+    <div class="tip" id="matIntro"><p>Chaque article que tu ajoutes ou modifies est retenu ici avec son poids, ses dimensions et son volume. Tape son nom dans une prochaine expédition : tout est rempli tout seul.</p><div class="actions"><button class="small" id="matIntroOk">Compris</button></div></div>
     <div class="actions">
-      <button class="small" id="btnRef">Piocher dans le référentiel</button>
-      <button class="small ghost" id="btnPerso">Personnaliser les suggestions</button>
+      <button class="small" id="btnRef">+ Référentiel</button>
+      <button class="small ghost" id="btnPerso">Personnaliser</button>
     </div>
     <div id="persoBox" class="manage" hidden></div>
     <input id="gearSearch" placeholder="Chercher dans mon matériel" aria-label="Chercher dans mon matériel">
@@ -411,15 +490,16 @@ header.top canvas { border-radius: var(--r); }
     <p class="hint">Supprime les expéditions de test ou passées, avec leur liste. Ton matériel est conservé.</p>
     <div class="actions"><button class="small danger" id="btnManage2">Supprimer des expéditions…</button></div>
     <div id="manageBox" class="manage" hidden></div>
-    <p class="ver mono">Sac de Layon · version 16</p>
+    <p class="ver mono">Sac de Layon · version 17</p>
   </section>
 </div>
 
 <nav class="tabbar" aria-label="Navigation">
-  <button data-go="liste" aria-current="page"><span aria-hidden="true">📋</span>Liste</button>
-  <button data-go="sac"><span aria-hidden="true">🎒</span>Sac</button>
-  <button data-go="mat"><span aria-hidden="true">🧰</span>Matériel</button>
-  <button data-go="reglages"><span aria-hidden="true">⚙️</span>Réglages</button>
+  <button data-go="accueil"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4 3 6.5v13.5l6-2.5 6 2.5 6-2.5V4l-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/></svg>Expés</button>
+  <button data-go="liste"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6h10M10 12h10M10 18h10"/><path d="m3.5 6 1.5 1.5L7.5 5M3.5 12l1.5 1.5L7.5 11M3.5 18l1.5 1.5L7.5 17"/></svg>Liste</button>
+  <button data-go="sac"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 10a6 6 0 0 1 12 0v9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z"/><path d="M9.5 4.5V3h5v1.5M9 14h6v3.5H9z"/></svg>Sac</button>
+  <button data-go="mat"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M8.5 8V5h7v3M3 13h18M10.5 12v2.5h3V12"/></svg>Matériel</button>
+  <button data-go="reglages"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 12h3M11 12h9M4 17h11M19 17h1"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="17" r="2"/></svg>Réglages</button>
 </nav>
 
 <!-- fiche article : ajout détaillé et modification -->
@@ -463,6 +543,29 @@ header.top canvas { border-radius: var(--r); }
 <!-- choix dans les packs / le référentiel -->
 <div class="ov" id="packOv" hidden>
   <div class="sheet tall" role="dialog" aria-modal="true" id="packBox" hidden></div>
+</div>
+
+<!-- sac bouclé -->
+<div class="ov center" id="doneOv" hidden>
+  <div class="celebrate" role="dialog" aria-modal="true" aria-labelledby="doneTitle">
+    <svg id="doneArt" viewBox="0 0 200 200" aria-hidden="true"></svg>
+    <h2 id="doneTitle">Sac bouclé. Bon layon.</h2>
+    <p id="doneTxt"></p>
+    <div class="actions">
+      <button class="primary" id="doneSafety">🛟 Préparer la fiche sécurité</button>
+      <button class="ghost" id="doneClose">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- fiche sécurité « Si je ne rentre pas » -->
+<div class="ov" id="safeOv" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="safeTitle" id="safeBox">
+    <div class="toolbar"><h2 id="safeTitle">🛟 Si je ne rentre pas</h2><button type="button" class="small ghost" id="safeClose" aria-label="Fermer">✕</button></div>
+    <p class="hint" id="safeIntro"></p>
+    <div id="safeForm"></div>
+    <div class="actions sfoot" id="safeActions"></div>
+  </div>
 </div>
 
 <!-- texte à copier à la main quand le presse-papiers est bloqué -->
@@ -711,19 +814,14 @@ function pickDefault() {
   if (list.length) state.current = list[0].id;
   else { const e = blankExp(); state.exps[e.id] = e; state.current = e.id; }
 }
-function renderSelect() {
-  const s = $("expSelect"); s.innerHTML = "";
-  Object.values(state.exps).sort((a, b) => b.updatedAt - a.updatedAt).forEach(e => {
-    const o = document.createElement("option"); o.value = e.id;
-    o.textContent = `${e.name || "Sans nom"} · ${e.days} j · ${e.people} pers.`; s.appendChild(o);
-  });
-  s.value = state.current;
-}
+function renderSelect() { renderAppBar(); }
 function renderParams(force) {
   const e = cur();
   [["pName","name"],["pType","type"],["pDays","days"],["pNights","nights"],["pPeople","people"],["pReserve","reserve"],["pMax","maxPP"]].forEach(([id, k]) => {
     const el = $(id); if (force || document.activeElement !== el) el.value = k === "maxPP" ? (+e[k] || "") : e[k] ?? "";
   });
+  if (force || document.activeElement !== $("pStart")) $("pStart").value = e.start || "";
+  if (force || document.activeElement !== $("pEnd")) $("pEnd").value = e.start ? endOf(e) : (e.end || "");
 }
 function renderStats() {
   const e = cur(); const n = e.items.length; const d = e.items.filter(i => i.done).length;
@@ -853,7 +951,7 @@ function row(i, e) {
   const ck = document.createElement("label"); ck.className = "ck";
   const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = !!i.done;
   cb.setAttribute("aria-label", "Prêt : " + i.name);
-  cb.addEventListener("change", () => { i.done = cb.checked; persist(e); refresh(); });
+  cb.addEventListener("change", () => tick(i, e, r, cb.checked));
   ck.appendChild(cb);
   const open = openRows.has(i.id);
   const nm = document.createElement("button"); nm.type = "button"; nm.className = "nm"; nm.setAttribute("aria-expanded", open ? "true" : "false");
@@ -1088,9 +1186,9 @@ function renderPerso() {
   }
   fill();
 }
-function renderAll(force) { renderSelect(); renderParams(force); renderStats(); renderCatalog(); renderList(); renderGear(); renderSum(); renderSac(); renderWizard(); renderSaveInfo(); updatePreview(); }
+function renderAll(force) { renderSelect(); renderParams(force); renderStats(); renderCatalog(); renderList(); renderGear(); renderSum(); renderSac(); renderWizard(); renderSaveInfo(); renderHome(); updatePreview(); }
 // après un cochage : seulement ce qui bouge
-function refresh() { renderStats(); renderSum(); renderList(); renderSac(); }
+function refresh() { renderStats(); renderSum(); renderList(); renderSac(); renderHome(); }
 
 // ---------- formulaire ----------
 function readForm() {
@@ -1185,13 +1283,18 @@ document.querySelectorAll("input[data-list]").forEach(i => combo(i, i.dataset.li
     const e = cur(); let v = $(id).value;
     if (num) { if (v === "" && k !== "maxPP") return; v = k === "maxPP" ? Math.max(0, Math.round(+v * 10) / 10) : Math.max(k === "days" || k === "people" ? 1 : 0, Math.round(+v)); }
     if (k === "days" && +e.nights === Math.max(0, +e.days - 1)) { e.nights = Math.max(0, v - 1); $("pNights").value = e.nights; }
-    e[k] = v; persist(e); renderSelect(); renderStats(); renderSum(); renderList(); renderSac(); updatePreview();
+    e[k] = v; if (k === "days" && e.start) { e.end = addDays(e.start, Math.max(0, v - 1)); $("pEnd").value = e.end; }
+    persist(e); renderSelect(); renderStats(); renderSum(); renderList(); renderSac(); updatePreview();
   });
 });
 
+[["pStart","start"],["pEnd","end"]].forEach(([id, k]) => $(id).addEventListener("change", () => {
+  const e = cur(), v = $(id).value; e[k] = v;
+  if (k === "start" && v) e.end = addDays(v, Math.max(0, (+e.days || 1) - 1));
+  if (e.start && e.end) { if (dayDiff(e.start, e.end) < 0) e.end = e.start; syncDays(e); }
+  persist(e); renderParams(true); renderSelect(); renderStats(); renderSum(); renderList(); renderSac(); updatePreview();
+}));
 // ---------- expéditions ----------
-$("expSelect").addEventListener("change", () => { state.current = $("expSelect").value; lsSave(); resetForm(); renderAll(true); });
-$("btnNew").onclick = () => { const e = blankExp(); state.exps[e.id] = e; state.current = e.id; wiz.step = 1; curSec = ""; resetForm(); setView("liste"); renderAll(true); scrollTo(0, 0); const n = $("wName"); if (n) n.focus(); };
 $("btnDup").onclick = () => {
   const s = cur(); const e = JSON.parse(JSON.stringify(s)); e.id = uid(); e.name = (s.name || "Expédition") + " (copie)";
   e.items.forEach(i => { i.id = uid(); i.done = false; }); state.exps[e.id] = e; state.current = e.id; persist(e); closeMenu(); renderAll(true); toast("Expédition dupliquée, cases décochées");
@@ -1258,7 +1361,7 @@ async function copy(text, okMsg, fallbackEl) {
   catch (e) { const t = $("txtOut"); t.value = text; openOv("txtOv"); t.focus(); t.select(); }
 }
 $("btnShare").onclick = () => {
-  const e = cur(); const lines = [`${e.name} · ${e.type}`, `${e.days} j / ${e.nights} nuits · ${e.people} pers. · réserve ${e.reserve || 0} j`, ""];
+  const e = cur(); const lines = [`${e.name}${e.type ? " · " + e.type : ""}`, `${e.start ? datesTxt(e) + " · " : ""}${e.days} j / ${e.nights} nuits · ${e.people} pers. · réserve ${e.reserve || 0} j`, ""];
   SECTIONS.filter(x => !curSec || x.k === curSec).forEach(x => {
     const its = e.items.filter(i => secOf(i.cat) === x.k).sort((a2, b2) => a2.name.localeCompare(b2.name, "fr")); if (!its.length) return;
     lines.push(`${x.icon} ${x.label.toUpperCase()}`); its.forEach(i => lines.push(`${i.done ? "☑" : "☐"} ${i.name} : ${qtyTxt(total(i, e), i.unit)}`)); lines.push("");
@@ -1295,7 +1398,7 @@ function buildPdf(JsPDF) {
   col(C.acc, "f"); doc.rect(0, 0, W, 34, "F");
   doc.setFont("helvetica", "bold"); doc.setFontSize(8.5); col([214, 232, 222]); txt("SAC DE LAYON  ·  CHECKLIST D'EXPÉDITION", M, 11, { charSpace: 0.6 });
   doc.setFontSize(21); col([255, 255, 255]); txt(doc.splitTextToSize(pdfTxt(e.name || "Expédition"), CW)[0], M, 22);
-  doc.setFont("helvetica", "normal"); doc.setFontSize(10.5); col([226, 238, 230]); txt(e.type || "", M, 29);
+  doc.setFont("helvetica", "normal"); doc.setFontSize(10.5); col([226, 238, 230]); txt([e.type, e.start ? `du ${dLongY(e.start)} au ${dLongY(endOf(e))}` : ""].filter(Boolean).join("  ·  "), M, 29);
   // chiffres clés
   let y = 42; const boxes = [["DURÉE", `${e.days} j · ${e.nights} nuit${+e.nights > 1 ? "s" : ""}`], ["ÉQUIPE", `${e.people} pers.`], ["RÉSERVE", `${e.reserve || 0} j`],
     ["POIDS TOTAL", wT ? fmtW(wT) : "–", wT ? fmtW(wT / pp) + " / pers." + (+e.maxPP ? ` (max ${fmtN(e.maxPP)} kg)` : "") : ""], ["VOLUME", vT ? fmtV(vT) : "–", vT ? fmtV(vT / pp) + " / pers." : ""]];
@@ -1421,14 +1524,16 @@ let tt; function toast(m, undo) {
 // ---------- onglets : Liste · Sac · Matériel · Réglages ----------
 const LS_VIEW = "sacdelayon.view";
 let view = "liste";
-function savedView() { try { const v = localStorage.getItem(LS_VIEW); return ["liste","sac","mat","reglages"].includes(v) ? v : "liste"; } catch (e) { return "liste"; } }
+// l'appli s'ouvre toujours sur les expéditions : ce qui t'attend d'abord
+function savedView() { return "accueil"; }
 function setView(v, quiet) {
   view = v;
   document.querySelectorAll("[data-view]").forEach(el => { el.hidden = !el.dataset.view.split(" ").includes(v) || (el.id === "installTip" && !el.dataset.on); });
   if (!["liste","sac"].includes(v)) { $("paramsPanel").hidden = true; $("sumBar").setAttribute("aria-expanded", "false"); }
   document.querySelectorAll(".tabbar button").forEach(b => b.dataset.go === v ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current"));
-  try { localStorage.setItem(LS_VIEW, v); } catch (e) {}
   renderWizard();
+  if (v === "accueil") { renderHome(); requestAnimationFrame(drawTopo); }
+  if (v === "mat") $("matIntro").hidden = hintSeen("mat");
   if (!quiet) scrollTo(0, 0);
 }
 document.querySelectorAll(".tabbar button").forEach(b => b.onclick = () => { closeMenu(); setView(b.dataset.go); });
@@ -1440,7 +1545,7 @@ $("sheetOv").addEventListener("click", ev => { if (ev.target === $("sheetOv")) r
 $("packOv").addEventListener("click", ev => { if (ev.target === $("packOv")) closePicker(); });
 $("txtOv").addEventListener("click", ev => { if (ev.target === $("txtOv")) closeOv("txtOv"); });
 $("txtClose").onclick = () => closeOv("txtOv");
-document.addEventListener("keydown", ev => { if (ev.key !== "Escape") return; if (!$("packOv").hidden) closePicker(); else if (!$("sheetOv").hidden) resetForm(); else if (!$("txtOv").hidden) closeOv("txtOv"); closeMenu(); });
+document.addEventListener("keydown", ev => { if (ev.key !== "Escape") return; if (!$("safeOv").hidden) closeOv("safeOv"); else if (!$("doneOv").hidden) closeOv("doneOv"); else if (!$("packOv").hidden) closePicker(); else if (!$("sheetOv").hidden) resetForm(); else if (!$("txtOv").hidden) closeOv("txtOv"); closeMenu(); });
 
 // ---------- menu ⋯ ----------
 function closeMenu() { $("moreMenu").hidden = true; $("btnMore").setAttribute("aria-expanded", "false"); }
@@ -1481,14 +1586,15 @@ function renderSac() {
   const big = document.createElement("div"); big.className = "big"; big.textContent = `${d} / ${n}`;
   const sm = document.createElement("small"); sm.textContent = "prêts"; big.appendChild(sm);
   const bar = document.createElement("div"); bar.className = "bar"; const sp = document.createElement("span"); sp.style.width = n ? (d / n * 100) + "%" : "0"; bar.appendChild(sp);
-  const hint = document.createElement("p"); hint.className = "hint"; hint.textContent = "Touche une ligne quand l'article est dans le sac. Ce qui est prêt se range en bas de sa section.";
+  const hint = document.createElement("p"); hint.className = "hint"; hint.textContent = "Touche une ligne quand l'article est dans le sac. Ce qui est prêt se range en bas de sa section."; hint.hidden = hintSeen("sac");
   head.append(h, big, bar, hint); box.appendChild(head);
   if (!n) {
     const p = document.createElement("p"); p.textContent = "Ta liste est vide. Prépare-la d'abord dans l'onglet Liste.";
     const go = document.createElement("button"); go.className = "primary"; go.textContent = "Aller à la liste"; go.onclick = () => setView("liste");
     box.append(p, go); return;
   }
-  if (d === n) { const p = document.createElement("p"); p.className = "done-msg"; p.textContent = "Sac bouclé. Bon layon."; box.appendChild(p); }
+  if (d === n) { const p = document.createElement("p"); p.className = "done-msg"; p.textContent = "Sac bouclé. Bon layon."; box.appendChild(p);
+    if (!(e.safety && e.safety.sentAt)) { const b = document.createElement("button"); b.className = "primary"; b.textContent = "🛟 Préparer la fiche sécurité"; b.onclick = () => openSafety(); box.appendChild(b); } }
   SECTIONS.forEach(sx => {
     const its = e.items.filter(i => secOf(i.cat) === sx.k); if (!its.length) return;
     const todo = its.filter(i => !i.done).sort((a, b) => a.name.localeCompare(b.name, "fr")), done = its.filter(i => i.done).sort((a, b) => a.name.localeCompare(b.name, "fr"));
@@ -1516,7 +1622,7 @@ function renderSac() {
 function sacRow(i, e) {
   const r = document.createElement("label"); r.className = "srow" + (i.done ? " done" : "");
   const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = !!i.done;
-  cb.onchange = () => { i.done = cb.checked; persist(e); refresh(); };
+  cb.onchange = () => tick(i, e, r, cb.checked);
   const n = document.createElement("span"); n.textContent = i.name;
   const q = document.createElement("b"); q.textContent = qtyTxt(total(i, e), i.unit);
   r.append(cb, n, q); return r;
@@ -1550,7 +1656,13 @@ function renderWizard() {
     skip.onclick = () => { wizSkip.add(e.id); renderWizard(); renderList(); };
     nav.append(skip, next);
   } else if (wiz.step === 2) {
-    h.textContent = "Combien de temps, combien de monde ?";
+    h.textContent = "Quand, combien de temps, avec qui ?";
+    const fd = document.createElement("label"); fd.className = "field"; const ld = document.createElement("span"); ld.className = "label"; ld.textContent = "Date de départ";
+    const di = document.createElement("input"); di.type = "date"; di.value = e.start || ""; di.min = todayS();
+    const ret = document.createElement("small"); ret.className = "hint";
+    const showRet = () => { ret.textContent = e.start ? `Retour le ${dLongY(endOf(e))} · le compte à rebours démarre sur l'accueil` : "Facultatif, mais c'est ce qui lance le compte à rebours."; };
+    di.onchange = () => { e.start = di.value; e.end = e.start ? addDays(e.start, Math.max(0, (+e.days || 1) - 1)) : ""; showRet(); };
+    fd.append(ld, di, ret); box.appendChild(fd); showRet();
     [["days","Jours",1,""],["nights","Nuits",0,""],["people","Personnes",1,""],["reserve","Jours de réserve",0,"en cas de crue ou de pépin : 1 minimum"]].forEach(([k, lab, min, sub]) => {
       const r = document.createElement("div"); r.className = "stepper";
       const l = document.createElement("div"); l.textContent = lab; if (sub) { const s2 = document.createElement("small"); s2.textContent = sub; l.appendChild(s2); }
@@ -1558,7 +1670,7 @@ function renderWizard() {
       const minus = document.createElement("button"); minus.textContent = "−"; minus.setAttribute("aria-label", lab + " moins un");
       const v = document.createElement("b"); v.textContent = e[k];
       const plus = document.createElement("button"); plus.textContent = "+"; plus.setAttribute("aria-label", lab + " plus un");
-      const set = x => { x = Math.max(min, x); if (k === "days" && +e.nights === Math.max(0, +e.days - 1)) e.nights = Math.max(0, x - 1); e[k] = x; renderWizard(); };
+      const set = x => { x = Math.max(min, x); if (k === "days" && +e.nights === Math.max(0, +e.days - 1)) e.nights = Math.max(0, x - 1); e[k] = x; if (k === "days" && e.start) e.end = addDays(e.start, x - 1); renderWizard(); };
       minus.onclick = () => set(+e[k] - 1); plus.onclick = () => set(+e[k] + 1);
       c.append(minus, v, plus); r.append(l, c); box.appendChild(r);
     });
@@ -1617,6 +1729,272 @@ function renderInstall() {
   setView(view, true);
 }
 
+
+// ---------- dates : départ, retour, compte à rebours ----------
+const dParse = s => { if (!s) return null; const [y, m, d] = String(s).split("-").map(Number); return y && m && d ? new Date(y, m - 1, d) : null; };
+const dFmt = dt => `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}-${String(dt.getDate()).padStart(2, "0")}`;
+const addDays = (s, n) => { const d = dParse(s); d.setDate(d.getDate() + n); return dFmt(d); };
+const dayDiff = (a, b) => Math.round((dParse(b) - dParse(a)) / 864e5);
+const todayS = () => dFmt(new Date());
+const dShort = s => dParse(s).toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" });
+const dLongY = s => dParse(s).toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+const endOf = e => e.end || (e.start ? addDays(e.start, Math.max(0, (+e.days || 1) - 1)) : "");
+function phase(e) {
+  if (!dParse(e.start)) return { k: "none", label: "Pas de date" };
+  const t = todayS(), end = endOf(e), d = dayDiff(t, e.start);
+  if (d > 1) return { k: "future", n: d, label: `J-${d}` };
+  if (d === 1) return { k: "future", n: 1, label: "Demain" };
+  if (d === 0) return { k: "today", label: "C'est aujourd'hui" };
+  if (dayDiff(t, end) >= 0) return { k: "during", label: `En cours · jour ${1 - d}/${dayDiff(e.start, end) + 1}` };
+  return { k: "past", label: "Terminée" };
+}
+function typeIcon(t) { const k = gkey(t).normalize("NFD").replace(/[̀-ͯ]/g, ""); return /peche/.test(k) ? "🎣" : /pirogue|fleuve|lac|riviere/.test(k) ? "🛶" : /topo|reco/.test(k) ? "🧭" : /carbet|bivouac/.test(k) ? "⛺" : /foret|layon|raid/.test(k) ? "🌳" : "🎒"; }
+function datesTxt(e) { return e.start ? `${dShort(e.start)} → ${dShort(endOf(e))}` : "Pas encore de date"; }
+
+// ---------- barre du haut ----------
+function renderAppBar() {
+  const e = cur(), ph = phase(e);
+  $("appName").textContent = e.name || "Sans nom";
+  $("appKicker").textContent = [ph.k === "none" ? "" : ph.label, e.type].filter(Boolean).join(" · ") || "Touche pour voir tes expéditions";
+}
+$("appTitle").onclick = () => setView("accueil");
+$("appHome").onclick = () => setView("accueil");
+
+// ---------- accueil : mes expéditions ----------
+function openExp(id, v) { state.current = id; lsSave(); curSec = ""; openRows.clear(); resetForm(); renderAll(true); setView(v || "liste"); }
+function newExp() {
+  let e = cur();
+  if (!(e && e.draft && !e.items.length)) { e = blankExp(); state.exps[e.id] = e; state.current = e.id; }
+  wizSkip.delete(e.id); wiz.step = 1; curSec = ""; resetForm(); renderAll(true); setView("liste"); const n = $("wName"); if (n) n.focus();
+}
+$("btnNew").onclick = newExp;
+function ring(d, n, size) {
+  const r = size / 2 - 4, c = 2 * Math.PI * r, p = n ? d / n : 0;
+  const ns = "http://www.w3.org/2000/svg", svg = document.createElementNS(ns, "svg");
+  svg.setAttribute("viewBox", `0 0 ${size} ${size}`); svg.setAttribute("class", "ring"); svg.setAttribute("width", size); svg.setAttribute("height", size); svg.setAttribute("aria-hidden", "true");
+  [[1, "bg"], [p, "fg"]].filter(([f]) => f > 0).forEach(([f, cl]) => { const ci = document.createElementNS(ns, "circle"); ci.setAttribute("cx", size / 2); ci.setAttribute("cy", size / 2); ci.setAttribute("r", r); ci.setAttribute("class", cl);
+    ci.setAttribute("stroke-dasharray", `${c * f} ${c}`); ci.setAttribute("transform", `rotate(-90 ${size / 2} ${size / 2})`); svg.appendChild(ci); });
+  const tx = document.createElementNS(ns, "text"); tx.setAttribute("x", "50%"); tx.setAttribute("y", "50%"); tx.setAttribute("dominant-baseline", "central"); tx.setAttribute("text-anchor", "middle");
+  tx.textContent = n ? Math.round(p * 100) + "%" : "–"; svg.appendChild(tx); return svg;
+}
+function expCard(e, big) {
+  const ph = phase(e), n = e.items.length, d = e.items.filter(i => i.done).length, s = e.safety || {};
+  const c = document.createElement("article"); c.className = "card" + (big ? " big" : "") + (ph.k === "past" ? " past" : "");
+  const top = document.createElement("div"); top.className = "ctop";
+  const ic = document.createElement("span"); ic.className = "cic"; ic.setAttribute("aria-hidden", "true"); ic.textContent = typeIcon(e.type);
+  const tt = document.createElement("div"); tt.className = "ctt";
+  const h = document.createElement("h3"); h.textContent = e.name || "Sans nom";
+  const sub = document.createElement("small"); sub.textContent = [e.type, `${e.people} pers.`].filter(Boolean).join(" · ");
+  tt.append(h, sub);
+  const cd = document.createElement("span"); cd.className = "cd " + ph.k; cd.textContent = ph.k === "none" ? "" : ph.label;
+  top.append(ic, tt, cd);
+  const mid = document.createElement("div"); mid.className = "cmid";
+  mid.appendChild(ring(d, n, big ? 64 : 44));
+  const info = document.createElement("div"); info.className = "cinfo";
+  const l1 = document.createElement("p"); l1.textContent = datesTxt(e);
+  const l2 = document.createElement("p"); const wpp = weightPP(e), lv = wLevel(e);
+  l2.textContent = n ? `${d}/${n} prêt${d > 1 ? "s" : ""}` : "Liste vide";
+  if (wpp) { const w = document.createElement("span"); w.className = "w " + lv; w.textContent = ` · ${fmtW(wpp)} / pers.${lv === "over" ? " ⚠" : ""}`; l2.appendChild(w); }
+  info.append(l1, l2);
+  if (ph.k !== "none" && ph.k !== "past") { const l3 = document.createElement("p"); l3.className = "safe " + (s.sentAt ? "ok" : "todo"); l3.textContent = s.sentAt ? "🛟 Fiche sécurité envoyée" : "🛟 Fiche sécurité à envoyer"; info.appendChild(l3); }
+  if (s.backAt) { const l3 = document.createElement("p"); l3.className = "safe ok"; l3.textContent = "✅ Retour signalé"; info.appendChild(l3); }
+  mid.appendChild(info);
+  c.append(top, mid);
+  c.onclick = ev => { if (!ev.target.closest("button")) openExp(e.id, "liste"); };
+  const back = s.sentAt && !s.backAt && (ph.k === "during" || ph.k === "past" || ph.k === "today");
+  if (big || back) {
+    const a = document.createElement("div"); a.className = "actions";
+    const btn = (txt, cls, fn) => { const b = document.createElement("button"); b.className = cls; b.textContent = txt; b.onclick = fn; a.appendChild(b); };
+    if (back) btn("✅ Je suis rentré", "primary", () => { state.current = e.id; renderAll(true); openSafety(true); });
+    if (big) {
+      btn("Ouvrir la liste", back ? "" : "primary", () => openExp(e.id, "liste"));
+      btn("Faire le sac", "", () => openExp(e.id, "sac"));
+      if (!back && ph.k !== "past") btn("🛟 Fiche sécurité", "ghost", () => { state.current = e.id; renderAll(true); openSafety(); });
+    }
+    c.appendChild(a);
+  }
+  return c;
+}
+function renderHome() {
+  const box = $("homeList"); if (!box) return; box.innerHTML = "";
+  const all = Object.values(state.exps).filter(e => !e.draft || e.items.length);
+  if (!all.length) {
+    const d = document.createElement("div"); d.className = "card big empty-home";
+    const h = document.createElement("h3"); h.textContent = "Ta première expédition";
+    const p = document.createElement("p"); p.textContent = "Trois étapes : où tu pars, combien de temps et avec qui, puis le pack de départ. Les quantités se calculent seules.";
+    const b = document.createElement("button"); b.className = "primary big"; b.textContent = "Préparer une expédition"; b.onclick = newExp;
+    d.append(h, p, b); box.appendChild(d); return;
+  }
+  const up = all.filter(e => ["future", "today", "during"].includes(phase(e).k)).sort((a, b) => a.start.localeCompare(b.start));
+  const nod = all.filter(e => phase(e).k === "none").sort((a, b) => b.updatedAt - a.updatedAt);
+  const past = all.filter(e => phase(e).k === "past").sort((a, b) => endOf(b).localeCompare(endOf(a)));
+  const feat = up[0] || nod[0] || past[0];
+  const lab = t => { const h = document.createElement("h2"); h.className = "hlab"; h.textContent = t; box.appendChild(h); };
+  lab(up[0] ? (phase(feat).k === "during" ? "En cours" : "Prochaine expédition") : nod[0] ? "En préparation" : "Dernière expédition");
+  box.appendChild(expCard(feat, true));
+  const rest = [...up, ...nod].filter(e => e !== feat);
+  if (rest.length) { lab("À venir et en préparation"); rest.forEach(e => box.appendChild(expCard(e, false))); }
+  const pastR = past.filter(e => e !== feat);
+  if (pastR.length) {
+    const det = document.createElement("details"); det.className = "pastbox";
+    const sm = document.createElement("summary"); sm.className = "hlab"; sm.textContent = `Expéditions passées (${pastR.length})`; det.appendChild(sm);
+    pastR.forEach(e => det.appendChild(expCard(e, false))); box.appendChild(det);
+  }
+}
+
+// ---------- sac bouclé : un vrai moment ----------
+const LS_HINT = "sacdelayon.hints";
+function hintSeen(k) { try { return (localStorage.getItem(LS_HINT) || "").split(",").includes(k); } catch (e) { return false; } }
+function seeHint(k) { try { const v = (localStorage.getItem(LS_HINT) || "").split(",").filter(Boolean); if (!v.includes(k)) { v.push(k); localStorage.setItem(LS_HINT, v.join(",")); } } catch (e) {} }
+let tickT = null;
+// coche avec un temps de lecture : la ligne se barre, puis la liste se range
+function tick(i, e, row, on) {
+  i.done = on; persist(e); row.classList.toggle("done", on); row.classList.add("tick");
+  if (on && view === "sac") seeHint("sac");
+  clearTimeout(tickT); tickT = setTimeout(() => { refresh(); }, 420);
+  renderSum();
+  if (on && e.items.length && e.items.every(x => x.done)) setTimeout(() => celebrate(e), 450);
+}
+function celebrate(e) {
+  const ov = $("doneOv"), svg = $("doneArt"); svg.innerHTML = "";
+  const ns = "http://www.w3.org/2000/svg";
+  for (let k = 1; k < 9; k++) {
+    let dd = "";
+    for (let a = 0; a <= Math.PI * 2 + 0.01; a += 0.08) {
+      const rad = k * 11 * (1 + 0.16 * Math.sin(3 * a + k * 0.5) + 0.07 * Math.cos(5 * a - k * 0.3));
+      dd += (a === 0 ? "M" : "L") + (100 + Math.cos(a) * rad * 1.25).toFixed(1) + " " + (100 + Math.sin(a) * rad).toFixed(1);
+    }
+    const p = document.createElementNS(ns, "path"); p.setAttribute("d", dd + "Z"); p.setAttribute("pathLength", "1"); p.style.animationDelay = (k * 0.09) + "s"; svg.appendChild(p);
+  }
+  const w = e.items.reduce((s0, i) => s0 + total(i, e) * (+i.w || 0), 0);
+  $("doneTxt").textContent = `${e.items.length} articles prêts${w ? ` · ${fmtW(w)} au total · ${fmtW(weightPP(e))} par personne` : ""}.`;
+  const s = e.safety || {}; $("doneSafety").hidden = !!s.sentAt;
+  openOv("doneOv"); try { navigator.vibrate && navigator.vibrate([40, 60, 40, 60, 120]); } catch (err) {}
+}
+$("doneClose").onclick = () => closeOv("doneOv");
+$("doneOv").addEventListener("click", ev => { if (ev.target === $("doneOv")) closeOv("doneOv"); });
+$("doneSafety").onclick = () => { closeOv("doneOv"); openSafety(); };
+$("matIntroOk").onclick = () => { seeHint("mat"); $("matIntro").hidden = true; };
+
+// ---------- fiche sécurité « Si je ne rentre pas » ----------
+const COMMS = /(^|[\s(\/-])balise|inreach|spot|vhf|satellite|iridium|thuraya|garmin|talkie/i;
+function phoneIntl(p) {
+  let d = String(p || "").replace(/[^\d+]/g, ""); if (!d) return "";
+  if (d.startsWith("+")) return d.slice(1); if (d.startsWith("00")) return d.slice(2);
+  if (/^0(594|694)/.test(d)) return "594" + d.slice(1);
+  if (/^0(596|696)/.test(d)) return "596" + d.slice(1);
+  if (/^0(590|690|691)/.test(d)) return "590" + d.slice(1);
+  if (/^0(262|692|693|269|639)/.test(d)) return "262" + d.slice(1);
+  if (/^0\d{9}$/.test(d)) return "33" + d.slice(1);
+  return d;
+}
+function safetyOf(e) {
+  if (!e.safety) {
+    const prev = Object.values(state.exps).filter(x => x !== e && x.safety && x.safety.phone).sort((a, b) => b.updatedAt - a.updatedAt)[0];
+    const comms = e.items.filter(i => COMMS.test(i.name)).map(i => i.name).join(", ");
+    e.safety = { contact: prev ? prev.safety.contact : "", phone: prev ? prev.safety.phone : "", who: "", startTime: "", retTime: "18:00", margin: 6, from: "", gps: "", route: "",
+      car: prev ? prev.safety.car || "" : "", boat: prev ? prev.safety.boat || "" : "", comms, note: "" };
+  }
+  return e.safety;
+}
+function alertDate(e) {
+  const s = safetyOf(e), end = endOf(e); if (!end) return null;
+  const [hh, mm] = (s.retTime || "18:00").split(":").map(Number); const d = dParse(end); d.setHours(hh || 0, mm || 0, 0, 0);
+  return new Date(d.getTime() + (+s.margin || 0) * 3600e3);
+}
+function fmtAlert(d) { return d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" }) + " à " + d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }); }
+function safetyMsg(e) {
+  const s = safetyOf(e), L = [], end = endOf(e);
+  L.push("🛟 FICHE SÉCURITÉ · SAC DE LAYON");
+  L.push(`${e.name}${e.type ? " (" + e.type + ")" : ""}`, "");
+  L.push(`👥 ${e.people} personne${+e.people > 1 ? "s" : ""}${s.who ? " : " + s.who : ""}`);
+  if (e.start) L.push(`🚩 Départ : ${dLongY(e.start)}${s.startTime ? " à " + s.startTime : ""}`);
+  if (s.from) L.push(`📌 Point de départ : ${s.from}`);
+  if (s.gps) L.push(`📍 GPS : ${s.gps} · https://maps.google.com/?q=${encodeURIComponent(s.gps.replace(/\s+/g, ""))}`);
+  if (s.route) L.push(`🗺️ Itinéraire : ${s.route}`);
+  if (end) L.push(`🏁 Retour prévu : ${dLongY(end)} vers ${s.retTime || "18:00"}`);
+  if (s.car) L.push(`🚙 Véhicule : ${s.car}`);
+  if (s.boat) L.push(`🛶 Pirogue : ${s.boat}`);
+  if (s.comms) L.push(`📡 Moyens de communication : ${s.comms}`);
+  if (s.note) L.push(`⚕️ À savoir : ${s.note}`);
+  L.push("");
+  const al = alertDate(e);
+  L.push(al ? `⚠️ Sans nouvelles de nous le ${fmtAlert(al)}, appelle la gendarmerie (17) ou le 112 et lis-leur ce message.`
+    : "⚠️ Sans nouvelles de nous après la date de retour prévue, appelle la gendarmerie (17) ou le 112 et lis-leur ce message.");
+  return L.join("\n");
+}
+function backMsg(e) {
+  const now = new Date();
+  return `✅ Bien rentrés de « ${e.name} », ${now.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })} à ${now.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}. Tout va bien, merci d'avoir veillé sur nous.`;
+}
+function sendTo(channel, text) {
+  const s = safetyOf(cur()), ph = phoneIntl(s.phone);
+  if (channel === "share" && navigator.share) { navigator.share({ text }).catch(() => {}); return; }
+  if (channel === "copy") { copy(text, "Message copié"); return; }
+  const url = channel === "sms" ? `sms:${ph ? "+" + ph : ""}?&body=${encodeURIComponent(text)}` : `https://wa.me/${ph}?text=${encodeURIComponent(text)}`;
+  const a = document.createElement("a"); a.href = url; a.target = "_blank"; a.rel = "noopener"; document.body.appendChild(a); a.click(); a.remove();
+}
+let safeBack = false;
+function openSafety(back) { safeBack = !!back; closeMenu(); renderSafety(); openOv("safeOv"); $("safeBox").scrollTop = 0; }
+$("safeClose").onclick = () => closeOv("safeOv");
+$("safeOv").addEventListener("click", ev => { if (ev.target === $("safeOv")) closeOv("safeOv"); });
+$("btnSafety").onclick = () => openSafety();
+function renderSafety() {
+  const e = cur(), s = safetyOf(e), box = $("safeForm"); box.innerHTML = "";
+  const intro = $("safeIntro");
+  intro.textContent = safeBack ? "Préviens ton contact que tout le monde est bien rentré." : "Avant de partir, envoie cette fiche à un proche qui reste joignable. S'il n'a pas de nouvelles à l'heure dite, il sait quoi faire et qui appeler.";
+  const preview = document.createElement("pre"); preview.className = "msgprev";
+  const upd = () => { preview.textContent = safeBack ? backMsg(e) : safetyMsg(e); };
+  const save = () => { persist(e); upd(); };
+  const field = (lab, key, opt = {}) => {
+    const f = document.createElement("label"); f.className = "field" + (opt.wide === false ? "" : " wide");
+    const l = document.createElement("span"); l.className = "label"; l.textContent = lab; f.appendChild(l);
+    const i = document.createElement(opt.area ? "textarea" : opt.select ? "select" : "input");
+    if (opt.select) opt.select.forEach(([v, t]) => { const o = document.createElement("option"); o.value = v; o.textContent = t; i.appendChild(o); });
+    if (opt.type) i.type = opt.type; if (opt.ph) i.placeholder = opt.ph; if (opt.area) i.rows = 2;
+    const src = opt.exp ? e : s; i.value = src[key] ?? "";
+    i.addEventListener("input", () => { src[key] = opt.num ? +i.value : i.value; if (opt.exp) { if (key === "start" && e.start) { e.end = addDays(e.start, Math.max(0, (+e.days || 1) - 1)); } if (e.start && e.end) syncDays(e); renderParams(true); renderAppBar(); } save(); });
+    f.appendChild(i); return [f, i];
+  };
+  const g = document.createElement("div"); g.className = "grid";
+  if (!safeBack) {
+    const t1 = document.createElement("h3"); t1.className = "sfh"; t1.textContent = "Qui prévenir"; g.appendChild(t1);
+    g.append(field("Nom du contact", "contact", { ph: "Ex. Marie", wide: false })[0], field("Téléphone", "phone", { type: "tel", ph: "0694 12 34 56", wide: false })[0]);
+    const t2 = document.createElement("h3"); t2.className = "sfh"; t2.textContent = "Qui, où, quand"; g.appendChild(t2);
+    g.append(field("Participants", "who", { ph: "Samuel, Paul, Jo" })[0]);
+    g.append(field("Départ le", "start", { type: "date", exp: true, wide: false })[0], field("à", "startTime", { type: "time", wide: false })[0]);
+    g.append(field("Retour prévu le", "end", { type: "date", exp: true, wide: false })[0], field("vers", "retTime", { type: "time", wide: false })[0]);
+    g.append(field("Alerter si pas de nouvelles après", "margin", { num: true, select: [[2, "2 h de retard"], [6, "6 h de retard"], [12, "12 h de retard"], [24, "24 h de retard"]] })[0]);
+    const [fFrom] = field("Point de départ", "from", { ph: "Dégrad, piste, début de layon…" });
+    const [fGps, iGps] = field("Coordonnées GPS du départ", "gps", { ph: "4.9372, -52.3260" });
+    const loc = document.createElement("button"); loc.type = "button"; loc.className = "small"; loc.textContent = "📍 Ma position actuelle";
+    loc.onclick = () => {
+      if (!navigator.geolocation) { toast("Position indisponible sur cet appareil"); return; }
+      loc.disabled = true; loc.textContent = "Recherche…";
+      navigator.geolocation.getCurrentPosition(p => { iGps.value = `${p.coords.latitude.toFixed(5)}, ${p.coords.longitude.toFixed(5)}`; s.gps = iGps.value; save(); loc.disabled = false; loc.textContent = "📍 Ma position actuelle"; },
+        () => { toast("Position indisponible : tape-la à la main"); loc.disabled = false; loc.textContent = "📍 Ma position actuelle"; }, { enableHighAccuracy: true, timeout: 15000 });
+    };
+    fGps.appendChild(loc);
+    g.append(fFrom, fGps, field("Itinéraire, zone, campements", "route", { area: true, ph: "Remontée jusqu'au saut X, bivouac au carbet Y, retour par…" })[0]);
+    const t3 = document.createElement("h3"); t3.className = "sfh"; t3.textContent = "Moyens et à savoir"; g.appendChild(t3);
+    g.append(field("Véhicule", "car", { ph: "Modèle, couleur, immatriculation, où il est garé" })[0], field("Pirogue", "boat", { ph: "Longueur, couleur, moteur" })[0],
+      field("Moyens de communication", "comms", { ph: "Balise inReach, VHF, téléphone satellite…" })[0], field("Santé, allergies, traitements", "note", { area: true, ph: "Facultatif" })[0]);
+  }
+  const t4 = document.createElement("h3"); t4.className = "sfh"; t4.textContent = "Message"; g.appendChild(t4);
+  const pw = document.createElement("div"); pw.className = "field wide"; pw.appendChild(preview); g.appendChild(pw);
+  box.appendChild(g); upd();
+  const a = $("safeActions"); a.innerHTML = "";
+  const mark = () => { if (safeBack) s.backAt = Date.now(); else s.sentAt = Date.now(); persist(e); renderHome(); };
+  const btn = (t, cls, ch) => { const b = document.createElement("button"); b.className = cls; b.textContent = t; b.onclick = () => {
+    if (!safeBack && !s.phone && (ch === "wa" || ch === "sms")) { toast("Ajoute le téléphone du contact"); return; }
+    sendTo(ch, preview.textContent); mark(); if (ch !== "copy") toast(safeBack ? "Bon retour !" : "Fiche envoyée. Au retour : « Je suis rentré » depuis l'accueil."); }; a.appendChild(b); };
+  btn(safeBack ? "✅ Prévenir par WhatsApp" : "Envoyer par WhatsApp", "primary big", "wa");
+  btn("SMS", "", "sms");
+  if (navigator.share) btn("Autre…", "", "share");
+  btn("Copier", "ghost", "copy");
+  if (!safeBack && s.sentAt) { const p = document.createElement("p"); p.className = "hint"; p.textContent = `Déjà envoyée le ${new Date(s.sentAt).toLocaleDateString("fr-FR")}. Renvoie-la si quelque chose change.`; a.appendChild(p); }
+}
+function syncDays(e) { const n = dayDiff(e.start, e.end); if (n >= 0) { e.days = n + 1; e.nights = n; } }
 
 // ---------- décor : courbes de niveau ----------
 function drawTopo() {
