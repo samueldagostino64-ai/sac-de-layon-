@@ -1,3 +1,4 @@
+<!-- version-autonome:debut (retiré dans la version Claude) -->
 <!doctype html>
 <html lang="fr">
 <head>
@@ -12,25 +13,40 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Sac de Layon">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Sac de Layon : ta checklist d'expédition en Guyane">
+<meta property="og:description" content="Dis où tu pars, combien de jours et à combien : l'appli calcule ton matériel, le poids du sac, et prépare ta fiche sécurité. Gratuit, sans compte, marche sans réseau.">
+<meta property="og:image" content="https://samueldagostino64-ai.github.io/sac-de-layon-/partage.jpg">
+<meta property="og:locale" content="fr_FR">
+<meta name="twitter:card" content="summary_large_image">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
+<!-- version-autonome:fin -->
 <title>Sac de Layon</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap">
 <style>
+/* polices embarquées (SIL OFL, fonts/OFL.txt) : rien n'est demandé à un serveur tiers, et elles marchent hors ligne */
+@font-face { font-family: "Barlow"; font-weight: 400; font-display: swap; src: url(fonts/barlow-400.woff2) format("woff2"); }
+@font-face { font-family: "Barlow"; font-weight: 500; font-display: swap; src: url(fonts/barlow-500.woff2) format("woff2"); }
+@font-face { font-family: "Barlow"; font-weight: 600; font-display: swap; src: url(fonts/barlow-600.woff2) format("woff2"); }
+@font-face { font-family: "Barlow"; font-weight: 700; font-display: swap; src: url(fonts/barlow-700.woff2) format("woff2"); }
+@font-face { font-family: "Barlow Condensed"; font-weight: 600; font-display: swap; src: url(fonts/barlow-condensed-600.woff2) format("woff2"); }
+@font-face { font-family: "Barlow Condensed"; font-weight: 700; font-display: swap; src: url(fonts/barlow-condensed-700.woff2) format("woff2"); }
 /* Layout : carnet de terrain, une colonne lisible au téléphone, en-tête façon carte topo */
 :root {
   --bg: #eef0e8;
   --surface: #f9faf5;
   --ink: #1b2a22;
-  --muted: #5d6b61;
+  --muted: #56645a;
   --line: #d3d9cc;
+  --fline: #7d887a;
+  --warn: #8a5a12;
   --accent: #1f6a52;
   --accent-ink: #f4f8f2;
   --soft: #dce8df;
-  --laterite: #b4532a;
+  --laterite: #a3481f;
   --contour: rgba(31,106,82,.13);
   --f-display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
   --f-body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -39,11 +55,11 @@
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #111914; --surface: #18221c; --ink: #e3ebe2; --muted: #96a59a; --line: #2c3a31;
-  --accent: #5fbf98; --accent-ink: #0d1a14; --soft: #20352a; --laterite: #e2875b; --contour: rgba(95,191,152,.10);
+  --accent: #5fbf98; --accent-ink: #0d1a14; --soft: #20352a; --laterite: #e2875b; --contour: rgba(95,191,152,.10); --fline: #5d6e63; --warn: #e0b153;
   color-scheme: dark; } }
 :root[data-theme="dark"] {
   --bg: #111914; --surface: #18221c; --ink: #e3ebe2; --muted: #96a59a; --line: #2c3a31;
-  --accent: #5fbf98; --accent-ink: #0d1a14; --soft: #20352a; --laterite: #e2875b; --contour: rgba(95,191,152,.10);
+  --accent: #5fbf98; --accent-ink: #0d1a14; --soft: #20352a; --laterite: #e2875b; --contour: rgba(95,191,152,.10); --fline: #5d6e63; --warn: #e0b153;
   color-scheme: dark; }
 
 * { box-sizing: border-box; }
@@ -191,6 +207,17 @@ button.big { width: 100%; padding: 14px; font-size: 1.05rem; touch-action: manip
 .savewarn[hidden] { display: none; }
 .savewarn span { flex: 1 1 220px; }
 .savewarn button { background: #fff; color: #000; border: 0; border-radius: 10px; padding: 8px 12px; font-weight: 700; }
+/* bords des champs et boutons lisibles (3:1), bandeaux d'erreur lisibles en mode sombre */
+input, select, textarea, button:not(.primary):not(.cardopen):not(.nm) { border-color: var(--fline); }
+.errbar, .savewarn { background: #a3401c !important; color: #fff !important; }
+/* cibles tactiles d'au moins 44 px (doigts mouillés, gants) */
+button.small { min-height: 44px; padding: 8px 12px; }
+#appHome, #safeClose, .ov .x, button[aria-label="Fermer"] { min-width: 44px; min-height: 44px; }
+details > summary { min-height: 44px; display: flex; align-items: center; }
+html { scroll-padding-top: 72px; scroll-padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px)); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+button.cardopen { all: unset; cursor: pointer; font: inherit; color: inherit; border-radius: 6px; }
+button.cardopen:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 .errbar { position: fixed; left: 0; right: 0; top: 0; z-index: 9; background: var(--laterite); color: #fff; font-size: .85rem; padding: calc(10px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px)); overflow-wrap: anywhere; }
 .confirm { border: 1px solid var(--laterite); border-radius: 8px; padding: 10px; display: grid; gap: 8px; }
 .toast { position: fixed; z-index: 60; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 8px; font-weight: 600; font-size: .9rem; opacity: 0; transition: opacity .2s; pointer-events: none; max-width: calc(100% - 32px); }
@@ -208,7 +235,7 @@ button.big { width: 100%; padding: 14px; font-size: 1.05rem; touch-action: manip
 .sumbar .l1 span:last-child { color: var(--accent); font-weight: 600; white-space: nowrap; }
 .sumbar .l2 { display: flex; justify-content: space-between; gap: 8px; font-size: .85rem; color: var(--muted); }
 .sumbar .w { font-family: var(--f-mono); font-weight: 500; color: var(--ink); }
-.w.ok { color: var(--accent); } .w.warn { color: #b7791f; } .w.over { color: var(--laterite); font-weight: 700; }
+.w.ok { color: var(--accent); } .w.warn { color: var(--warn); } .w.over { color: var(--laterite); font-weight: 700; }
 .bar span.warn { background: #d69e2e; } .bar span.over { background: var(--laterite); }
 .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 25; display: grid; grid-template-columns: repeat(4, 1fr); background: var(--surface); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); }
 .tabbar button { border: 0; border-radius: 0; background: none; display: grid; justify-items: center; gap: 2px; padding: 8px 4px 10px; font-size: .78rem; font-weight: 600; color: var(--muted); min-height: 60px; }
@@ -279,7 +306,7 @@ body.noscroll { overflow: hidden; }
 .apptitle b::after { content: " ▾"; font-size: .8rem; color: var(--muted); }
 .apptitle small { color: var(--accent); font-size: .78rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .appbar #btnMore { font-size: 1.3rem; min-width: 44px; min-height: 44px; padding: 0; }
-.tabbar { grid-template-columns: repeat(5, 1fr); }
+.tabbar { grid-template-columns: repeat(5, 1fr); max-width: 760px; margin: 0 auto; }
 .tabbar svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .tabbar button { font-size: .74rem; }
 .home { display: grid; gap: 12px; }
@@ -295,6 +322,8 @@ body.noscroll { overflow: hidden; }
 .cic svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .card.big .cic { width: 52px; height: 52px; border-radius: 14px; }
 .card.big .cic svg { width: 30px; height: 30px; }
+.bkremind { margin-top: 18px; padding: 12px 14px; border: 1px dashed var(--line, #c9cfc2); border-radius: 14px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.bkremind p { margin: 0; flex: 1 1 200px; font-size: .9rem; color: var(--muted); }
 .card.draft { background: transparent; border-style: dashed; padding: 12px 14px; gap: 6px; }
 .card.draft .cic { background: transparent; color: var(--muted); }
 .card.draft .ctt h3 { font-size: 1.1rem; }
@@ -353,7 +382,7 @@ header.top canvas { border-radius: var(--r); }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 
-<div class="wrap">
+<main class="wrap">
   <header class="top" data-view="accueil">
     <canvas id="topo" aria-hidden="true"></canvas>
     <div class="toprow">
@@ -388,7 +417,7 @@ header.top canvas { border-radius: var(--r); }
           <rect x="19" y="8" width="10" height="7" rx="3" fill="none" stroke="var(--accent-ink)" stroke-width="2"/>
           <rect x="18.5" y="22" width="11" height="7" rx="2" fill="var(--accent)"/>
         </svg></button>
-    <button id="appTitle" class="apptitle" aria-label="Changer d'expédition"><small id="appKicker"></small><b id="appName"></b></button>
+    <button id="appTitle" class="apptitle"><small id="appKicker"></small><b id="appName"></b><span class="sr"> : changer d'expédition</span></button>
     <div class="morewrap">
       <button id="btnMore" class="ghost" aria-label="Plus d'actions" aria-haspopup="true" aria-expanded="false">⋯</button>
       <div id="moreMenu" class="menu" hidden>
@@ -422,9 +451,9 @@ header.top canvas { border-radius: var(--r); }
       <div class="field"><label class="label" for="pNights">Nuits</label><input id="pNights" type="number" min="0" inputmode="numeric"></div>
       <div class="field"><label class="label" for="pPeople">Personnes</label><input id="pPeople" type="number" min="1" inputmode="numeric"></div>
       <div class="field"><label class="label" for="pReserve">Jours de réserve</label><input id="pReserve" type="number" min="0" inputmode="numeric"></div>
-      <div class="field wide"><label class="label" for="pMax">Poids max par personne (kg)</label><input id="pMax" type="number" min="0" step="any" inputmode="decimal" placeholder="Ex. 15 (vide = pas d'objectif)"></div>
+      <div class="field wide"><label class="label" for="pMax">Poids max par personne (kg)</label><input id="pMax" type="text" inputmode="decimal" autocomplete="off" placeholder="Ex. 15 (vide = pas d'objectif)"></div>
     </div>
-    <p class="hint">La réserve s'ajoute aux jours et aux nuits pour tout ce qui se consomme (vivres, eau, carburant). En forêt, une crue ou une blessure peut te bloquer : une journée de marge minimum. Le poids compte toute la liste, y compris ce qui voyage en pirogue ou en voiture.</p>
+    <p class="hint">La réserve s'ajoute aux jours et aux nuits pour tout ce qui se compte par jour ou par nuit (vivres, eau, carburant, piles…). Ce qui se compte par personne ou en quantité fixe ne change pas. En forêt, une crue ou une blessure peut te bloquer : une journée de marge minimum. Le poids compte toute la liste, y compris ce qui voyage en pirogue ou en voiture.</p>
     <div class="stats">
       <div><span class="label">Articles</span><b id="sItems">0</b></div>
       <div><span class="label">Prêts</span><b id="sDone">0/0</b></div>
@@ -446,7 +475,7 @@ header.top canvas { border-radius: var(--r); }
       <div class="t"><h3 id="secTitle"></h3><button class="small ghost" id="secBack">Toutes les sections</button></div>
       <div class="qadd">
         <div class="qn"><input id="qName" data-list="qList" placeholder="Ajouter un article" aria-label="Article à ajouter dans cette section"><datalist id="qList"></datalist></div>
-        <label class="ql"><span>Quantité</span><input id="qQty" type="number" min="0" step="any" inputmode="decimal" placeholder="1"></label>
+        <label class="ql"><span>Quantité</span><input id="qQty" type="text" inputmode="decimal" autocomplete="off" placeholder="1"></label>
         <label class="ql"><span>Unité</span><input id="qUnit" data-list="unitList" placeholder="pièce"></label>
         <label class="ql qc" id="qCatWrap"><span>Catégorie</span><input id="qCat" data-list="catList"></label>
         <div class="qbtn"><button class="primary" id="qAdd">Ajouter</button><button class="ghost" id="qMore">Avec détails…</button></div>
@@ -507,9 +536,9 @@ header.top canvas { border-radius: var(--r); }
     <p class="hint">Supprime les expéditions de test ou passées, avec leur liste. Ton matériel est conservé.</p>
     <div class="actions"><button class="small danger" id="btnManage2">Supprimer des expéditions…</button></div>
     <div id="manageBox" class="manage" hidden></div>
-    <p class="ver mono">Sac de Layon · version 19</p>
+    <p class="ver mono">Sac de Layon · version 20</p>
   </section>
-</div>
+</main>
 
 <nav class="tabbar" aria-label="Navigation">
   <button data-go="accueil"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4 3 6.5v13.5l6-2.5 6 2.5 6-2.5V4l-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/></svg>Expés</button>
@@ -526,7 +555,7 @@ header.top canvas { border-radius: var(--r); }
     <div id="itemForm" class="formbody">
       <div class="grid">
         <div class="field wide"><label class="label" for="fName">Article</label><input id="fName" data-list="catalog" autocomplete="off" placeholder="Ex. Hamac, pastilles de purification…"><datalist id="catalog"></datalist></div>
-        <div class="field"><label class="label" for="fQty">Quantité</label><input id="fQty" type="number" min="0" step="any" value="1" inputmode="decimal"></div>
+        <div class="field"><label class="label" for="fQty">Quantité</label><input id="fQty" type="text" value="1" inputmode="decimal" autocomplete="off"></div>
         <div class="field"><label class="label" for="fUnit">Unité</label><input id="fUnit" data-list="unitList" placeholder="pièce, L, kg…"><datalist id="unitList"></datalist></div>
         <div class="field wide"><label class="label" for="fMode">Combien ?</label>
           <select id="fMode">
@@ -538,14 +567,14 @@ header.top canvas { border-radius: var(--r); }
             <option value="pn">par personne et par nuit</option>
           </select></div>
         <div class="field wide"><label class="label" for="fCat">Catégorie</label><input id="fCat" data-list="catList" placeholder="Bivouac"><datalist id="catList"></datalist></div>
-        <div class="field wide"><label class="label" for="fW">Poids d'une unité (g)</label><input id="fW" type="number" min="0" step="any" inputmode="decimal" placeholder="ex. 900"></div>
+        <div class="field wide"><label class="label" for="fW">Poids d'une unité (g)</label><input id="fW" type="text" inputmode="decimal" autocomplete="off" placeholder="ex. 900"></div>
         <div class="field wide"><span class="label" id="lDims">Dimensions rangé (cm) : long. × larg. × haut.</span>
           <div class="dims" role="group" aria-labelledby="lDims">
-            <input id="fLen" type="number" min="0" step="any" inputmode="decimal" placeholder="L" aria-label="Longueur en cm"><span>×</span>
-            <input id="fWid" type="number" min="0" step="any" inputmode="decimal" placeholder="l" aria-label="Largeur en cm"><span>×</span>
-            <input id="fHei" type="number" min="0" step="any" inputmode="decimal" placeholder="h" aria-label="Hauteur en cm">
+            <input id="fLen" type="text" inputmode="decimal" autocomplete="off" placeholder="L" aria-label="Longueur en cm"><span>×</span>
+            <input id="fWid" type="text" inputmode="decimal" autocomplete="off" placeholder="l" aria-label="Largeur en cm"><span>×</span>
+            <input id="fHei" type="text" inputmode="decimal" autocomplete="off" placeholder="h" aria-label="Hauteur en cm">
           </div></div>
-        <div class="field"><label class="label" for="fV">Volume (L)</label><input id="fV" type="number" min="0" step="any" inputmode="decimal" placeholder="calculé"></div>
+        <div class="field"><label class="label" for="fV">Volume (L)</label><input id="fV" type="text" inputmode="decimal" autocomplete="off" placeholder="calculé"></div>
         <div class="field wide"><label class="label" for="fNote">Note</label><input id="fNote" placeholder="optionnel"></div>
       </div>
       <div class="preview" id="fPreview" aria-live="polite"></div>
@@ -712,12 +741,14 @@ function cur() { return state.exps[state.current]; }
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const str = (v, max = 2000) => (typeof v === "string" ? v : typeof v === "number" ? String(v) : "").slice(0, max);
 const num = (v, min = 0, max = 1e7, def = 0) => { const n = +v; return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : def; };
+const numIn = v => { const n = parseFloat(String(v ?? "").replace(/\s/g, "").replace(",", ".")); return Number.isFinite(n) ? n : NaN; };
+const pos = v => { const n = numIn(v); return n > 0 ? n : 0; };
 const okDate = v => typeof v === "string" && DATE_RE.test(v) && !!dParse(v) ? v : "";
 function sanitizeItem(i, keepDone = true) {
   if (!i || typeof i !== "object" || Array.isArray(i)) return null;
   const name = str(i.name, 200).trim(); if (!name) return null;
-  const o = { id: str(i.id, 64) || uid(), name, cat: str(i.cat, 80), qty: num(i.qty, 0, 1e5, 1), mode: MODES[i.mode] ? i.mode : "fixe", unit: str(i.unit, 40),
-    w: num(i.w, 0, 1e6), L: num(i.L, 0, 1e4), l: num(i.l, 0, 1e4), H: num(i.H, 0, 1e4), v: num(i.v, 0, 1e5), note: str(i.note, 500) };
+  const o = { id: str(i.id, 64) || uid(), name, cat: str(i.cat, 80), qty: +i.qty > 0 ? num(i.qty, 0, 1e4, 1) : 1, mode: MODES[i.mode] ? i.mode : "fixe", unit: str(i.unit, 40),
+    w: num(i.w, 0, 1e5), L: num(i.L, 0, 1e4), l: num(i.l, 0, 1e4), H: num(i.H, 0, 1e4), v: num(i.v, 0, 1e5), note: str(i.note, 500) };
   if (keepDone) o.done = i.done === true;
   return o;
 }
@@ -737,6 +768,7 @@ function sanitizeExp(e) {
   o.start = okDate(e.start); o.end = o.start ? okDate(e.end) : "";
   if (o.start && o.end && dayDiff(o.start, o.end) < 0) o.end = o.start;
   const sf = sanitizeSafety(e.safety); if (sf) o.safety = sf;
+  if (e.draft === true) o.draft = true;
   return o;
 }
 function sanitizeGear(g) {
@@ -747,8 +779,9 @@ function sanitizeGear(g) {
 const sanitizeHidden = h => Array.isArray(h) ? h.filter(x => typeof x === "string" && x.trim()).map(gkey) : [];
 
 let saveOk = true;
+const draftTouched = e => (e.name && e.name !== "Nouvelle expédition") || !!e.type || !!e.start || e.items.length > 0;
 function lsSave() {
-  try { localStorage.setItem(LS_KEY, JSON.stringify({ v: 2, exps: Object.values(state.exps).filter(e => !e.draft), current: state.current, gear: state.gear, hidden: state.hidden })); if (!saveOk) saveFailed(false); return true; }
+  try { localStorage.setItem(LS_KEY, JSON.stringify({ v: 2, exps: Object.values(state.exps).filter(e => !e.draft || draftTouched(e)), current: state.current, gear: state.gear, hidden: state.hidden })); if (!saveOk) saveFailed(false); return true; }
   catch (e) { saveFailed(true); return false; }
 }
 // échec d'enregistrement : bandeau rouge permanent tant que ça ne repasse pas
@@ -853,7 +886,9 @@ function mult(mode, e) {
   const p = Math.max(1, +e.people || 1);
   return { fixe: 1, p, j: days, n: nights, pj: p * days, pn: p * nights }[mode] ?? 1;
 }
-function total(it, e) { const raw = (+it.qty || 0) * mult(it.mode, e); return Math.ceil(raw - 1e-9); }
+// ce qui se compte (sachets, piles) s'arrondit à l'unité au-dessus ; ce qui se mesure (L, kg) au dixième au-dessus
+const CONT_UNIT = /^(l|litres?|kg|kilos?)$/i;
+function total(it, e) { const raw = Math.max(0, (+it.qty || 0) * mult(it.mode, e)); return CONT_UNIT.test((it.unit || "").trim()) ? Math.max(0, Math.ceil(raw * 10 - 1e-9) / 10) : Math.max(0, Math.ceil(raw - 1e-9)); }
 function fmtW(g) { if (!g) return "–"; return g >= 1000 ? (g / 1000).toLocaleString("fr-FR", { maximumFractionDigits: 1 }) + " kg" : Math.round(g) + " g"; }
 function vol(i) { if (+i.v) return +i.v; const d = (+i.L || 0) * (+i.l || 0) * (+i.H || 0); return d ? d / 1000 : 0; }
 function fmtV(l) { if (!l) return "–"; return l.toLocaleString("fr-FR", { maximumFractionDigits: l < 1 ? 2 : l < 10 ? 1 : 0 }) + " L"; }
@@ -870,6 +905,7 @@ function pl(n, unit) {
   const u = (unit || "").trim(); if (!u || Math.abs(+n) < 2) return u;
   const sp = u.indexOf(" "), w = sp < 0 ? u : u.slice(0, sp), rest = sp < 0 ? "" : u.slice(sp);
   const k = w.toLowerCase();
+  if (k === "pneu" || k === "bleu") return w + "s" + rest;
   if (UNIT_FIX.has(k) || w.length <= 2 || /[sxz]$/.test(k) || /[^a-zàâçéèêëîïôûùüÿœ]/.test(k)) return u;
   return (/(eu|au)$/.test(k) ? w + "x" : /al$/.test(k) ? w.slice(0, -2) + "aux" : w + "s") + rest;
 }
@@ -1014,7 +1050,7 @@ function quickAdd() {
   if (!src) Object.values(PACKS).forEach(pk => pk.items.forEach(t => { if (!src && gkey(t[0]) === k) src = refFill(packItem(t)); }));
   const cat = $("qCat").value.trim() || (src && src.cat) || x.cats[0] || "Autre";
   const unit = $("qUnit").value.trim() || (src && src.unit) || "pièce";
-  const q = parseFloat($("qQty").value);
+  const q = numIn($("qQty").value);
   const same = src && gkey(src.unit) === gkey(unit);
   const sp = same ? null : unitSpecs(unit, name);
   const it = { id: uid(), name: src ? src.name : name, cat, qty: q > 0 ? q : (same && src.qty) || 1, mode: (same && src.mode) || "fixe", unit,
@@ -1031,7 +1067,7 @@ function row(i, e) {
   const ck = document.createElement("label"); ck.className = "ck";
   const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = !!i.done;
   cb.setAttribute("aria-label", "Prêt : " + i.name);
-  cb.addEventListener("change", () => tick(i, e, r, cb.checked));
+  cb.dataset.iid = i.id; cb.addEventListener("change", () => tick(i, e, r, cb.checked));
   ck.appendChild(cb);
   const open = openRows.has(i.id);
   const nm = document.createElement("button"); nm.type = "button"; nm.className = "nm"; nm.setAttribute("aria-expanded", open ? "true" : "false");
@@ -1207,7 +1243,7 @@ function gearEditor(src, done) {
    ["L","Long. (cm)","number",src.L || ""],["l","Larg. (cm)","number",src.l || ""],["H","Haut. (cm)","number",src.H || ""],["v","Volume (L)","number",src.v || ""]].forEach(([k, lab, type, val]) => {
     const f = document.createElement("label"); f.className = "field" + (k === "name" ? " wide" : "");
     const l = document.createElement("span"); l.className = "label"; l.textContent = lab;
-    const i = document.createElement("input"); i.type = type; i.value = val; if (type === "number") { i.min = "0"; i.step = "any"; i.inputMode = "decimal"; }
+    const i = document.createElement("input"); i.type = "text"; i.value = val; if (type === "number") { i.inputMode = "decimal"; i.autocomplete = "off"; }
     inp[k] = i; f.append(l, i); g.appendChild(f);
   });
   combo(inp.cat, "catList"); combo(inp.unit, "unitList");
@@ -1220,7 +1256,7 @@ function gearEditor(src, done) {
     const k = gkey(name), ok0 = gkey(src.name), old = state.gear[ok0] || {};
     if (k !== ok0) { if (state.gear[ok0]) delete state.gear[ok0]; if (!state.hidden.includes(ok0) && (REF_BY.has(ok0) || Object.values(PACKS).some(pk => pk.items.some(t => gkey(t[0]) === ok0)))) state.hidden.push(ok0); }
     state.gear[k] = { ...old, name, cat: inp.cat.value.trim() || "Autre", qty: src.qty ?? old.qty ?? 1, mode: src.mode || old.mode || "fixe", unit: inp.unit.value.trim(),
-      w: +inp.w.value || 0, L: +inp.L.value || 0, l: +inp.l.value || 0, H: +inp.H.value || 0, v: +inp.v.value || 0, note: "", uses: old.uses || 0, updatedAt: Date.now() };
+      w: pos(inp.w.value), L: pos(inp.L.value), l: pos(inp.l.value), H: pos(inp.H.value), v: pos(inp.v.value), note: "", uses: old.uses || 0, updatedAt: Date.now() };
     persistGear(); box.remove(); toast(`« ${name} » enregistré dans ton matériel`); done && done();
   };
   a.append(ok, no); box.append(g, a); return box;
@@ -1272,9 +1308,9 @@ function refresh() { renderStats(); renderSum(); renderList(); renderSac(); rend
 
 // ---------- formulaire ----------
 function readForm() {
-  return { name: $("fName").value.trim(), cat: $("fCat").value.trim() || (curSec && secDef(curSec).cats[0]) || "Autre", qty: parseFloat($("fQty").value) || 0,
-    mode: $("fMode").value, unit: $("fUnit").value.trim(), w: parseFloat($("fW").value) || 0,
-    L: parseFloat($("fLen").value) || 0, l: parseFloat($("fWid").value) || 0, H: parseFloat($("fHei").value) || 0, v: parseFloat($("fV").value) || 0,
+  return { name: $("fName").value.trim(), cat: $("fCat").value.trim() || (curSec && secDef(curSec).cats[0]) || "Autre", qty: numIn($("fQty").value) > 0 ? numIn($("fQty").value) : 1,
+    mode: $("fMode").value, unit: $("fUnit").value.trim(), w: pos($("fW").value),
+    L: pos($("fLen").value), l: pos($("fWid").value), H: pos($("fHei").value), v: pos($("fV").value),
     note: $("fNote").value.trim() };
 }
 function autoUnit() {
@@ -1295,7 +1331,7 @@ function resetForm() {
 }
 function startEdit(i) {
   editingId = i.id;
-  $("fName").value = i.name; $("fCat").value = i.cat; $("fQty").value = i.qty; $("fMode").value = i.mode;
+  $("fName").value = i.name; $("fCat").value = i.cat; $("fQty").value = String(i.qty).replace(".", ","); $("fMode").value = i.mode;
   fillSpecs(i); $("fNote").value = i.note || "";
   $("fSubmit").textContent = "Enregistrer"; $("formTitle").textContent = "Modifier l'article";
   updatePreview(); openOv("sheetOv"); $("addBox").scrollTop = 0;
@@ -1303,6 +1339,7 @@ function startEdit(i) {
 function submitItem() {
   const f = readForm(); const e = cur();
   if (!f.name) { toast("Donne un nom à l'article"); $("fName").focus(); return; }
+  if (editingId && e.items.some(i => i.id !== editingId && gkey(i.name) === gkey(f.name))) { toast(`« ${f.name} » est déjà dans la liste`); return; }
   if (editingId) { const it = e.items.find(x => x.id === editingId); if (it) { if (f.note === REF_NOTE && ["w","L","l","H","v"].some(k => f[k] !== (+it[k] || 0))) f.note = ""; Object.assign(it, f); } toast("Article modifié"); }
   else { if (e.items.some(i => gkey(i.name) === gkey(f.name))) { toast(`« ${f.name} » est déjà dans la liste`); return; } e.items.push({ id: uid(), ...f, done: false }); toast(`« ${f.name} » ajouté : ${qtyTxt(total(f, e), f.unit)}`); }
   rememberGear(f); persist(e); resetForm(); renderAll(false);
@@ -1361,11 +1398,14 @@ document.querySelectorAll("input[data-list]").forEach(i => combo(i, i.dataset.li
 [["pName","name",false],["pType","type",false],["pDays","days",true],["pNights","nights",true],["pPeople","people",true],["pReserve","reserve",true],["pMax","maxPP",true]].forEach(([id, k, num]) => {
   $(id).addEventListener("input", () => {
     const e = cur(); let v = $(id).value;
-    if (num) { if (v === "" && k !== "maxPP") return; v = k === "maxPP" ? Math.max(0, Math.round(+v * 10) / 10) : Math.max(k === "days" || k === "people" ? 1 : 0, Math.round(+v)); }
+    if (num) { if (v === "" && k !== "maxPP") return; const n = numIn(v); if (v !== "" && !Number.isFinite(n)) return;
+      v = k === "maxPP" ? Math.max(0, Math.round((n || 0) * 10) / 10) : Math.min(k === "people" ? 500 : 365, Math.max(k === "days" || k === "people" ? 1 : 0, Math.round(n))); }
     if (k === "days" && +e.nights === Math.max(0, +e.days - 1)) { e.nights = Math.max(0, v - 1); $("pNights").value = e.nights; }
     e[k] = v; if (k === "days" && e.start) { e.end = addDays(e.start, Math.max(0, v - 1)); $("pEnd").value = e.end; }
     persist(e); renderSelect(); renderStats(); renderSum(); renderList(); renderSac(); updatePreview();
   });
+  if (num) $(id).addEventListener("change", () => { const e = cur(), shown = k === "maxPP" ? (+e[k] || "") : e[k];
+    if (String(shown) !== $(id).value.replace(",", ".").trim()) { $(id).value = shown; toast(`${$(id).labels[0] ? $(id).labels[0].textContent : "Valeur"} corrigé : ${shown || "aucun"}`); } });
 });
 
 [["pStart","start"],["pEnd","end"]].forEach(([id, k]) => $(id).addEventListener("change", () => {
@@ -1565,10 +1605,9 @@ async function saveBlob(blob, name, type, title, okMsg) {
 }
 function slug(n) { return gkey(n).normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "expedition"; }
 $("btnPdf").onclick = exportPdf;
-setTimeout(() => { loadPdf().catch(() => {}); }, 2500);
 function backupJson() { return JSON.stringify({ app: "sac-de-layon", v: 1, savedAt: new Date().toISOString(), exps: Object.values(state.exps).filter(e => !e.draft), gear: state.gear, hidden: state.hidden }); }
 const LS_BK = "sacdelayon.lastBackup";
-function markBackup() { try { localStorage.setItem(LS_BK, String(Date.now())); } catch (e) {} renderSaveInfo(); }
+function markBackup() { try { localStorage.setItem(LS_BK, String(Date.now())); } catch (e) {} renderSaveInfo(); renderHome(); }
 function renderSaveInfo() {
   let t = 0; try { t = +localStorage.getItem(LS_BK) || 0; } catch (e) {}
   const n = Object.values(state.exps).filter(e => !e.draft).length, g = Object.keys(state.gear).length;
@@ -1593,16 +1632,18 @@ function importText(txt) {
     if (!exps.length && !g) throw 0;
     // 2. écrire, en gardant de quoi revenir en arrière si l'appareil refuse d'enregistrer
     const before = JSON.stringify({ exps: state.exps, gear: state.gear, hidden: state.hidden, current: state.current });
-    exps.forEach(e => { state.exps[e.id] = e; });
+    const kept = exps.filter(e => state.exps[e.id] && !state.exps[e.id].draft && (+state.exps[e.id].updatedAt || 0) > (+e.updatedAt || 0));
+    exps.forEach(e => { if (!kept.includes(e)) state.exps[e.id] = e; });
     Object.entries(gear).forEach(([k, it]) => { const old = state.gear[k] || {}; state.gear[k] = { ...old, ...it, uses: old.uses || it.uses || 0, updatedAt: Date.now() }; });
     if (hid) state.hidden = [...new Set([...state.hidden, ...hid])];
     if (exps.length) { const old = cur(); if (old && old.draft) delete state.exps[old.id]; state.current = exps[0].id; }
     if (!lsSave()) { const b = JSON.parse(before); state.exps = b.exps; state.gear = b.gear; state.hidden = b.hidden; state.current = b.current; renderAll(true);
       toast("Restauration impossible : cet appareil n'a pas pu l'enregistrer (mémoire pleine ou bloquée). Rien n'a été modifié."); return false; }
-    exps.forEach(e => persist(e)); if (g || hid) persistGear();
+    exps.forEach(e => { if (!kept.includes(e)) persist(e); }); if (g || hid) persistGear();
     $("importTxt").value = ""; renderAll(true);
     toast([exps.length ? `${exps.length} expédition${exps.length > 1 ? "s" : ""} restaurée${exps.length > 1 ? "s" : ""}` : "", g ? `${g} article${g > 1 ? "s" : ""} ajouté${g > 1 ? "s" : ""} à ton matériel` : "",
-      skipped ? `${skipped} illisible${skipped > 1 ? "s" : ""} ignorée${skipped > 1 ? "s" : ""}` : ""].filter(Boolean).join(", "));
+      skipped ? `${skipped} illisible${skipped > 1 ? "s" : ""} ignorée${skipped > 1 ? "s" : ""}` : "",
+      kept.length ? `${kept.length} gardée${kept.length > 1 ? "s" : ""} telle${kept.length > 1 ? "s" : ""} quelle${kept.length > 1 ? "s" : ""} (plus récente${kept.length > 1 ? "s" : ""} sur ce téléphone)` : ""].filter(Boolean).join(", "));
     return true;
   } catch (e) { toast("Ce n'est pas une sauvegarde valide"); return false; }
 }
@@ -1612,7 +1653,7 @@ $("saveWarnBtn").onclick = () => $("btnExportFile").click();
 let tt; function toast(m, undo, label) {
   const t = $("toast"); t.innerHTML = ""; const sp = document.createElement("span"); sp.textContent = m; t.appendChild(sp);
   if (undo) { const b = document.createElement("button"); b.type = "button"; b.textContent = label || "Annuler"; b.onclick = () => { t.classList.remove("show", "act"); undo(); }; t.appendChild(b); }
-  t.classList.toggle("act", !!undo); t.classList.add("show"); clearTimeout(tt); tt = setTimeout(() => t.classList.remove("show", "act"), label ? 12000 : undo ? 6000 : m.length > 90 ? 6000 : 2400);
+  t.classList.toggle("act", !!undo); t.classList.add("show"); clearTimeout(tt); tt = setTimeout(() => t.classList.remove("show", "act"), label ? 12000 : undo ? 10000 : m.length > 90 ? 6000 : 2400);
 }
 
 // ---------- onglets : Liste · Sac · Matériel · Réglages ----------
@@ -1633,8 +1674,19 @@ function setView(v, quiet) {
 document.querySelectorAll(".tabbar button").forEach(b => b.onclick = () => { closeMenu(); setView(b.dataset.go); });
 
 // ---------- fiches qui montent du bas ----------
-function openOv(id) { $(id).hidden = false; document.body.classList.add("noscroll"); }
-function closeOv(id) { $(id).hidden = true; if (![...document.querySelectorAll(".ov")].some(o => !o.hidden)) document.body.classList.remove("noscroll"); }
+const ovBack = {};
+const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])';
+function openOv(id) {
+  const o = $(id); if (o.hidden) ovBack[id] = document.activeElement;
+  o.hidden = false; document.body.classList.add("noscroll");
+  document.querySelectorAll("main.wrap, nav.tabbar").forEach(x => x.inert = true);
+  setTimeout(() => { if (o.hidden || o.contains(document.activeElement)) return; const f = o.querySelector('[role="dialog"], .sheet, .box') || o; const t = f.querySelector(FOCUSABLE); if (t) t.focus({ preventScroll: true }); }, 30);
+}
+function closeOv(id) {
+  $(id).hidden = true;
+  if (![...document.querySelectorAll(".ov")].some(o => !o.hidden)) { document.body.classList.remove("noscroll"); document.querySelectorAll("main.wrap, nav.tabbar").forEach(x => x.inert = false); }
+  const b = ovBack[id]; delete ovBack[id]; if (b && b.isConnected && typeof b.focus === "function") try { b.focus({ preventScroll: true }); } catch (e) {}
+}
 $("sheetOv").addEventListener("click", ev => { if (ev.target === $("sheetOv")) resetForm(); });
 $("packOv").addEventListener("click", ev => { if (ev.target === $("packOv")) closePicker(); });
 $("txtOv").addEventListener("click", ev => { if (ev.target === $("txtOv")) closeOv("txtOv"); });
@@ -1716,7 +1768,7 @@ function renderSac() {
 function sacRow(i, e) {
   const r = document.createElement("label"); r.className = "srow" + (i.done ? " done" : "");
   const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = !!i.done;
-  cb.onchange = () => tick(i, e, r, cb.checked);
+  cb.dataset.iid = i.id; cb.onchange = () => tick(i, e, r, cb.checked);
   const n = document.createElement("span"); n.textContent = i.name;
   const q = document.createElement("b"); q.textContent = qtyTxt(total(i, e), i.unit);
   r.append(cb, n, q); return r;
@@ -1741,10 +1793,10 @@ function renderWizard() {
     h.textContent = "Où tu pars ?";
     const f1 = document.createElement("label"); f1.className = "field"; const l1 = document.createElement("span"); l1.className = "label"; l1.textContent = "Nom de l'expédition";
     const n = document.createElement("input"); n.id = "wName"; n.placeholder = "Ex. Aïmara saut Takari"; n.value = e.name === "Nouvelle expédition" ? "" : e.name;
-    n.oninput = () => { e.name = n.value.trim() || "Nouvelle expédition"; renderSelect(); };
+    n.oninput = () => { e.name = n.value.trim() || "Nouvelle expédition"; renderSelect(); lsSave(); };
     f1.append(l1, n);
     const f2 = document.createElement("div"); f2.className = "field"; const l2 = document.createElement("span"); l2.className = "label"; l2.textContent = "Type";
-    const t = document.createElement("input"); t.placeholder = "Pêche, raid forêt, pirogue…"; t.value = e.type || ""; t.oninput = () => { e.type = t.value; };
+    const t = document.createElement("input"); t.placeholder = "Pêche, raid forêt, pirogue…"; t.value = e.type || ""; t.oninput = () => { e.type = t.value; lsSave(); };
     f2.append(l2, t); box.append(f1, f2); combo(t, "typeList");
     const skip = document.createElement("button"); skip.className = "ghost"; skip.textContent = "Passer";
     skip.onclick = () => { wizSkip.add(e.id); renderWizard(); renderList(); };
@@ -1755,7 +1807,8 @@ function renderWizard() {
     const di = document.createElement("input"); di.type = "date"; di.value = e.start || ""; di.min = todayS();
     const ret = document.createElement("small"); ret.className = "hint";
     const showRet = () => { ret.textContent = e.start ? `Retour le ${dLongY(endOf(e))} · le compte à rebours démarre sur l'accueil` : "Facultatif, mais c'est ce qui lance le compte à rebours."; };
-    di.onchange = () => { e.start = di.value; e.end = e.start ? addDays(e.start, Math.max(0, (+e.days || 1) - 1)) : ""; showRet(); };
+    di.onchange = () => { if (di.value && di.value < todayS()) { toast("Cette date est déjà passée : choisis le jour du départ"); di.value = e.start || ""; return; }
+      e.start = di.value; e.end = e.start ? addDays(e.start, Math.max(0, (+e.days || 1) - 1)) : ""; showRet(); lsSave(); };
     fd.append(ld, di, ret); box.appendChild(fd); showRet();
     [["days","Jours",1,""],["nights","Nuits",0,""],["people","Personnes",1,""],["reserve","Jours de réserve",0,"en cas de crue ou de pépin : 1 minimum"]].forEach(([k, lab, min, sub]) => {
       const r = document.createElement("div"); r.className = "stepper";
@@ -1764,18 +1817,18 @@ function renderWizard() {
       const minus = document.createElement("button"); minus.textContent = "−"; minus.setAttribute("aria-label", lab + " moins un");
       const v = document.createElement("b"); v.textContent = e[k];
       const plus = document.createElement("button"); plus.textContent = "+"; plus.setAttribute("aria-label", lab + " plus un");
-      const set = x => { x = Math.max(min, x); if (k === "days" && +e.nights === Math.max(0, +e.days - 1)) e.nights = Math.max(0, x - 1); e[k] = x; if (k === "days" && e.start) e.end = addDays(e.start, x - 1); renderWizard(); };
+      const set = x => { x = Math.max(min, x); if (k === "days" && +e.nights === Math.max(0, +e.days - 1)) e.nights = Math.max(0, x - 1); e[k] = x; if (k === "days" && e.start) e.end = addDays(e.start, x - 1); lsSave(); renderWizard(); };
       minus.onclick = () => set(+e[k] - 1); plus.onclick = () => set(+e[k] + 1);
       c.append(minus, v, plus); r.append(l, c); box.appendChild(r);
     });
     const f = document.createElement("label"); f.className = "field"; const l = document.createElement("span"); l.className = "label"; l.textContent = "Poids max par personne (kg), facultatif";
-    const m = document.createElement("input"); m.type = "number"; m.min = "0"; m.step = "any"; m.inputMode = "decimal"; m.placeholder = "Ex. 15"; m.value = +e.maxPP || "";
-    m.oninput = () => { e.maxPP = Math.max(0, +m.value || 0); };
+    const m = document.createElement("input"); m.type = "text"; m.inputMode = "decimal"; m.placeholder = "Ex. 15"; m.value = +e.maxPP || "";
+    m.oninput = () => { e.maxPP = Math.max(0, numIn(m.value) || 0); lsSave(); };
     f.append(l, m); box.appendChild(f);
     nav.append(back, next);
   } else {
     h.textContent = "Par où tu commences ?";
-    const finish = () => { if (!e.name || e.name === "Nouvelle expédition") e.name = "Expédition du " + new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long" }); persist(e); wiz.step = 1; renderAll(true); };
+    const finish = () => { if (!e.name || e.name === "Nouvelle expédition") e.name = "Expédition du " + (e.start ? dParse(e.start) : new Date()).toLocaleDateString("fr-FR", { day: "numeric", month: "long" }); persist(e); wiz.step = 1; renderAll(true); };
     const pk = packForType(e.type);
     const c1 = document.createElement("button"); c1.className = "primary choice";
     c1.innerHTML = "<b></b><small></small>"; c1.firstChild.textContent = `🎒 Choisir dans « ${PACKS[pk].label} »`;
@@ -1872,7 +1925,7 @@ $("appHome").onclick = () => setView("accueil");
 function openExp(id, v) { state.current = id; lsSave(); curSec = ""; openRows.clear(); resetForm(); renderAll(true); setView(v || "liste"); }
 function newExp() {
   let e = cur();
-  if (!(e && e.draft && !e.items.length)) { e = blankExp(); state.exps[e.id] = e; state.current = e.id; }
+  if (!(e && e.draft && !draftTouched(e))) { e = blankExp(); state.exps[e.id] = e; state.current = e.id; }
   wizSkip.delete(e.id); wiz.step = 1; curSec = ""; resetForm(); renderAll(true); setView("liste"); const n = $("wName"); if (n) n.focus();
 }
 $("btnNew").onclick = newExp;
@@ -1892,7 +1945,8 @@ function expCard(e, big) {
   const top = document.createElement("div"); top.className = "ctop";
   const ic = document.createElement("span"); ic.className = "cic"; ic.setAttribute("aria-hidden", "true"); ic.innerHTML = typeSvg(draft ? "" : e.type);
   const tt = document.createElement("div"); tt.className = "ctt";
-  const h = document.createElement("h3"); h.textContent = e.name || "Sans nom";
+  const h = document.createElement("h3"); const hb = document.createElement("button"); hb.type = "button"; hb.className = "cardopen"; hb.textContent = e.name || "Sans nom";
+  hb.onclick = ev => { ev.stopPropagation(); openExp(e.id, "liste"); }; h.appendChild(hb);
   const sub = document.createElement("small"); sub.textContent = [e.type, `${e.people} pers.`].filter(Boolean).join(" · ");
   tt.append(h, sub);
   const cd = document.createElement("span"); cd.className = "cd " + ph.k; cd.textContent = ph.k === "none" ? "" : ph.label;
@@ -1927,7 +1981,7 @@ function expCard(e, big) {
 }
 function renderHome() {
   const box = $("homeList"); if (!box) return; box.innerHTML = "";
-  const all = Object.values(state.exps).filter(e => !e.draft || e.items.length);
+  const all = Object.values(state.exps).filter(e => !e.draft || draftTouched(e));
   if (!all.length) {
     const d = document.createElement("div"); d.className = "card big empty-home";
     const h = document.createElement("h3"); h.textContent = "Ta première expédition";
@@ -1950,6 +2004,15 @@ function renderHome() {
     const sm = document.createElement("summary"); sm.className = "hlab"; sm.textContent = `Expéditions passées (${pastR.length})`; det.appendChild(sm);
     pastR.forEach(e => det.appendChild(expCard(e, false))); box.appendChild(det);
   }
+  // rappel de sauvegarde : les listes ne vivent que dans ce téléphone
+  let bk = 0; try { bk = +localStorage.getItem(LS_BK) || 0; } catch (e) {}
+  const real = all.filter(e => e.items.length).length;
+  if (real && Date.now() - bk > 30 * 864e5) {
+    const r = document.createElement("div"); r.className = "bkremind";
+    const p = document.createElement("p"); p.textContent = bk ? `Dernière sauvegarde il y a ${Math.floor((Date.now() - bk) / 864e5)} jours.` : "Tes listes ne sont que sur ce téléphone : s'il est perdu ou changé, elles disparaissent.";
+    const b = document.createElement("button"); b.className = "small"; b.textContent = "Enregistrer une sauvegarde"; b.onclick = () => $("btnExportFile").click();
+    r.append(p, b); box.appendChild(r);
+  }
 }
 
 // ---------- sac bouclé : un vrai moment ----------
@@ -1961,9 +2024,13 @@ let tickT = null;
 function tick(i, e, row, on) {
   i.done = on; persist(e); row.classList.toggle("done", on); row.classList.add("tick");
   if (on && view === "sac") seeHint("sac");
-  clearTimeout(tickT); tickT = setTimeout(() => { refresh(); }, 420);
+  clearTimeout(tickT); tickT = setTimeout(() => {
+    const a = document.activeElement, id = a && a.dataset ? a.dataset.iid : "", inSac = a && a.closest && !!a.closest("#sacView");
+    refresh();
+    if (id) { const n = document.querySelector(`${inSac ? "#sacView" : "#list"} input[data-iid="${CSS.escape(id)}"]`); if (n) n.focus({ preventScroll: true }); }
+  }, 420);
   renderSum();
-  if (on && e.items.length && e.items.every(x => x.done)) setTimeout(() => celebrate(e), 450);
+  if (on && e.items.length && e.items.every(x => x.done)) setTimeout(() => { if (cur() === e && e.items.length && e.items.every(x => x.done)) celebrate(e); }, 450);
 }
 function celebrate(e) {
   const ov = $("doneOv"), svg = $("doneArt"); svg.innerHTML = "";
@@ -2128,7 +2195,7 @@ function renderSafety() {
   const btn = (t, cls, ch) => { const b = document.createElement("button"); b.className = cls; b.textContent = t; b.onclick = () => {
     if (!safeBack && (ch === "wa" || ch === "sms")) { const d = String(s.phone || "").replace(/[\s.\-()]/g, "");
       if (!d) { toast("Ajoute le téléphone du contact"); return; }
-      if (!/^\+?\d{9,15}$/.test(d)) { toast("Numéro de téléphone invalide : chiffres seulement, par ex. 0694 12 34 56"); return; } }
+      if (!/^(0\d{9}|(\+|00)\d{8,15})$/.test(d)) { toast("Numéro invalide : 10 chiffres commençant par 0 (ex. 0694 12 34 56), ou au format +594…"); return; } }
     if (ch === "share") { navigator.share({ text: preview.textContent }).then(ask, () => {}); return; }
     sendTo(ch, preview.textContent); ask(); }; a.appendChild(b); };
   btn(safeBack ? "✅ Prévenir par WhatsApp" : "Envoyer par WhatsApp", "primary big", "wa");
@@ -2163,12 +2230,18 @@ new MutationObserver(drawTopo).observe(document.documentElement, { attributes: t
 lsLoad(); if (!state.exps[state.current]) pickDefault();
 setView(savedView(), true); renderAll(true); drawTopo(); renderSaveInfo(); renderInstall();
 if (loadWarn) toast(loadWarn, () => setView("reglages"), "Réglages");
+// une nouvelle version vient de s'installer pendant que l'appli est ouverte : on le dit
+try { if (navigator.serviceWorker && navigator.serviceWorker.controller) navigator.serviceWorker.addEventListener("controllerchange", () => toast("Nouvelle version de l'appli prête.", () => location.reload(), "Recharger")); } catch (e) {}
+// AUD-011 : demander au navigateur de ne pas effacer les données de lui-même
+try { if (navigator.storage && navigator.storage.persist) navigator.storage.persisted().then(p => p || navigator.storage.persist()).catch(() => {}); } catch (e) {}
 connectDb();
 })();
 </script>
 
+<!-- version-autonome:debut -->
 <script>
 if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
 </script>
+<!-- version-autonome:fin -->
 </body>
 </html>
