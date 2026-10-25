@@ -161,3 +161,11 @@ test("sécurité : le bilan signale ce qui manque, la trousse s'ajoute avec ses 
   await p.keyboard.press("Escape"); assert.equal(await p.isVisible("#urgOv"), false);
   await close(p);
 });
+
+test("sécurité : la rubalise n'est pas prise pour une balise satellite", async () => {
+  const p = await open({ v: 2, current: "A", gear: {}, hidden: [], exps: [exp({ id: "A", items: [item({ name: "Rubalise", cat: "Navigation & topo" }), item({ name: "GPS Garmin", cat: "Navigation & topo" })] })] });
+  await p.click("#homeList .card.big .actions .primary");
+  await p.locator("#secTiles button", { hasText: "Sécurité" }).click(); await p.waitForTimeout(150);
+  assert.match(await p.textContent("#secBilan"), /✗ Moyen d'alerte satellite/);
+  await close(p);
+});
