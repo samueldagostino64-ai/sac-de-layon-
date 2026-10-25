@@ -138,3 +138,26 @@ test("le numéro de version affiché correspond au cache du service worker", asy
   for (const f of sw.match(/CORE = \[([^\]]+)\]/)[1].match(/"([^"]+)"/g).map(s => s.slice(1, -1)).filter(f => f !== "./"))
     await readFile(join(ROOT, f)); // chaque fichier mis en cache existe
 });
+
+test("sécurité : le bilan signale ce qui manque, la trousse s'ajoute avec ses consignes, les gestes d'urgence s'ouvrent", async () => {
+  const p = await open({ v: 2, current: "A", gear: {}, hidden: [], exps: [exp({ id: "A", people: 3, items: [item()] })] });
+  await p.click("#homeList .card.big .actions .primary");
+  await p.locator("#secTiles button", { hasText: "Sécurité" }).click(); await p.waitForTimeout(150);
+  assert.match(await p.textContent("#secBilan"), /5 points à régler/);
+  await p.locator("#secBilan button", { hasText: "Ajouter la trousse" }).click(); await p.waitForTimeout(200);
+  for (const c of ["Trousse journée", "Trousse camp"]) await p.locator("#packBox .cat", { hasText: c }).locator("h3 .iconbtn").click();
+  await p.locator("#packBox label", { hasText: "Balise satellite" }).first().click();
+  await p.locator("#packOv .primary", { hasText: /Ajouter/ }).last().click(); await p.waitForTimeout(200);
+  const items = (await p.stored()).exps[0].items;
+  const garrot = items.find(i => i.name === "Garrot tourniquet");
+  assert.ok(garrot && garrot.cat === "Trousse journée" && garrot.mode === "p", "garrot par personne");
+  assert.match(garrot.note, /JAMAIS pour une morsure de serpent/);
+  assert.match(items.find(i => i.name === "Ibuprofène").note, /dengue/);
+  assert.match(await p.textContent("#list"), /30 pièces/); // 10 compresses × 3 personnes
+  assert.match(await p.textContent("#secBilan"), /1 point à régler/);
+  await p.locator("#secBilan button", { hasText: "Gestes d'urgence" }).click(); await p.waitForTimeout(150);
+  assert.equal(await p.isVisible("#urgOv"), true);
+  assert.match(await p.textContent("#urgOv"), /paracétamol uniquement/);
+  await p.keyboard.press("Escape"); assert.equal(await p.isVisible("#urgOv"), false);
+  await close(p);
+});
