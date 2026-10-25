@@ -310,7 +310,20 @@ body.noscroll { overflow: hidden; }
 .tabbar svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .tabbar button { font-size: .74rem; }
 .home { display: grid; gap: 12px; }
-.homehead { display: flex; justify-content: flex-end; }
+.homehead { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.urgbtn { border-color: var(--laterite); color: var(--laterite); }
+.secbilan { display: grid; gap: 6px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); }
+.secbilan b { font-size: .95rem; }
+.secbilan ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: .92rem; }
+.secbilan li.ko { color: var(--laterite); font-weight: 600; }
+.secbilan .actions { margin: 4px 0 0; }
+.urg-alert { border: 2px solid var(--laterite); border-radius: var(--r); padding: 12px 14px; display: grid; gap: 6px; }
+.urg-alert p { margin: 0; }
+.urg-pos { font-family: var(--f-mono); font-size: 1.1rem; }
+.proto { border: 1px solid var(--line); border-radius: 12px; padding: 0 12px; }
+.proto summary { font-weight: 700; cursor: pointer; }
+.proto ul { margin: 0 0 12px; padding-left: 20px; display: grid; gap: 6px; }
+.proto .no { color: var(--laterite); font-weight: 600; }
 .homehead button { min-height: 44px; }
 .hlab { font-size: .8rem; color: var(--muted); letter-spacing: .1em; margin: 6px 2px 0; }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: grid; gap: 12px; cursor: pointer; -webkit-tap-highlight-color: transparent; margin-top: 10px; }
@@ -404,7 +417,7 @@ header.top canvas { border-radius: var(--r); }
   </header>
 
   <section id="homeView" class="home" data-view="accueil" hidden>
-    <div class="homehead"><button id="btnNew" class="primary">+ Nouvelle expédition</button></div>
+    <div class="homehead"><button id="btnUrg" class="urgbtn" aria-label="Urgences et premiers secours">⛑️ Urgences</button><button id="btnNew" class="primary">+ Nouvelle expédition</button></div>
     <div id="homeList"></div>
   </section>
   <div id="installTip" class="tip" data-view="accueil" hidden></div>
@@ -422,6 +435,7 @@ header.top canvas { border-radius: var(--r); }
       <button id="btnMore" class="ghost" aria-label="Plus d'actions" aria-haspopup="true" aria-expanded="false">⋯</button>
       <div id="moreMenu" class="menu" hidden>
         <button id="btnSafety">🛟 Fiche sécurité</button>
+        <button id="btnUrgMenu">⛑️ Urgences & premiers secours</button>
         <button id="btnDup">Dupliquer cette expédition</button>
         <button id="btnManage" class="danger-text">Supprimer des expéditions…</button>
       </div>
@@ -473,6 +487,7 @@ header.top canvas { border-radius: var(--r); }
     <div id="secTiles" class="secs" role="group" aria-label="Sections de la liste"></div>
     <div id="secHead" class="sechead" hidden>
       <div class="t"><h3 id="secTitle"></h3><button class="small ghost" id="secBack">Toutes les sections</button></div>
+      <div id="secBilan" class="secbilan" hidden></div>
       <div class="qadd">
         <div class="qn"><input id="qName" data-list="qList" placeholder="Ajouter un article" aria-label="Article à ajouter dans cette section"><datalist id="qList"></datalist></div>
         <label class="ql"><span>Quantité</span><input id="qQty" type="text" inputmode="decimal" autocomplete="off" placeholder="1"></label>
@@ -536,7 +551,7 @@ header.top canvas { border-radius: var(--r); }
     <p class="hint">Supprime les expéditions de test ou passées, avec leur liste. Ton matériel est conservé.</p>
     <div class="actions"><button class="small danger" id="btnManage2">Supprimer des expéditions…</button></div>
     <div id="manageBox" class="manage" hidden></div>
-    <p class="ver mono">Sac de Layon · version 20</p>
+    <p class="ver mono">Sac de Layon · version 21</p>
   </section>
 </main>
 
@@ -604,6 +619,39 @@ header.top canvas { border-radius: var(--r); }
   </div>
 </div>
 
+<!-- urgences et premiers secours : lisible sans réseau -->
+<div class="ov" id="urgOv" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="urgTitle" id="urgBox">
+    <div class="toolbar"><h2 id="urgTitle">⛑️ Urgences</h2><button type="button" class="small ghost" id="urgClose" aria-label="Fermer">✕</button></div>
+    <div class="urg-alert">
+      <p><b>Urgence vitale : déclenche le SOS de ta balise satellite.</b></p>
+      <p>Avec du réseau : <b>15</b> (SAMU) ou <b>112</b>. Donne ta position, le nombre de blessés, ce qui s'est passé et l'heure.</p>
+      <div class="actions" style="margin:0"><button type="button" class="small" id="urgLoc">📍 Afficher ma position</button><button type="button" class="small ghost" id="urgCopy" hidden>Copier</button></div>
+      <p class="urg-pos" id="urgPos" aria-live="polite" hidden></p>
+      <small class="gmsg" id="urgMsg" hidden></small>
+    </div>
+    <details class="proto"><summary>🐍 Morsure de serpent (grage, Bothrops)</summary><ul>
+      <li>Calme et repos complet de la victime. Retirer bagues, montre, bracelets.</li>
+      <li>Immobiliser le membre. Noter l'heure de la morsure.</li>
+      <li>Contre la douleur : <b>paracétamol uniquement</b>.</li>
+      <li><b>Déclencher l'évacuation immédiatement</b> : l'antivenin est à l'hôpital de Cayenne.</li>
+      <li class="no">Pas de garrot, pas d'incision, pas d'aspiration, pas de glace, pas d'ibuprofène.</li></ul></details>
+    <details class="proto"><summary>🐟 Piqûre de raie d'eau douce</summary><ul>
+      <li>Plonger le pied dans l'eau <b>aussi chaude que supportable, 30 à 90 min</b> : c'est le seul vrai antidouleur. Tester l'eau avec une main saine pour ne pas brûler.</li>
+      <li>Prévoir de quoi chauffer de l'eau, même à la journée.</li>
+      <li>Nettoyer à fond, puis surveiller l'infection.</li>
+      <li>Prévention : avancer dans l'eau en traînant les pieds.</li></ul></details>
+    <details class="proto"><summary>🩸 Hémorragie d'un membre</summary><ul>
+      <li>Compression directe et forte sur la plaie (pansement compressif).</li>
+      <li>Si ça ne s'arrête pas : garrot tourniquet au-dessus de la plaie, <b>noter l'heure</b>.</li>
+      <li>Évacuer.</li></ul></details>
+    <details class="proto"><summary>🚫 À ne pas acheter</summary><ul>
+      <li>Aspivenin, kits « anti-venin », garrot contre les serpents : inefficaces et dangereux.</li>
+      <li>Kits de secours tout faits : chers et pleins de gadgets. Mieux vaut composer sa trousse (voir le pack « Trousse de secours Guyane »).</li></ul></details>
+    <p class="hint">Ces fiches rappellent les gestes de base. Elles ne remplacent ni une formation aux premiers secours (PSC1) ni l'avis d'un médecin.</p>
+  </div>
+</div>
+
 <!-- fiche sécurité « Si je ne rentre pas » -->
 <div class="ov" id="safeOv" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="safeTitle" id="safeBox">
@@ -633,13 +681,13 @@ window.addEventListener("error", ev => __sdlErr((ev.message || "inconnue") + " @
 window.addEventListener("unhandledrejection", ev => __sdlErr("promesse : " + ((ev.reason && (ev.reason.message || ev.reason.code)) || ev.reason)));
 (() => {
 const MODES = { fixe: "fixe", p: "/ pers.", j: "/ jour", n: "/ nuit", pj: "/ pers. / jour", pn: "/ pers. / nuit" };
-const CATS = ["Bivouac","Eau","Vivres","Feu & cuisine","Navigation & topo","Outils","Éclairage & énergie","Sécurité & secours","Vêtements","Hygiène","Pêche","Pirogue","Caisse à outils pirogue","Caisse à outils voiture","Jeux de société"];
+const CATS = ["Bivouac","Eau","Vivres","Feu & cuisine","Navigation & topo","Outils","Éclairage & énergie","Sécurité & secours","Trousse journée","Trousse camp","Vêtements","Hygiène","Pêche","Pirogue","Caisse à outils pirogue","Caisse à outils voiture","Jeux de société"];
 // sections de préparation : on remplit la liste poste par poste
 const SECTIONS = [
   { k: "nourriture", icon: "🧊", label: "Nourriture & glacière", cats: ["Vivres","Eau"] },
   { k: "popote", icon: "🍳", label: "Caisse popote", cats: ["Feu & cuisine"] },
   { k: "bivouac", icon: "⛺", label: "Bivouac", cats: ["Bivouac"] },
-  { k: "secu", icon: "⛑️", label: "Sécurité & infirmerie", cats: ["Sécurité & secours"] },
+  { k: "secu", icon: "⛑️", label: "Sécurité & infirmerie", cats: ["Sécurité & secours","Trousse journée","Trousse camp"] },
   { k: "topo", icon: "🧭", label: "Topographie", cats: ["Navigation & topo"] },
   { k: "vetements", icon: "👕", label: "Vêtements & hygiène", cats: ["Vêtements","Hygiène"] },
   { k: "materiel", icon: "🔦", label: "Matériel & outils", cats: ["Outils","Éclairage & énergie"] },
@@ -680,6 +728,28 @@ const PACKS = {
   ]},
   peche: { label: "Pack pêche", desc: "Sinnamary, Petit-Saut : aïmara, piraï, tucunaré.", items: [
     ["Canne + moulinet","Pêche",1,"p","ensemble",450],["Tresse de rechange","Pêche",1,"fixe","bobine",120],["Bas de ligne acier","Pêche",4,"p","pièce",10],["Leurres","Pêche",6,"p","pièce",25],["Hameçons assortis","Pêche",1,"fixe","boîte",80],["Pince à dégorger","Pêche",1,"fixe","pièce",150],["Épuisette","Pêche",1,"fixe","pièce",700],["Couteau à fileter","Pêche",1,"fixe","pièce",120],["Glacière + glace","Vivres",1,"fixe","pièce",4000]
+  ]},
+  trousse: { label: "Trousse de secours Guyane", desc: "Une trousse journée par personne, une trousse camp pour le groupe. Quantités pour un petit groupe, à ajuster.", items: [
+    ["Balise satellite / inReach","Sécurité & secours",1,"fixe","pièce",110,"Priorité n°1, portée sur soi : chargée, testée, abonnement actif"],
+    ["Garrot tourniquet","Trousse journée",1,"p","pièce",80,"Type CAT authentique. Hémorragie de membre. JAMAIS pour une morsure de serpent"],
+    ["Pansement compressif (israélien)","Trousse journée",1,"p","pièce",80],["Compresses stériles","Trousse journée",10,"p","pièce",3],["Bande cohésive","Trousse journée",1,"p","rouleau",25],["Sparadrap","Trousse journée",1,"p","rouleau",30],
+    ["Steri-Strip + pansements assortis","Trousse journée",1,"p","boîte",40],["Chlorhexidine (dosettes)","Trousse journée",5,"p","dosette",6],["Sérum physiologique (dosettes)","Trousse journée",5,"p","dosette",6],
+    ["Pince coupante","Trousse journée",1,"p","pièce",150,"Hameçon planté : couper l'ardillon, faire ressortir"],["Pince à échardes + petits ciseaux","Trousse journée",1,"p","lot",30],
+    ["Paracétamol","Trousse journée",1,"p","plaquette",10],["Antihistaminique (cétirizine)","Trousse journée",1,"p","plaquette",8],["Sachets de réhydratation (SRO)","Trousse journée",2,"p","sachet",6],
+    ["Couverture de survie","Trousse journée",1,"p","pièce",60],["Sifflet","Trousse journée",1,"p","pièce",10],["Répulsif moustiques","Sécurité & secours",1,"p","flacon",100],
+    ["Compresses stériles (camp)","Trousse camp",40,"fixe","pièce",3],["Bandes cohésives (camp)","Trousse camp",3,"fixe","rouleau",25],["Bandes élastiques","Trousse camp",2,"fixe","rouleau",40],["Steri-Strip (camp)","Trousse camp",1,"fixe","boîte",20],
+    ["Gants nitrile","Trousse camp",1,"fixe","boîte",150],["Chlorhexidine en flacon","Trousse camp",1,"fixe","flacon",120],["Sérum physiologique (camp)","Trousse camp",20,"fixe","dosette",6],
+    ["Lames de bistouri stériles","Trousse camp",2,"fixe","pièce",5],["Aiguilles stériles","Trousse camp",5,"fixe","pièce",2,"Pour retirer les chiques"],["Attelle malléable (SAM Splint)","Trousse camp",1,"fixe","pièce",120],
+    ["Crème pour brûlures (Biafine)","Trousse camp",1,"fixe","tube",100],["Vaseline","Trousse camp",1,"fixe","pot",60,"Ver macaque : couvrir pour étouffer la larve"],
+    ["Paracétamol (camp)","Trousse camp",2,"fixe","boîte",25],["Ibuprofène","Trousse camp",1,"fixe","boîte",20,"JAMAIS si suspicion de dengue ni après une morsure de serpent"],["Lopéramide","Trousse camp",1,"fixe","boîte",15],
+    ["Sachets de réhydratation (camp)","Trousse camp",10,"fixe","sachet",6],["Antispasmodique (Spasfon)","Trousse camp",1,"fixe","boîte",20],["Antiacide","Trousse camp",1,"fixe","boîte",30],["Antihistaminique (camp)","Trousse camp",1,"fixe","boîte",15],
+    ["Crème à l'hydrocortisone","Trousse camp",1,"fixe","tube",30,"Piqûres"],["Antifongique crème + poudre (éconazole)","Trousse camp",1,"fixe","lot",80,"Pieds et aine"],["Collyre antiseptique","Trousse camp",1,"fixe","flacon",20],
+    ["Pastilles de purification (camp)","Trousse camp",1,"fixe","boîte",30,"Ou un filtre"],
+    ["Antibiotique large spectre","Trousse camp",1,"fixe","boîte",30,"Sur ordonnance : voir le médecin avant le départ. Posologie selon le médecin"],
+    ["Adrénaline auto-injectable","Trousse camp",1,"fixe","pièce",50,"Sur ordonnance, si allergie connue (guêpes)"],
+    ["Avis médical antipaludique","Trousse camp",1,"fixe","lot",0,"Demander au médecin : haut des fleuves, zones d'orpaillage"],
+    ["Thermomètre","Trousse camp",1,"fixe","pièce",20],["Pince à tiques","Trousse camp",1,"fixe","pièce",10],
+    ["Fiche santé (groupe sanguin, allergies, traitements, contact)","Trousse camp",1,"p","fiche",5],["Coordonnées GPS du camp notées","Trousse camp",1,"fixe","fiche",0,"À transmettre en cas d'alerte"]
   ]},
   pirogue: { label: "Pack pirogue / lac", desc: "Gilets, carburant, matériel moteur.", items: [
     ["Gilet de sauvetage","Pirogue",1,"p","pièce",600],["Essence moteur","Pirogue",10,"j","L",750],["Huile 2 temps","Pirogue",1,"fixe","bidon",1000],["Pagaie","Pirogue",2,"fixe","pièce",900],["Écope","Pirogue",1,"fixe","pièce",200],["Bougie + clé à bougie","Caisse à outils pirogue",1,"fixe","lot",250],["Goupilles d'hélice","Caisse à outils pirogue",3,"fixe","pièce",5],["Corde d'amarrage","Pirogue",2,"fixe","pièce",500]
@@ -1009,7 +1079,7 @@ function renderList() {
   const e = cur(), box = $("list"); box.innerHTML = "";
   renderTiles(e);
   const x = curSec && secDef(curSec);
-  $("secHead").hidden = !x;
+  $("secHead").hidden = !x; if (!x) $("secBilan").hidden = true;
   const pool = x ? e.items.filter(i => secOf(i.cat) === curSec) : e.items;
   if (x) {
     $("secTitle").textContent = `${x.icon} ${x.label}`;
@@ -1019,6 +1089,7 @@ function renderList() {
     if (!$("qName").value || !multi) { $("qCat").value = multi ? "" : x.cats[0]; $("qCat").placeholder = x.cats[0] || "Autre"; }
     $("qList").innerHTML = ""; secCatalog(curSec).forEach(n => { const o = document.createElement("option"); o.value = n; $("qList").appendChild(o); });
     const w = pool.reduce((s0, i) => s0 + total(i, e) * (+i.w || 0), 0), v = pool.reduce((s0, i) => s0 + total(i, e) * vol(i), 0);
+    renderSecBilan(e);
     $("secSum").textContent = pool.length ? `${pool.filter(i => i.done).length}/${pool.length} prêts · ${fmtW(w)} · ${fmtV(v)}` : "Rien encore dans cette section. Tape un article ci-dessus ou pioche dans les listes.";
   }
   $("listActions").hidden = !e.items.length && !x;
@@ -1103,7 +1174,7 @@ function emptyState() {
 }
 // ---------- sélecteur : on coche ce qu'on veut, puis on valide ----------
 const pick = { src: null, sel: new Map(), q: "", target: "exp" };
-function packItem([name, cat, qty, mode, unit, w]) { return { name, cat, qty, mode, unit, w }; }
+function packItem([name, cat, qty, mode, unit, w, note]) { const it = { name, cat, qty, mode, unit, w }; if (note) it.note = note; return it; }
 function sourceItems(src) {
   if (src === "gear") return Object.values(state.gear);
   if (src === "ref") return [...REF_BY.values()].filter(r => !isHidden(r.name)).map(r => pick.target === "gear" ? r : state.gear[gkey(r.name)] || r);
@@ -1357,7 +1428,7 @@ $("fName").addEventListener("change", () => {
   // reprend les réglages d'un article déjà utilisé ou d'un pack
   if (editingId) return; const n = $("fName").value.trim().toLowerCase(); let src = state.gear[n] || null;
   if (!src) Object.values(state.exps).forEach(e => e.items.forEach(i => { if (i.name.toLowerCase() === n) src = i; }));
-  if (!src) Object.values(PACKS).forEach(p => p.items.forEach(([name, cat, qty, mode, unit, w]) => { if (name.toLowerCase() === n) src = refFill({ name, cat, qty, mode, unit, w }); }));
+  if (!src) Object.values(PACKS).forEach(p => p.items.forEach(t => { if (t[0].toLowerCase() === n) src = refFill(packItem(t)); }));
   if (!src && REF_BY.has(n)) src = REF_BY.get(n);
   if (src) { $("fCat").value = src.cat || ""; $("fQty").value = src.qty ?? 1; $("fMode").value = src.mode || "fixe"; fillSpecs(src); if (src.note) $("fNote").value = src.note; updatePreview(); if (state.gear[n]) toast("Repris de ton matériel"); }
 });
@@ -1691,7 +1762,48 @@ $("sheetOv").addEventListener("click", ev => { if (ev.target === $("sheetOv")) r
 $("packOv").addEventListener("click", ev => { if (ev.target === $("packOv")) closePicker(); });
 $("txtOv").addEventListener("click", ev => { if (ev.target === $("txtOv")) closeOv("txtOv"); });
 $("txtClose").onclick = () => closeOv("txtOv");
-document.addEventListener("keydown", ev => { if (ev.key !== "Escape") return; if (!$("safeOv").hidden) closeOv("safeOv"); else if (!$("doneOv").hidden) closeOv("doneOv"); else if (!$("packOv").hidden) closePicker(); else if (!$("sheetOv").hidden) resetForm(); else if (!$("txtOv").hidden) closeOv("txtOv"); closeMenu(); });
+document.addEventListener("keydown", ev => { if (ev.key !== "Escape") return; if (!$("urgOv").hidden) closeOv("urgOv"); else if (!$("safeOv").hidden) closeOv("safeOv"); else if (!$("doneOv").hidden) closeOv("doneOv"); else if (!$("packOv").hidden) closePicker(); else if (!$("sheetOv").hidden) resetForm(); else if (!$("txtOv").hidden) closeOv("txtOv"); closeMenu(); });
+
+// ---------- urgences et premiers secours ----------
+function openUrg() { closeMenu(); openOv("urgOv"); $("urgBox").scrollTop = 0; }
+$("btnUrg").onclick = openUrg; $("btnUrgMenu").onclick = openUrg;
+$("urgClose").onclick = () => closeOv("urgOv");
+$("urgOv").addEventListener("click", ev => { if (ev.target === $("urgOv")) closeOv("urgOv"); });
+$("urgLoc").onclick = () => {
+  const b = $("urgLoc"), out = $("urgPos"), m = $("urgMsg");
+  const say = (t, bad) => { m.hidden = !t; m.textContent = t || ""; m.classList.toggle("bad", !!bad); };
+  if (!navigator.geolocation) { say("Cet appareil ne donne pas sa position : lis-la sur ton GPS.", true); return; }
+  b.disabled = true; b.textContent = "Recherche de la position…"; say("");
+  const done = () => { b.disabled = false; b.textContent = "📍 Afficher ma position"; };
+  const ok = p => { const c = p.coords; done(); out.hidden = false; out.textContent = `${c.latitude.toFixed(5)}, ${c.longitude.toFixed(5)}`; $("urgCopy").hidden = false;
+    say(`Précision ± ${Math.round(c.accuracy)} m, relevée à ${new Date(p.timestamp || Date.now()).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}. Le GPS du téléphone marche sans réseau.`); };
+  const fail = err => { done(); say(err && err.code === 1 ? "Accès à la position refusé : autorise la localisation pour ce site dans les réglages du téléphone." : "Pas de signal GPS pour l'instant. Mets-toi à découvert et réessaie.", true); };
+  navigator.geolocation.getCurrentPosition(ok, err => { if (err && err.code === 1) { fail(err); return; }
+    navigator.geolocation.getCurrentPosition(ok, fail, { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }); }, { enableHighAccuracy: false, timeout: 8000, maximumAge: 120000 });
+};
+$("urgCopy").onclick = () => copy($("urgPos").textContent, "Position copiée");
+// bilan de la section Sécurité : ce qui manque saute aux yeux
+const SAT_RE = /balise|inreach|zoleo|plb|satellite|spot gen|t[ée]l[ée]phone sat/;
+function renderSecBilan(e) {
+  const box = $("secBilan"); box.hidden = curSec !== "secu"; if (box.hidden) return; box.innerHTML = "";
+  const has = f => e.items.some(f), n = i => gkey(i.name);
+  const lines = [
+    [has(i => SAT_RE.test(n(i))), "Moyen d'alerte satellite (balise, inReach…)"],
+    [has(i => /garrot|tourniquet/.test(n(i))), "Garrot tourniquet"],
+    [has(i => i.cat === "Trousse journée"), "Trousse journée (une par personne)"],
+    [has(i => i.cat === "Trousse camp"), "Trousse camp (une pour le groupe)"],
+    [safeSent(e) && !safeStale(e), "Fiche sécurité envoyée à un proche"]
+  ];
+  const t = document.createElement("b"); const miss = lines.filter(l => !l[0]).length;
+  t.textContent = miss ? `Sécurité : ${miss} point${miss > 1 ? "s" : ""} à régler` : "Sécurité : tout est en place";
+  const ul = document.createElement("ul");
+  lines.forEach(([ok, txt]) => { const li = document.createElement("li"); li.className = ok ? "ok" : "ko"; li.textContent = (ok ? "✓ " : "✗ ") + txt; ul.appendChild(li); });
+  const a = document.createElement("div"); a.className = "actions";
+  if (!lines[2][0] || !lines[3][0] || !lines[1][0]) { const b1 = document.createElement("button"); b1.className = "small primary"; b1.textContent = "Ajouter la trousse de secours"; b1.onclick = () => { pick.src = "trousse"; openPicker(); }; a.appendChild(b1); }
+  if (!lines[4][0]) { const b2 = document.createElement("button"); b2.className = "small"; b2.textContent = "🛟 Fiche sécurité"; b2.onclick = () => openSafety(); a.appendChild(b2); }
+  const b3 = document.createElement("button"); b3.className = "small ghost"; b3.textContent = "⛑️ Gestes d'urgence"; b3.onclick = openUrg; a.appendChild(b3);
+  box.append(t, ul, a);
+}
 
 // ---------- menu ⋯ ----------
 function closeMenu() { $("moreMenu").hidden = true; $("btnMore").setAttribute("aria-expanded", "false"); }
@@ -2121,8 +2233,8 @@ function sendTo(channel, text) {
 }
 let safeBack = false;
 function openSafety(back) { safeBack = !!back; closeMenu(); renderSafety(); openOv("safeOv"); $("safeBox").scrollTop = 0; }
-$("safeClose").onclick = () => { closeOv("safeOv"); renderHome(); };
-$("safeOv").addEventListener("click", ev => { if (ev.target === $("safeOv")) { closeOv("safeOv"); renderHome(); } });
+$("safeClose").onclick = () => { closeOv("safeOv"); renderHome(); if (curSec === "secu") renderList(); };
+$("safeOv").addEventListener("click", ev => { if (ev.target === $("safeOv")) { closeOv("safeOv"); renderHome(); if (curSec === "secu") renderList(); } });
 $("btnSafety").onclick = () => openSafety();
 function renderSafety() {
   const e = cur(), s = safetyOf(e), box = $("safeForm"); box.innerHTML = "";
