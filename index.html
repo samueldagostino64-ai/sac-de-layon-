@@ -551,7 +551,7 @@ header.top canvas { border-radius: var(--r); }
     <p class="hint">Supprime les expéditions de test ou passées, avec leur liste. Ton matériel est conservé.</p>
     <div class="actions"><button class="small danger" id="btnManage2">Supprimer des expéditions…</button></div>
     <div id="manageBox" class="manage" hidden></div>
-    <p class="ver mono">Sac de Layon · version 21</p>
+    <p class="ver mono">Sac de Layon · version 22</p>
   </section>
 </main>
 
@@ -1783,7 +1783,8 @@ $("urgLoc").onclick = () => {
 };
 $("urgCopy").onclick = () => copy($("urgPos").textContent, "Position copiée");
 // bilan de la section Sécurité : ce qui manque saute aux yeux
-const SAT_RE = /balise|inreach|zoleo|plb|satellite|spot gen|t[ée]l[ée]phone sat/;
+// « balise » en début de mot seulement : la rubalise n'est pas un moyen d'alerte
+const SAT_RE = /(^|[^a-zà-ÿ])balise|inreach|zoleo|\bplb\b|satellite|spot (gen|x)|iridium|thuraya|t[ée]l[ée]phone sat/;
 function renderSecBilan(e) {
   const box = $("secBilan"); box.hidden = curSec !== "secu"; if (box.hidden) return; box.innerHTML = "";
   const has = f => e.items.some(f), n = i => gkey(i.name);
@@ -2166,7 +2167,7 @@ $("doneSafety").onclick = () => { closeOv("doneOv"); openSafety(); };
 $("matIntroOk").onclick = () => { seeHint("mat"); $("matIntro").hidden = true; };
 
 // ---------- fiche sécurité « Si je ne rentre pas » ----------
-const COMMS = /(^|[\s(\/-])balise|inreach|spot|vhf|satellite|iridium|thuraya|garmin|talkie/i;
+const COMMS = /(^|[\s(\/-])balise|inreach|zoleo|\bspot (gen|x)|\bvhf\b|satellite|iridium|thuraya|garmin messenger|talkie/i;
 function phoneIntl(p) {
   let d = String(p || "").replace(/[^\d+]/g, ""); if (!d) return "";
   if (d.startsWith("+")) return d.slice(1); if (d.startsWith("00")) return d.slice(2);

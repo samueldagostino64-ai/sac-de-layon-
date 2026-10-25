@@ -1,5 +1,5 @@
 // Sac de Layon : l'appli marche hors ligne une fois ouverte une première fois avec du réseau.
-const CACHE = "sac-de-layon-v21";
+const CACHE = "sac-de-layon-v22";
 const CORE = ["./", "index.html", "jspdf.min.js", "manifest.webmanifest", "icon-192.png", "icon-512.png", "apple-touch-icon.png",
   "fonts/barlow-400.woff2", "fonts/barlow-500.woff2", "fonts/barlow-600.woff2", "fonts/barlow-700.woff2", "fonts/barlow-condensed-600.woff2", "fonts/barlow-condensed-700.woff2"];
 // au-delà, on ouvre la version gardée sur le téléphone : une barre de réseau en lisière ne doit pas bloquer l'appli
