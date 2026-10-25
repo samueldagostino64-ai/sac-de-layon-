@@ -64,7 +64,7 @@
 
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
-body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.45; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 1rem; line-height: 1.45; }
 .wrap { max-width: 760px; margin: 0 auto; padding-block: 18px 80px;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
   display: grid; gap: 16px; }
@@ -393,9 +393,87 @@ header.top canvas { border-radius: var(--r); }
 .gear { grid-template-columns: 1fr; gap: 4px; }
 .gear .ed { justify-content: flex-start; align-items: center; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+/* ---- v23 : une seule famille d'icônes au trait, texte qui suit le réglage du téléphone ---- */
+body { font-size: 1rem; }
+.ico { width: 1.25em; height: 1.25em; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; vertical-align: -0.25em; }
+.sec .ic, .cat h3 .ic { display: inline-flex; color: var(--accent); }
+.sec .ic .ico { width: 22px; height: 22px; }
+.cat h3 .ic .ico { width: 18px; height: 18px; }
+.sechead .t h3 .ico { width: 24px; height: 24px; color: var(--accent); }
+button .ico { margin-right: 6px; }
+.urgbtn .ico, .proto summary .ico { color: var(--laterite); }
+.proto summary { gap: 8px; }
+/* sections : une rangée qui défile, les articles se voient tout de suite */
+.secs, .secs.compact { display: flex; overflow-x: auto; gap: 6px; padding-bottom: 4px; -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
+.secs .sec { flex: none; min-height: 44px; padding: 6px 12px; grid-template-rows: auto; border-radius: 999px; }
+.secs .sec[aria-pressed="true"] { padding: 5px 11px; }
+.secs .sec .ic { grid-row: auto; }
+.secs .sec b { font-size: .88rem; white-space: nowrap; }
+.secs .sec small { display: none; }
+.secs .sec .n { font-size: .74rem; color: var(--muted); font-weight: 600; white-space: nowrap; display: inline; margin-left: 2px; }
+.secs .sec { display: inline-flex; align-items: center; gap: 6px; }
+/* Liste = préparer (on touche une ligne pour la modifier) ; Sac = cocher */
+.item { grid-template-columns: 26px 1fr auto; }
+.item .st { width: 26px; display: grid; place-items: center; color: var(--muted); font-weight: 700; }
+.item.done .st { color: var(--accent); }
+/* messages en haut : ils ne cachent plus les boutons du bas */
+.toast { bottom: auto; top: calc(12px + env(safe-area-inset-top, 0px)); }
+.card.past { opacity: 1; background: var(--bg); }
+.card.past .ctt h3, .card.past .cinfo p { color: var(--muted); }
+.ctt h3, .item .nm, .gear .name, .prow span { overflow-wrap: break-word; hyphens: auto; }
+.celebrate .actions { justify-content: center; }
+.apptitle b::after { content: none; }
+.gear .ed { flex-wrap: wrap; min-width: 0; }
+.gear .ed button { min-height: 44px; }
+.gear .exp { color: var(--laterite); font-weight: 600; }
+.tab { min-height: 44px; }
+.fuel, .debrief-row { display: grid; gap: 8px; }
+.fuel { padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); }
+.fuel .grid { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); }
+.fuel .res { font-weight: 600; color: var(--accent); margin: 0; }
+.links { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.links a { color: var(--accent); font-weight: 600; }
+.seg { display: inline-flex; border: 1px solid var(--fline); border-radius: 8px; overflow: hidden; }
+.seg button { border: 0; border-radius: 0; min-height: 40px; padding: 6px 10px; font-size: .82rem; font-weight: 600; background: transparent; }
+.seg button + button { border-left: 1px solid var(--fline); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.debrief-row { grid-template-columns: 1fr; padding: 8px 0; border-bottom: 1px dashed var(--line); }
+.ask p { margin: 0; }
+/* grand zoom ou écran très bas : la ligne résumé ne reste plus collée en haut */
+@media (max-height: 520px) { .sumbar { position: static; } }
 </style>
 
 <main class="wrap">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-cool" viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="11" rx="2"/><path d="M8 9V6a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v3M3 13h18"/></symbol>
+  <symbol id="i-pot" viewBox="0 0 24 24"><path d="M4 10h16v6a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4zM2 10h2M20 10h2M9.5 7c0-1.2 1-1.3 1-2.5M13.5 7c0-1.2 1-1.3 1-2.5"/></symbol>
+  <symbol id="i-tent" viewBox="0 0 24 24"><path d="M3 20 12 4l9 16zM12 4v16M9 20l3-6 3 6"/></symbol>
+  <symbol id="i-med" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8M8 12h8"/></symbol>
+  <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/></symbol>
+  <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 4 4 6.5 5.5 10 8 9v11h8V9l2.5 1L20 6.5 16 4c0 1.5-1.8 2.5-4 2.5S8 5.5 8 4z"/></symbol>
+  <symbol id="i-torch" viewBox="0 0 24 24"><path d="M9 3h6v4l-1 3v11h-4V10L9 7zM12 13v2"/></symbol>
+  <symbol id="i-fish" viewBox="0 0 24 24"><path d="M2.5 12c3-5 10-6.5 14.5 0-4.5 6.5-11.5 5-14.5 0zM17 12l4.5-3.5v7z"/><circle cx="7.5" cy="11" r=".9"/></symbol>
+  <symbol id="i-boat" viewBox="0 0 24 24"><path d="M2 14h20l-3 4H5zM12 14V4M12 5l6 7h-6"/></symbol>
+  <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M15 4a4 4 0 0 0-3.8 5.2L4 16.4 7.6 20l7.2-7.2A4 4 0 0 0 20 9l-2.5 2.5-2.8-.7-.7-2.8L16.5 5.5A4 4 0 0 0 15 4z"/></symbol>
+  <symbol id="i-car" viewBox="0 0 24 24"><path d="M3 17v-5l2.5-5h13l2.5 5v5zM3 12h18"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></symbol>
+  <symbol id="i-dice" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="15" r="1"/><circle cx="15" cy="9" r="1"/><circle cx="9" cy="15" r="1"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5zM3 7.5 12 12l9-4.5M12 12v9"/></symbol>
+  <symbol id="i-urg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v9M7.5 12h9"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 4.5 3.4 8 8 9 4.6-1 8-4.5 8-9V6zM9 12l2 2 4-4"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H6v18h12V7zM14 3v4h4M9 13h6M9 17h6"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+  <symbol id="i-snake" viewBox="0 0 24 24"><path d="M3 17c2 0 3-2 3-4s1-4 3-4 3 2 3 4 1 4 3 4 3-2 3-4-1-4-3-4"/><circle cx="18" cy="5" r="1"/></symbol>
+  <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></symbol>
+  <symbol id="i-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m5.6 5.6 12.8 12.8"/></symbol>
+  <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M14 14.8V5a2 2 0 0 0-4 0v9.8a4 4 0 1 0 4 0zM12 9v7"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 20V9M7 14l5-5 5 5M5 4h14"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/></symbol>
+  <symbol id="i-bag" viewBox="0 0 24 24"><path d="M6 10a6 6 0 0 1 12 0v9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2zM9.5 4.5V3h5v1.5M9 14h6v3.5H9z"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M8.5 8V5h7v3M3 13h18M10.5 12v2.5h3V12"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4 10-10"/></symbol>
+</svg>
   <header class="top" data-view="accueil">
     <canvas id="topo" aria-hidden="true"></canvas>
     <div class="toprow">
@@ -417,7 +495,7 @@ header.top canvas { border-radius: var(--r); }
   </header>
 
   <section id="homeView" class="home" data-view="accueil" hidden>
-    <div class="homehead"><button id="btnUrg" class="urgbtn" aria-label="Urgences et premiers secours">⛑️ Urgences</button><button id="btnNew" class="primary">+ Nouvelle expédition</button></div>
+    <div class="homehead"><button id="btnUrg" class="urgbtn" aria-label="Urgences et premiers secours"><svg class="ico" aria-hidden="true"><use href="#i-urg"/></svg>Urgences</button><button id="btnNew" class="primary">+ Nouvelle expédition</button></div>
     <div id="homeList"></div>
   </section>
   <div id="installTip" class="tip" data-view="accueil" hidden></div>
@@ -434,10 +512,10 @@ header.top canvas { border-radius: var(--r); }
     <div class="morewrap">
       <button id="btnMore" class="ghost" aria-label="Plus d'actions" aria-haspopup="true" aria-expanded="false">⋯</button>
       <div id="moreMenu" class="menu" hidden>
-        <button id="btnSafety">🛟 Fiche sécurité</button>
-        <button id="btnUrgMenu">⛑️ Urgences & premiers secours</button>
+        <button id="btnSafety"><svg class="ico" aria-hidden="true"><use href="#i-shield"/></svg>Sécurité de l'expédition</button>
+        <button id="btnDebrief"><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg>Bilan du retour</button>
         <button id="btnDup">Dupliquer cette expédition</button>
-        <button id="btnManage" class="danger-text">Supprimer des expéditions…</button>
+        <button id="btnManage" class="danger-text">Supprimer cette expédition…</button>
       </div>
     </div>
   </header>
@@ -488,6 +566,7 @@ header.top canvas { border-radius: var(--r); }
     <div id="secHead" class="sechead" hidden>
       <div class="t"><h3 id="secTitle"></h3><button class="small ghost" id="secBack">Toutes les sections</button></div>
       <div id="secBilan" class="secbilan" hidden></div>
+      <div id="fuelBox" class="fuel" hidden></div>
       <div class="qadd">
         <div class="qn"><input id="qName" data-list="qList" placeholder="Ajouter un article" aria-label="Article à ajouter dans cette section"><datalist id="qList"></datalist></div>
         <label class="ql"><span>Quantité</span><input id="qQty" type="text" inputmode="decimal" autocomplete="off" placeholder="1"></label>
@@ -499,9 +578,9 @@ header.top canvas { border-radius: var(--r); }
     </div>
     <div id="list" class="cat-list" style="display:grid;gap:18px"></div>
     <div class="actions" id="listActions">
-      <button class="small primary" id="btnPdf">📄 PDF de la liste</button>
+      <button class="small primary" id="btnPdf"><svg class="ico" aria-hidden="true"><use href="#i-file"/></svg>PDF de la liste</button>
       <button class="small" id="btnShare">Partager</button>
-      <button class="small ghost" id="btnPacks">Choisir dans les listes</button>
+      <button class="small ghost" id="btnPacks">Ajouter depuis les packs</button>
     </div>
   </section>
 
@@ -514,7 +593,7 @@ header.top canvas { border-radius: var(--r); }
     <div class="toolbar"><h2 id="hGear">Mon matériel</h2><span class="mono" id="gearCount">0</span></div>
     <div class="tip" id="matIntro"><p>Chaque article que tu ajoutes ou modifies est retenu ici avec son poids, ses dimensions et son volume. Tape son nom dans une prochaine expédition : tout est rempli tout seul.</p><div class="actions"><button class="small" id="matIntroOk">Compris</button></div></div>
     <div class="actions">
-      <button class="small" id="btnRef">+ Référentiel</button>
+      <button class="small" id="btnRef">+ Depuis le catalogue</button>
       <button class="small ghost" id="btnPerso">Personnaliser</button>
     </div>
     <div id="persoBox" class="manage" hidden></div>
@@ -526,9 +605,11 @@ header.top canvas { border-radius: var(--r); }
   <section class="panel" aria-labelledby="hSave" data-view="reglages" hidden>
     <h2 id="hSave">Sauvegarde</h2>
     <p class="hint" id="saveInfo"></p>
+    <p class="hint">La sauvegarde contient tout, y compris les fiches sécurité (santé, position GPS, immatriculation) : garde-la pour toi.</p>
+    <label class="chk"><input type="checkbox" id="bkNoSafe"> Sans les fiches sécurité (pour la partager)</label>
     <div class="actions">
-      <button class="primary" id="btnExportFile">⬇️ Enregistrer une sauvegarde</button>
-      <button id="btnImportFile">⬆️ Restaurer un fichier</button>
+      <button class="primary" id="btnExportFile"><svg class="ico" aria-hidden="true"><use href="#i-down"/></svg>Enregistrer une sauvegarde</button>
+      <button id="btnImportFile"><svg class="ico" aria-hidden="true"><use href="#i-up"/></svg>Restaurer un fichier</button>
       <input type="file" id="importFile" accept=".json,.txt,application/json,text/plain" hidden>
     </div>
     <details>
@@ -551,7 +632,7 @@ header.top canvas { border-radius: var(--r); }
     <p class="hint">Supprime les expéditions de test ou passées, avec leur liste. Ton matériel est conservé.</p>
     <div class="actions"><button class="small danger" id="btnManage2">Supprimer des expéditions…</button></div>
     <div id="manageBox" class="manage" hidden></div>
-    <p class="ver mono">Sac de Layon · version 22</p>
+    <p class="ver mono">Sac de Layon · version 23</p>
   </section>
 </main>
 
@@ -613,7 +694,7 @@ header.top canvas { border-radius: var(--r); }
     <h2 id="doneTitle">Sac bouclé. Bon layon.</h2>
     <p id="doneTxt"></p>
     <div class="actions">
-      <button class="primary" id="doneSafety">🛟 Préparer la fiche sécurité</button>
+      <button class="primary" id="doneSafety"><svg class="ico" aria-hidden="true"><use href="#i-shield"/></svg>Préparer la fiche sécurité</button>
       <button class="ghost" id="doneClose">Fermer</button>
     </div>
   </div>
@@ -622,30 +703,35 @@ header.top canvas { border-radius: var(--r); }
 <!-- urgences et premiers secours : lisible sans réseau -->
 <div class="ov" id="urgOv" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="urgTitle" id="urgBox">
-    <div class="toolbar"><h2 id="urgTitle">⛑️ Urgences</h2><button type="button" class="small ghost" id="urgClose" aria-label="Fermer">✕</button></div>
+    <div class="toolbar"><h2 id="urgTitle">Urgences</h2><button type="button" class="small ghost" id="urgClose" aria-label="Fermer">✕</button></div>
     <div class="urg-alert">
       <p><b>Urgence vitale : déclenche le SOS de ta balise satellite.</b></p>
       <p>Avec du réseau : <b>15</b> (SAMU) ou <b>112</b>. Donne ta position, le nombre de blessés, ce qui s'est passé et l'heure.</p>
-      <div class="actions" style="margin:0"><button type="button" class="small" id="urgLoc">📍 Afficher ma position</button><button type="button" class="small ghost" id="urgCopy" hidden>Copier</button></div>
+      <div class="actions" style="margin:0"><button type="button" class="small" id="urgLoc"><svg class="ico" aria-hidden="true"><use href="#i-pin"/></svg>Afficher ma position</button><button type="button" class="small ghost" id="urgCopy" hidden>Copier</button><a class="small" id="urgMap" hidden>Ouvrir dans une appli de carte</a></div>
       <p class="urg-pos" id="urgPos" aria-live="polite" hidden></p>
       <small class="gmsg" id="urgMsg" hidden></small>
     </div>
-    <details class="proto"><summary>🐍 Morsure de serpent (grage, Bothrops)</summary><ul>
+    <details class="proto"><summary><svg class="ico" aria-hidden="true"><use href="#i-snake"/></svg>Morsure de serpent (grage, Bothrops)</summary><ul>
       <li>Calme et repos complet de la victime. Retirer bagues, montre, bracelets.</li>
       <li>Immobiliser le membre. Noter l'heure de la morsure.</li>
       <li>Contre la douleur : <b>paracétamol uniquement</b>.</li>
       <li><b>Déclencher l'évacuation immédiatement</b> : l'antivenin est à l'hôpital de Cayenne.</li>
       <li class="no">Pas de garrot, pas d'incision, pas d'aspiration, pas de glace, pas d'ibuprofène.</li></ul></details>
-    <details class="proto"><summary>🐟 Piqûre de raie d'eau douce</summary><ul>
+    <details class="proto"><summary><svg class="ico" aria-hidden="true"><use href="#i-fish"/></svg>Piqûre de raie d'eau douce</summary><ul>
       <li>Plonger le pied dans l'eau <b>aussi chaude que supportable, 30 à 90 min</b> : c'est le seul vrai antidouleur. Tester l'eau avec une main saine pour ne pas brûler.</li>
       <li>Prévoir de quoi chauffer de l'eau, même à la journée.</li>
       <li>Nettoyer à fond, puis surveiller l'infection.</li>
       <li>Prévention : avancer dans l'eau en traînant les pieds.</li></ul></details>
-    <details class="proto"><summary>🩸 Hémorragie d'un membre</summary><ul>
+    <details class="proto"><summary><svg class="ico" aria-hidden="true"><use href="#i-drop"/></svg>Hémorragie d'un membre</summary><ul>
       <li>Compression directe et forte sur la plaie (pansement compressif).</li>
       <li>Si ça ne s'arrête pas : garrot tourniquet au-dessus de la plaie, <b>noter l'heure</b>.</li>
       <li>Évacuer.</li></ul></details>
-    <details class="proto"><summary>🚫 À ne pas acheter</summary><ul>
+    <details class="proto"><summary><svg class="ico" aria-hidden="true"><use href="#i-thermo"/></svg>Fièvre pendant ou après l'expédition</summary><ul>
+      <li>Toute fièvre pendant le séjour ou dans les mois qui suivent : <b>consulter vite et demander un test du paludisme</b>, en disant où tu étais (haut des fleuves, zones d'orpaillage).</li>
+      <li>Contre la fièvre : <b>paracétamol</b>. Pas d'ibuprofène ni d'aspirine tant que la dengue n'est pas écartée.</li>
+      <li>Boire beaucoup ; sachets de réhydratation si diarrhée ou vomissements.</li>
+      <li>Signes graves (confusion, convulsions, saignements, respiration difficile, ne boit plus) : évacuation immédiate.</li></ul></details>
+    <details class="proto"><summary><svg class="ico" aria-hidden="true"><use href="#i-ban"/></svg>À ne pas acheter</summary><ul>
       <li>Aspivenin, kits « anti-venin », garrot contre les serpents : inefficaces et dangereux.</li>
       <li>Kits de secours tout faits : chers et pleins de gadgets. Mieux vaut composer sa trousse (voir le pack « Trousse de secours Guyane »).</li></ul></details>
     <p class="hint">Ces fiches rappellent les gestes de base. Elles ne remplacent ni une formation aux premiers secours (PSC1) ni l'avis d'un médecin.</p>
@@ -655,11 +741,25 @@ header.top canvas { border-radius: var(--r); }
 <!-- fiche sécurité « Si je ne rentre pas » -->
 <div class="ov" id="safeOv" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="safeTitle" id="safeBox">
-    <div class="toolbar"><h2 id="safeTitle">🛟 Si je ne rentre pas</h2><button type="button" class="small ghost" id="safeClose" aria-label="Fermer">✕</button></div>
+    <div class="toolbar"><h2 id="safeTitle">Si je ne rentre pas</h2><button type="button" class="small ghost" id="safeClose" aria-label="Fermer">✕</button></div>
     <p class="hint" id="safeIntro"></p>
     <div id="safeForm"></div>
     <div class="actions sfoot" id="safeActions"></div>
   </div>
+</div>
+
+<!-- confirmation sur place (suppression…) -->
+<div class="ov center" id="askOv" hidden>
+  <div class="celebrate ask" role="alertdialog" aria-modal="true" aria-labelledby="askTitle" aria-describedby="askTxt">
+    <h2 id="askTitle"></h2>
+    <p id="askTxt"></p>
+    <div class="actions"><button class="danger" id="askYes"></button><button class="ghost" id="askNo">Annuler</button></div>
+  </div>
+</div>
+
+<!-- bilan du retour -->
+<div class="ov" id="debOv" hidden>
+  <div class="sheet tall" role="dialog" aria-modal="true" aria-labelledby="debTitle" id="debBox"></div>
 </div>
 
 <!-- texte à copier à la main quand le presse-papiers est bloqué -->
@@ -684,20 +784,29 @@ const MODES = { fixe: "fixe", p: "/ pers.", j: "/ jour", n: "/ nuit", pj: "/ per
 const CATS = ["Bivouac","Eau","Vivres","Feu & cuisine","Navigation & topo","Outils","Éclairage & énergie","Sécurité & secours","Trousse journée","Trousse camp","Vêtements","Hygiène","Pêche","Pirogue","Caisse à outils pirogue","Caisse à outils voiture","Jeux de société"];
 // sections de préparation : on remplit la liste poste par poste
 const SECTIONS = [
-  { k: "nourriture", icon: "🧊", label: "Nourriture & glacière", cats: ["Vivres","Eau"] },
-  { k: "popote", icon: "🍳", label: "Caisse popote", cats: ["Feu & cuisine"] },
-  { k: "bivouac", icon: "⛺", label: "Bivouac", cats: ["Bivouac"] },
-  { k: "secu", icon: "⛑️", label: "Sécurité & infirmerie", cats: ["Sécurité & secours","Trousse journée","Trousse camp"] },
-  { k: "topo", icon: "🧭", label: "Topographie", cats: ["Navigation & topo"] },
-  { k: "vetements", icon: "👕", label: "Vêtements & hygiène", cats: ["Vêtements","Hygiène"] },
-  { k: "materiel", icon: "🔦", label: "Matériel & outils", cats: ["Outils","Éclairage & énergie"] },
-  { k: "peche", icon: "🎣", label: "Pêche", cats: ["Pêche"] },
-  { k: "pirogue", icon: "🛶", label: "Pirogue", cats: ["Pirogue"] },
-  { k: "outpirogue", icon: "🔧", label: "Caisse à outils pirogue", cats: ["Caisse à outils pirogue"] },
-  { k: "voiture", icon: "🚙", label: "Caisse à outils voiture", cats: ["Caisse à outils voiture"] },
-  { k: "jeux", icon: "🎲", label: "Jeux de société", cats: ["Jeux de société"] },
-  { k: "autre", icon: "📦", label: "Divers", cats: [] }
+  { k: "nourriture", icon: "cool", label: "Nourriture & glacière", cats: ["Vivres","Eau"] },
+  { k: "popote", icon: "pot", label: "Caisse popote", cats: ["Feu & cuisine"] },
+  { k: "bivouac", icon: "tent", label: "Bivouac", cats: ["Bivouac"] },
+  { k: "secu", icon: "med", label: "Sécurité & secours", cats: ["Sécurité & secours","Trousse journée","Trousse camp"] },
+  { k: "topo", icon: "compass", label: "Topographie", cats: ["Navigation & topo"] },
+  { k: "vetements", icon: "shirt", label: "Vêtements & hygiène", cats: ["Vêtements","Hygiène"] },
+  { k: "materiel", icon: "torch", label: "Matériel & outils", cats: ["Outils","Éclairage & énergie"] },
+  { k: "peche", icon: "fish", label: "Pêche", cats: ["Pêche"] },
+  { k: "pirogue", icon: "boat", label: "Pirogue", cats: ["Pirogue"] },
+  { k: "outpirogue", icon: "wrench", label: "Caisse à outils pirogue", cats: ["Caisse à outils pirogue"] },
+  { k: "voiture", icon: "car", label: "Caisse à outils voiture", cats: ["Caisse à outils voiture"] },
+  { k: "jeux", icon: "dice", label: "Jeux de société", cats: ["Jeux de société"] },
+  { k: "autre", icon: "box", label: "Divers", cats: [] }
 ];
+// icônes au trait (symboles en tête de page) : une seule famille dans toute l'appli
+const ico = k => `<svg class="ico" aria-hidden="true"><use href="#i-${k}"/></svg>`;
+function icoEl(k) { const s = document.createElement("span"); s.className = "ic"; s.setAttribute("aria-hidden", "true"); s.innerHTML = ico(k); return s; }
+// clés venues des données (noms d'articles, catégories) : jamais celles d'Object.prototype (« constructor », « __proto__ »)
+const own = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
+const dict = () => Object.create(null);
+// formateurs créés une fois : les recréer à chaque appel coûtait plus que tout le reste du rendu
+const coll = new Intl.Collator("fr"), cmp = (a, b) => coll.compare(a || "", b || "");
+const NF = {}; const nf = d => NF[d] || (NF[d] = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: d }));
 // unités : pour les liquides et les poids, le poids et le volume unitaires se calculent tout seuls
 const UNITS = ["pièce","paire","lot","sachet","boîte","rouleau","bidon","L","cl","ml","kg","g","m"];
 const UNIT_L = { l: 1, cl: 0.01, ml: 0.001 }, UNIT_G = { kg: 1000, g: 1 };
@@ -705,11 +814,11 @@ function density(name) { const n = gkey(name); return /essence|carburant|gasoil|
 // poids (g) et volume (L) d'une unité, ou null si l'unité ne permet pas de les déduire
 function unitSpecs(unit, name) {
   const u = (unit || "").trim().toLowerCase();
-  if (UNIT_G[u]) return { w: UNIT_G[u], v: 0 };
-  if (UNIT_L[u]) return { w: Math.round(UNIT_L[u] * density(name) * 1000 * 100) / 100, v: UNIT_L[u] };
+  if (own(UNIT_G, u)) return { w: UNIT_G[u], v: 0 };
+  if (own(UNIT_L, u)) return { w: Math.round(UNIT_L[u] * density(name) * 1000 * 100) / 100, v: UNIT_L[u] };
   return null;
 }
-const SEC_BY_CAT = {}; SECTIONS.forEach(x => x.cats.forEach(c => SEC_BY_CAT[c] = x.k));
+const SEC_BY_CAT = dict(); SECTIONS.forEach(x => x.cats.forEach(c => SEC_BY_CAT[c] = x.k));
 const secOf = cat => SEC_BY_CAT[cat] || "autre";
 const secDef = k => SECTIONS.find(x => x.k === k);
 let curSec = "";
@@ -758,7 +867,7 @@ const PACKS = {
 
 // ---------- référentiel : valeurs typiques (poids g, dimensions rangé cm), à ajuster sur ton propre matériel ----------
 const REF_NOTE = "valeur typique du référentiel, à ajuster";
-const REF = { label: "Référentiel", items: [
+const REF = { label: "Catalogue", items: [
   ["Hamac","Bivouac","p","pièce",900,25,15,15],["Hamac moustiquaire intégrée","Bivouac","p","pièce",1100,30,18,18],["Hamac ultraléger nylon parachute","Bivouac","p","pièce",450,15,12,10],
   ["Moustiquaire (si hamac sans)","Bivouac","p","pièce",300,20,10,10],["Bâche 3 × 3 m","Bivouac","p","pièce",600,25,15,8],["Bâche 4 × 3 m","Bivouac","p","pièce",850,28,17,9],
   ["Paracorde","Bivouac","p","m",8],["Sangles d'arbre (paire)","Bivouac","p","paire",180,15,10,5],["Mousquetons (lot de 4)","Bivouac","p","lot",120,10,6,4],
@@ -792,13 +901,15 @@ const REF_BY = new Map(REF.items.map(([name, cat, mode, unit, w, L, l, H]) => [g
 function refFill(it) { const r = REF_BY.get(gkey(it.name)); return r ? { ...r, ...it, L: r.L, l: r.l, H: r.H } : it; }
 
 const $ = id => document.getElementById(id);
-const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
-const LS_KEY = "sacdelayon.v1";
-let state = { exps: {}, current: null, gear: {}, hidden: [] };
+const uid = () => { try { const a = new Uint32Array(2); crypto.getRandomValues(a); return a[0].toString(36) + a[1].toString(36).slice(0, 4) + Date.now().toString(36).slice(-4); } catch (e) { return Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4); } };
+// la clé garde son nom historique (« v1 ») pour ne perdre aucune donnée ; le format, lui, est numéroté par SCHEMA
+const LS_KEY = "sacdelayon.v1", SCHEMA = 2;
+let state = { exps: dict(), current: null, gear: dict(), hidden: [] };
 const GEAR_ID = "__materiel";
 let gearDirty = false;
 let db = null, col = null;
 const dirty = new Set();
+let seenRemote = new Set();
 let editingId = null;
 
 function blankExp() {
@@ -817,15 +928,17 @@ const okDate = v => typeof v === "string" && DATE_RE.test(v) && !!dParse(v) ? v 
 function sanitizeItem(i, keepDone = true) {
   if (!i || typeof i !== "object" || Array.isArray(i)) return null;
   const name = str(i.name, 200).trim(); if (!name) return null;
-  const o = { id: str(i.id, 64) || uid(), name, cat: str(i.cat, 80), qty: +i.qty > 0 ? num(i.qty, 0, 1e4, 1) : 1, mode: MODES[i.mode] ? i.mode : "fixe", unit: str(i.unit, 40),
+  const o = { id: str(i.id, 64) || uid(), name, cat: str(i.cat, 80), qty: +i.qty > 0 ? num(i.qty, 0, 1e4, 1) : 1, mode: own(MODES, i.mode) ? i.mode : "fixe", unit: str(i.unit, 40),
     w: num(i.w, 0, 1e5), L: num(i.L, 0, 1e4), l: num(i.l, 0, 1e4), H: num(i.H, 0, 1e4), v: num(i.v, 0, 1e5), note: str(i.note, 500) };
   if (keepDone) o.done = i.done === true;
+  if (i.exp && okDate(i.exp)) o.exp = i.exp;
   return o;
 }
 function sanitizeSafety(x) {
   if (!x || typeof x !== "object" || Array.isArray(x)) return undefined;
-  const o = {}; ["contact", "phone", "who", "startTime", "retTime", "from", "gps", "route", "car", "boat", "comms", "note", "sentKey"].forEach(k => o[k] = str(x[k], 1000));
-  o.retTime = o.retTime || "18:00"; o.margin = num(x.margin, 0, 72, 6); if (+x.sentAt > 0) o.sentAt = +x.sentAt; if (+x.backAt > 0) o.backAt = +x.backAt;
+  const o = {}; ["contact", "phone", "who", "startTime", "retTime", "from", "gps", "route", "car", "boat", "comms", "note", "sentKey", "okTime", "track"].forEach(k => o[k] = str(x[k], 1000));
+  o.retTime = o.retTime || "18:00"; o.margin = num(x.margin, 0, 72, 6); o.missN = Math.round(num(x.missN, 0, 5, 0));
+  ["sentAt", "backAt", "condAt"].forEach(k => { if (+x[k] > 0) o[k] = +x[k]; });
   return o;
 }
 function sanitizeExp(e) {
@@ -839,10 +952,12 @@ function sanitizeExp(e) {
   if (o.start && o.end && dayDiff(o.start, o.end) < 0) o.end = o.start;
   const sf = sanitizeSafety(e.safety); if (sf) o.safety = sf;
   if (e.draft === true) o.draft = true;
+  if (e.fuel && typeof e.fuel === "object") o.fuel = { up: num(e.fuel.up, 0, 200, 0), down: num(e.fuel.down, 0, 200, 0), local: num(e.fuel.local, 0, 500, 0), lph: num(e.fuel.lph, 0, 100, 6), margin: num(e.fuel.margin, 0, 200, 30), mix: num(e.fuel.mix, 0, 10, 2) };
+  if (+e.debriefAt > 0) o.debriefAt = +e.debriefAt;
   return o;
 }
 function sanitizeGear(g) {
-  const out = {}; const list = !g || typeof g !== "object" ? [] : Array.isArray(g) ? g : Object.values(g);
+  const out = dict(); const list = !g || typeof g !== "object" ? [] : Array.isArray(g) ? g : Object.values(g);
   list.forEach(x => { const it = sanitizeItem(x, false); if (!it) return; delete it.id; it.uses = Math.round(num(x.uses, 0, 1e6)); it.updatedAt = num(x.updatedAt, 0, 9e15, Date.now()); out[gkey(it.name)] = it; });
   return out;
 }
@@ -850,8 +965,11 @@ const sanitizeHidden = h => Array.isArray(h) ? h.filter(x => typeof x === "strin
 
 let saveOk = true;
 const draftTouched = e => (e.name && e.name !== "Nouvelle expédition") || !!e.type || !!e.start || e.items.length > 0;
+let lsT = null;
+function lsSaveSoon() { clearTimeout(lsT); lsT = setTimeout(lsSave, 250); }
 function lsSave() {
-  try { localStorage.setItem(LS_KEY, JSON.stringify({ v: 2, exps: Object.values(state.exps).filter(e => !e.draft || draftTouched(e)), current: state.current, gear: state.gear, hidden: state.hidden })); if (!saveOk) saveFailed(false); return true; }
+  clearTimeout(lsT); lsT = null;
+  try { localStorage.setItem(LS_KEY, JSON.stringify({ v: SCHEMA, exps: Object.values(state.exps).filter(e => !e.draft || draftTouched(e)), current: state.current, gear: state.gear, hidden: state.hidden })); if (!saveOk) saveFailed(false); return true; }
   catch (e) { saveFailed(true); return false; }
 }
 // échec d'enregistrement : bandeau rouge permanent tant que ça ne repasse pas
@@ -860,6 +978,13 @@ function saveFailed(bad) {
   if (bad) { $("sync").classList.remove("on"); $("sync").lastElementChild.textContent = "NON enregistré"; } else setSync(false, "Enregistré sur ce téléphone");
 }
 let loadWarn = "";
+// format des données : chaque version ancienne est remise au format courant ici, et nulle part ailleurs
+function migrate(d) {
+  const v = +d.v || 1;
+  // v1 (et sauvegardes « v: 1 ») : même forme que v2, le matériel pouvait être une liste
+  if (v < 2 && Array.isArray(d.gear)) d.gear = Object.fromEntries(d.gear.filter(x => x && x.name).map(x => [gkey(x.name), x]));
+  d.v = SCHEMA; return d;
+}
 function lsLoad() {
   let raw = null;
   try { raw = localStorage.getItem(LS_KEY); localStorage.setItem(LS_KEY + ".test", "1"); localStorage.removeItem(LS_KEY + ".test"); } catch (e) { saveFailed(true); if (raw === null) return; }
@@ -868,32 +993,40 @@ function lsLoad() {
   try { d = JSON.parse(raw); } catch (e) { d = undefined; }
   if (!d || typeof d !== "object") {
     // on ne jette jamais des données illisibles : copie de côté avant que le prochain enregistrement ne les remplace
-    try { localStorage.setItem(LS_KEY + ".corrupt-" + new Date().toISOString().slice(0, 19).replace(/:/g, "-"), raw); } catch (e) {}
+    try { localStorage.setItem(LS_KEY + ".corrupt-" + new Date().toISOString().slice(0, 19).replace(/:/g, "-"), raw);
+      Object.keys(localStorage).filter(k => k.startsWith(LS_KEY + ".corrupt-")).sort().reverse().slice(3).forEach(k => localStorage.removeItem(k)); } catch (e) {}
     loadWarn = "Tes données enregistrées étaient abîmées et n'ont pas pu être relues. Une copie brute a été mise de côté ; restaure ta dernière sauvegarde depuis Réglages si tu en as une.";
     return;
   }
+  migrate(d);
   let bad = 0;
   (Array.isArray(d.exps) ? d.exps : []).forEach(e0 => { const e = sanitizeExp(e0); if (e) state.exps[e.id] = e; else bad++; });
   state.gear = sanitizeGear(d.gear); state.hidden = sanitizeHidden(d.hidden);
   if (typeof d.current === "string" && state.exps[d.current]) state.current = d.current;
   if (bad) loadWarn = `${bad} expédition${bad > 1 ? "s" : ""} illisible${bad > 1 ? "s" : ""} ignorée${bad > 1 ? "s" : ""}.`;
 }
-const timers = {};
+const timers = dict();
 function persist(exp) {
-  exp.updatedAt = Date.now(); delete exp.draft; lsSave();
-  if (!col) return;
-  dirty.add(exp.id); clearTimeout(timers[exp.id]);
-  timers[exp.id] = setTimeout(async () => {
-    try { const { draft, ...data } = exp; await col.doc(exp.id).set(JSON.parse(JSON.stringify(data))); }
-    catch (e) { setSync(false, "Pas de synchro, gardé sur cet appareil"); }
-    finally { dirty.delete(exp.id); }
-  }, 600);
+  exp.updatedAt = Date.now(); delete exp.draft; lsSaveSoon();
+  if (col) push(exp.id, 600);
 }
+// envoi vers le compte : en cas d'échec l'expédition reste « en attente » et repart plus tard ; elle n'est jamais effacée pour autant
+function push(id, wait) {
+  dirty.add(id); clearTimeout(timers[id]);
+  timers[id] = setTimeout(async () => {
+    const exp = state.exps[id]; if (!exp) { dirty.delete(id); return; }
+    try { const { draft, ...data } = exp; await col.doc(id).set(JSON.parse(JSON.stringify(data))); dirty.delete(id); syncState(); }
+    catch (e) { setSync(false, "Pas de synchro, gardé sur cet appareil (nouvel essai bientôt)"); push(id, 20000); }
+  }, wait);
+}
+function syncState() { if (!col) return; if (dirty.size || gearDirty) setSync(false, "Synchro en attente…"); else setSync(true, "Synchronisé sur ton compte"); }
 async function removeExp(id) {
-  clearTimeout(timers[id]); dirty.delete(id); delete state.exps[id]; lsSave();
+  clearTimeout(timers[id]); dirty.delete(id); delete state.exps[id]; seenRemote.delete(id); lsSave();
   if (col) { try { await col.doc(id).delete(); } catch (e) {} }
 }
 function gkey(n) { return (n || "").trim().toLowerCase(); }
+// texte sans accents ni majuscules, pour reconnaître un type d'expédition ou fabriquer un nom de fichier
+const normT = t => gkey(t).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 // suggestions masquées par l'utilisateur (référentiel et packs) ; un article de « Mon matériel » reste toujours visible
 function isHidden(n) { const k = gkey(n); return !state.gear[k] && state.hidden.includes(k); }
 function rememberGear(f) {
@@ -901,14 +1034,13 @@ function rememberGear(f) {
   state.gear[k] = { name: f.name, cat: f.cat, qty: f.qty, mode: f.mode, unit: f.unit, w: f.w, L: f.L, l: f.l, H: f.H, v: f.v, note: f.note, uses: (old.uses || 0) + 1, updatedAt: Date.now() };
   persistGear();
 }
-function persistGear() {
-  lsSave(); if (!col) return;
+function persistGear(wait = 600) {
+  lsSaveSoon(); if (!col) return;
   gearDirty = true; clearTimeout(timers.__gear);
   timers.__gear = setTimeout(async () => {
-    try { await col.doc(GEAR_ID).set(JSON.parse(JSON.stringify({ items: state.gear, hidden: state.hidden, updatedAt: Date.now() }))); }
-    catch (e) { setSync(false, "Pas de synchro, gardé sur cet appareil"); }
-    finally { gearDirty = false; }
-  }, 600);
+    try { await col.doc(GEAR_ID).set(JSON.parse(JSON.stringify({ items: state.gear, hidden: state.hidden, updatedAt: Date.now() }))); gearDirty = false; syncState(); }
+    catch (e) { setSync(false, "Pas de synchro, gardé sur cet appareil (nouvel essai bientôt)"); persistGear(20000); }
+  }, wait);
 }
 function setSync(on, text) { if (!saveOk) return; $("sync").classList.remove("bad"); $("sync").classList.toggle("on", on); $("sync").lastElementChild.textContent = text; }
 
@@ -920,8 +1052,9 @@ async function connectDb() {
     const me = await u.id(); if (!me) return;
     db = d; col = db.collection("data/users/" + me);
     let first = true;
+    // dirty peut contenir des expéditions modifiées avant la connexion : elles partiront à la première image
     col.onSnapshot(snap => {
-      const remote = {};
+      const remote = dict();
       let rgear = null, rhidden = null;
       snap.docs.forEach(doc => { const d0 = doc.data(); if (!d0) return; const v = JSON.parse(JSON.stringify(d0)); if (doc.id === GEAR_ID) { rgear = sanitizeGear(v.items); rhidden = Array.isArray(v.hidden) ? sanitizeHidden(v.hidden) : null; } else { const x = sanitizeExp({ ...v, id: doc.id }); if (x) remote[doc.id] = x; } });
       if (!gearDirty) {
@@ -931,12 +1064,13 @@ async function connectDb() {
       }
       if (first) {
         first = false;
-        // migration : ce qui n'existe que sur l'appareil part dans la synchro
-        Object.values(state.exps).forEach(e => { if (!e.draft && !remote[e.id]) persist(e); });
+        // ce qui n'existe que sur l'appareil part dans la synchro
+        Object.values(state.exps).forEach(e => { if (!e.draft && !remote[e.id]) push(e.id, 600); });
       } else {
-        // supprimée depuis un autre appareil
-        Object.keys(state.exps).forEach(id => { if (!remote[id] && !dirty.has(id) && !state.exps[id].draft) delete state.exps[id]; });
+        // supprimée depuis un autre appareil : seulement si le compte l'avait déjà, et qu'aucun envoi n'est en attente
+        Object.keys(state.exps).forEach(id => { if (seenRemote.has(id) && !remote[id] && !dirty.has(id) && !state.exps[id].draft) delete state.exps[id]; });
       }
+      seenRemote = new Set(Object.keys(remote));
       Object.values(remote).forEach(r => {
         const l = state.exps[r.id];
         if (dirty.has(r.id)) return;
@@ -944,7 +1078,7 @@ async function connectDb() {
       });
       if (!state.exps[state.current]) pickDefault();
       lsSave(); renderAll(false);
-      setSync(true, "Synchronisé sur ton compte");
+      syncState();
     }, () => setSync(false, "Pas de synchro, gardé sur cet appareil"));
   } catch (e) {}
 }
@@ -959,16 +1093,16 @@ function mult(mode, e) {
 // ce qui se compte (sachets, piles) s'arrondit à l'unité au-dessus ; ce qui se mesure (L, kg) au dixième au-dessus
 const CONT_UNIT = /^(l|litres?|kg|kilos?)$/i;
 function total(it, e) { const raw = Math.max(0, (+it.qty || 0) * mult(it.mode, e)); return CONT_UNIT.test((it.unit || "").trim()) ? Math.max(0, Math.ceil(raw * 10 - 1e-9) / 10) : Math.max(0, Math.ceil(raw - 1e-9)); }
-function fmtW(g) { if (!g) return "–"; return g >= 1000 ? (g / 1000).toLocaleString("fr-FR", { maximumFractionDigits: 1 }) + " kg" : Math.round(g) + " g"; }
+function fmtW(g) { if (!g) return "–"; return g >= 1000 ? nf(1).format(g / 1000) + " kg" : Math.round(g) + " g"; }
 function vol(i) { if (+i.v) return +i.v; const d = (+i.L || 0) * (+i.l || 0) * (+i.H || 0); return d ? d / 1000 : 0; }
-function fmtV(l) { if (!l) return "–"; return l.toLocaleString("fr-FR", { maximumFractionDigits: l < 1 ? 2 : l < 10 ? 1 : 0 }) + " L"; }
+function fmtV(l) { if (!l) return "–"; return nf(l < 1 ? 2 : l < 10 ? 1 : 0).format(l) + " L"; }
 function specs(i) {
   const a = []; if (+i.w) a.push(fmtW(+i.w));
   if (+i.L && +i.l && +i.H) a.push(`${fmtN(i.L)}×${fmtN(i.l)}×${fmtN(i.H)} cm`);
   if (vol(i)) a.push(fmtV(vol(i)));
   return a.join(" · ");
 }
-function fmtN(n) { return (+n).toLocaleString("fr-FR", { maximumFractionDigits: 2 }); }
+function fmtN(n) { return nf(2).format(+n); }
 // accord de l'unité : « 16 barres », « 2 pièces », « 3 L » (les abréviations ne bougent pas)
 const UNIT_FIX = new Set(["l","cl","ml","dl","kg","g","mg","m","cm","mm","km","w","v","mah","lot de"]);
 function pl(n, unit) {
@@ -1020,18 +1154,21 @@ function renderStats() {
   const kw = e.items.filter(i => +i.w).length, kv = e.items.filter(i => vol(i)).length;
   $("sKnown").textContent = n && (kw < n || kv < n) ? `Totaux partiels : poids connu pour ${kw}/${n} articles, volume pour ${kv}/${n}. Complète les fiches pour des chiffres justes.` : "";
 }
-function renderCatalog() {
+let catDirty = true;
+function renderCatalog() { catDirty = true; }
+function ensureCatalog() {
+  if (!catDirty) return; catDirty = false;
   const names = new Map(), cats = new Set(CATS);
   Object.values(state.gear).forEach(g => { names.set(g.name, g); if (g.cat) cats.add(g.cat); });
   Object.values(state.exps).forEach(e => e.items.forEach(i => { if (!names.has(i.name)) names.set(i.name, i); if (i.cat) cats.add(i.cat); }));
   Object.values(PACKS).forEach(p => p.items.forEach(([n]) => { if (!names.has(n) && !isHidden(n)) names.set(n, null); }));
   REF_BY.forEach(r => { if (!names.has(r.name) && !isHidden(r.name)) names.set(r.name, null); });
-  $("catalog").innerHTML = ""; [...names.keys()].sort((a, b) => a.localeCompare(b, "fr")).forEach(n => { const o = document.createElement("option"); o.value = n; $("catalog").appendChild(o); });
+  $("catalog").innerHTML = ""; [...names.keys()].sort((a, b) => cmp(a, b)).forEach(n => { const o = document.createElement("option"); o.value = n; $("catalog").appendChild(o); });
   $("catList").innerHTML = ""; [...cats].forEach(c => { const o = document.createElement("option"); o.value = c; $("catList").appendChild(o); });
 }
 // sections proposées d'office selon le type d'expédition ; les autres restent à un toucher
 function suggestedSecs(type) {
-  const t = gkey(type).normalize("NFD").replace(/[̀-ͯ]/g, "");
+  const t = normT(type);
   const base = ["nourriture","popote","bivouac","secu","vetements"];
   if (/peche/.test(t)) return [...base, "peche", "pirogue", "outpirogue"];
   if (/pirogue|fleuve|lac|riviere/.test(t)) return [...base, "pirogue", "outpirogue", "materiel"];
@@ -1041,7 +1178,7 @@ function suggestedSecs(type) {
 }
 let showAllSecs = false;
 function renderTiles(e) {
-  const box = $("secTiles"); box.innerHTML = ""; box.classList.toggle("compact", !!curSec);
+  const box = $("secTiles"); box.innerHTML = ""; box.classList.add("compact");
   const sugg = suggestedSecs(e.type); let hiddenN = 0;
   SECTIONS.forEach(x => {
     const its = e.items.filter(i => secOf(i.cat) === x.k);
@@ -1049,23 +1186,23 @@ function renderTiles(e) {
     if (!its.length && !showAllSecs && curSec !== x.k && !sugg.includes(x.k)) { hiddenN++; return; }
     const d = its.filter(i => i.done).length, w = its.reduce((s0, i) => s0 + total(i, e) * (+i.w || 0), 0);
     const t = document.createElement("button"); t.type = "button"; t.className = "sec" + (its.length && d === its.length ? " full" : "") + (!its.length ? " sugg" : "");
-    t.setAttribute("aria-pressed", curSec === x.k ? "true" : "false");
-    const ic = document.createElement("span"); ic.className = "ic"; ic.setAttribute("aria-hidden", "true"); ic.textContent = x.icon;
+    t.setAttribute("aria-pressed", curSec === x.k ? "true" : "false"); t.dataset.fk = "sec:" + x.k;
     const b = document.createElement("b"); b.textContent = x.label;
-    const sm = document.createElement("small"); sm.textContent = its.length ? `${d}/${its.length} prêt${d > 1 ? "s" : ""}${w ? " · " + fmtW(w) : ""}` : "à préparer";
-    t.append(ic, b, sm); t.onclick = () => openSection(curSec === x.k ? "" : x.k); box.appendChild(t);
+    const n = document.createElement("span"); n.className = "n"; n.textContent = its.length ? `${d}/${its.length}` : "";
+    t.title = its.length ? `${d}/${its.length} prêt${d > 1 ? "s" : ""}${w ? " · " + fmtW(w) : ""}` : "à préparer";
+    t.append(icoEl(x.icon), b, n); t.onclick = () => openSection(curSec === x.k ? "" : x.k); box.appendChild(t);
   });
   if (hiddenN || showAllSecs) {
-    const m = document.createElement("button"); m.type = "button"; m.className = "sec more";
-    const ic = document.createElement("span"); ic.className = "ic"; ic.setAttribute("aria-hidden", "true"); ic.textContent = showAllSecs ? "−" : "+";
-    const b = document.createElement("b"); b.textContent = showAllSecs ? "Moins de sections" : `${hiddenN} autre${hiddenN > 1 ? "s" : ""} section${hiddenN > 1 ? "s" : ""}`;
-    const sm = document.createElement("small"); sm.textContent = showAllSecs ? "cacher les vides" : SECTIONS.filter(z => z.k !== "autre" && !sugg.includes(z.k) && !e.items.some(i => secOf(i.cat) === z.k)).map(z => z.icon).join(" ");
-    m.append(ic, b, sm); m.onclick = () => { showAllSecs = !showAllSecs; renderTiles(e); }; box.appendChild(m);
+    const m = document.createElement("button"); m.type = "button"; m.className = "sec more"; m.dataset.fk = "sec:more";
+    const b = document.createElement("b"); b.textContent = showAllSecs ? "− Moins de sections" : `+ ${hiddenN} autre${hiddenN > 1 ? "s" : ""} section${hiddenN > 1 ? "s" : ""}`;
+    m.append(b); m.onclick = () => { showAllSecs = !showAllSecs; renderTiles(e); m.isConnected || (box.querySelector('[data-fk="sec:more"]') || {}).focus?.(); }; box.appendChild(m);
   }
 }
 function openSection(k) {
   curSec = k; closePicker(); $("qName").value = ""; renderList();
   if (k) { $("secTiles").scrollIntoView({ behavior: "smooth", block: "start" }); const t = $("secTiles").querySelector('[aria-pressed="true"]'); if (t) t.scrollIntoView({ inline: "center", block: "nearest" }); }
+  // clavier et lecteur d'écran : on reste sur la section ouverte
+  if (kbd) { if (k) $("secTitle").focus({ preventScroll: true }); else { const t = $("secTiles").querySelector(".sec"); if (t) t.focus({ preventScroll: true }); } }
 }
 function secCatalog(k) {
   const x = secDef(k), names = new Set();
@@ -1073,23 +1210,23 @@ function secCatalog(k) {
   Object.values(state.gear).forEach(g => ok(g.cat) && names.add(g.name));
   REF_BY.forEach(r => ok(r.cat) && !isHidden(r.name) && names.add(r.name));
   Object.values(PACKS).forEach(pk => pk.items.forEach(([n, c]) => ok(c) && !isHidden(n) && names.add(n)));
-  return [...names].sort((a2, b2) => a2.localeCompare(b2, "fr"));
+  return [...names].sort((a2, b2) => cmp(a2, b2));
 }
 function renderList() {
   const e = cur(), box = $("list"); box.innerHTML = "";
   renderTiles(e);
   const x = curSec && secDef(curSec);
-  $("secHead").hidden = !x; if (!x) $("secBilan").hidden = true;
+  $("secHead").hidden = !x; if (!x) { $("secBilan").hidden = true; $("fuelBox").hidden = true; }
   const pool = x ? e.items.filter(i => secOf(i.cat) === curSec) : e.items;
   if (x) {
-    $("secTitle").textContent = `${x.icon} ${x.label}`;
+    $("secTitle").innerHTML = ico(x.icon); $("secTitle").append(x.label);
     $("qName").placeholder = "Ajouter un article…";
     // une seule catégorie dans la section : inutile de la demander
     const multi = x.cats.length !== 1; $("qCatWrap").hidden = !multi;
     if (!$("qName").value || !multi) { $("qCat").value = multi ? "" : x.cats[0]; $("qCat").placeholder = x.cats[0] || "Autre"; }
     $("qList").innerHTML = ""; secCatalog(curSec).forEach(n => { const o = document.createElement("option"); o.value = n; $("qList").appendChild(o); });
     const w = pool.reduce((s0, i) => s0 + total(i, e) * (+i.w || 0), 0), v = pool.reduce((s0, i) => s0 + total(i, e) * vol(i), 0);
-    renderSecBilan(e);
+    renderSecBilan(e); renderFuel(e);
     $("secSum").textContent = pool.length ? `${pool.filter(i => i.done).length}/${pool.length} prêts · ${fmtW(w)} · ${fmtV(v)}` : "Rien encore dans cette section. Tape un article ci-dessus ou pioche dans les listes.";
   }
   $("listActions").hidden = !e.items.length && !x;
@@ -1103,12 +1240,12 @@ function renderList() {
   groups.forEach(g => {
     const sec = document.createElement("div"); sec.className = "cat";
     const h = document.createElement("h3"); const left = document.createElement("span");
-    if (g.icon) { const ic = document.createElement("span"); ic.className = "ic"; ic.setAttribute("aria-hidden", "true"); ic.textContent = g.icon; left.appendChild(ic); }
+    if (g.icon) left.appendChild(icoEl(g.icon));
     left.appendChild(document.createTextNode(g.title));
     const right = document.createElement("span"); right.className = "mono"; right.textContent = `${g.items.filter(i => i.done).length}/${g.items.length}`;
     h.append(left, right); sec.appendChild(h);
     // ce qui reste à préparer d'abord, ce qui est prêt descend en bas
-    g.items.slice().sort((a2, b2) => (!!a2.done - !!b2.done) || a2.name.localeCompare(b2.name, "fr")).forEach(i => sec.appendChild(row(i, e)));
+    g.items.slice().sort((a2, b2) => (!!a2.done - !!b2.done) || cmp(a2.name, b2.name)).forEach(i => sec.appendChild(row(i, e)));
     box.appendChild(sec);
   });
 }
@@ -1135,16 +1272,13 @@ function quickAdd() {
 const openRows = new Set();
 function row(i, e) {
   const r = document.createElement("div"); r.className = "item" + (i.done ? " done" : "");
-  const ck = document.createElement("label"); ck.className = "ck";
-  const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = !!i.done;
-  cb.setAttribute("aria-label", "Prêt : " + i.name);
-  cb.dataset.iid = i.id; cb.addEventListener("change", () => tick(i, e, r, cb.checked));
-  ck.appendChild(cb);
+  const ck = document.createElement("span"); ck.className = "st"; ck.textContent = i.done ? "✓" : "";
+  if (i.done) { const sr = document.createElement("span"); sr.className = "sr"; sr.textContent = "dans le sac"; ck.appendChild(sr); }
   const open = openRows.has(i.id);
-  const nm = document.createElement("button"); nm.type = "button"; nm.className = "nm"; nm.setAttribute("aria-expanded", open ? "true" : "false");
+  const nm = document.createElement("button"); nm.type = "button"; nm.className = "nm"; nm.setAttribute("aria-expanded", open ? "true" : "false"); nm.dataset.fk = "row:" + i.id;
   const st = document.createElement("strong"); st.textContent = i.name; nm.appendChild(st);
   if (isRef(i)) { const a = document.createElement("span"); a.className = "approx"; a.textContent = "≈"; a.title = "valeurs typiques, à ajuster"; nm.appendChild(a); }
-  nm.onclick = () => { open ? openRows.delete(i.id) : openRows.add(i.id); renderList(); };
+  nm.onclick = () => { open ? openRows.delete(i.id) : openRows.add(i.id); keepFocus(renderList); };
   const q = document.createElement("span"); q.className = "qt"; q.textContent = qtyTxt(total(i, e), i.unit);
   r.append(ck, nm, q);
   if (open) {
@@ -1155,7 +1289,7 @@ function row(i, e) {
     if (isRef(i)) { const p3 = document.createElement("p"); p3.textContent = "≈ Valeurs typiques du référentiel : « Modifier » pour mettre celles de ton matériel."; det.appendChild(p3); }
     else if (i.note) { const p3 = document.createElement("p"); p3.textContent = i.note; det.appendChild(p3); }
     const a = document.createElement("div"); a.className = "actions";
-    const bE = document.createElement("button"); bE.className = "small"; bE.textContent = "Modifier"; bE.onclick = () => startEdit(i);
+    const bE = document.createElement("button"); bE.className = "small"; bE.textContent = "Modifier"; bE.onclick = () => startEdit(i); bE.dataset.fk = "edit:" + i.id;
     const bD = document.createElement("button"); bD.className = "small ghost danger-text"; bD.textContent = "Retirer";
     bD.onclick = () => {
       const idx = e.items.indexOf(i); if (idx < 0) return; e.items.splice(idx, 1); openRows.delete(i.id); persist(e); renderAll(false);
@@ -1167,8 +1301,8 @@ function row(i, e) {
 }
 function emptyState() {
   const d = document.createElement("div"); d.className = "empty";
-  const p = document.createElement("p"); p.textContent = "Liste vide. Touche une section au-dessus pour y ajouter tes articles, ou coche-les dans les listes toutes faites.";
-  const b = document.createElement("button"); b.className = "primary"; b.textContent = "Choisir dans les listes";
+  const p = document.createElement("p"); p.textContent = "Liste vide. Touche une section au-dessus pour y ajouter tes articles, ou coche-les dans les packs tout faits.";
+  const b = document.createElement("button"); b.className = "primary"; b.textContent = "Ajouter depuis les packs";
   b.onclick = () => openPicker();
   d.append(p, b); return d;
 }
@@ -1201,7 +1335,7 @@ function renderPicker() {
   const have = pickHave();
   const head = document.createElement("div"); head.className = "toolbar";
   const h = document.createElement("h2"); const sx = pick.sec && secDef(pick.sec);
-  h.textContent = pick.target === "gear" ? "Ajouter à mon matériel" : sx ? `${sx.icon} Choisir : ${sx.label}` : "Choisir des articles";
+  h.textContent = pick.target === "gear" ? "Ajouter à mon matériel" : sx ? `Ajouter : ${sx.label}` : "Ajouter des articles";
   const x = document.createElement("button"); x.className = "small ghost"; x.textContent = "Fermer"; x.onclick = closePicker;
   head.append(h, x);
   const tabs = document.createElement("div"); tabs.className = "tabs"; tabs.setAttribute("role", "tablist");
@@ -1214,20 +1348,21 @@ function renderPicker() {
   const hint = document.createElement("p"); hint.className = "hint"; hint.textContent = "Rien n'est coché d'avance. Coche ce que tu emportes, change d'onglet si besoin, puis valide en bas.";
   const search = document.createElement("input"); search.id = "pickSearch"; search.placeholder = "Chercher un article"; search.value = pick.q;
   search.setAttribute("aria-label", "Chercher un article");
-  search.oninput = () => { pick.q = search.value; renderPickList(list, have); };
+  search.oninput = debounce(() => { pick.q = search.value; renderPickList(list, have); }, 150);
   const list = document.createElement("div"); list.className = "plist";
+  const refHint = document.createElement("p"); refHint.className = "hint"; refHint.hidden = pick.src !== "ref"; refHint.textContent = "Valeurs typiques (poids, dimensions) : ajuste-les ensuite sur ton propre matériel.";
   const foot = document.createElement("div"); foot.className = "pfoot";
   const ok = document.createElement("button"); ok.className = "primary big"; ok.id = "pickOk";
   ok.onclick = validatePicker;
   foot.appendChild(ok);
-  b.append(head, tabs, hint, search, list, foot);
+  b.append(head, tabs, hint, refHint, search, list, foot);
   renderPickList(list, have); updatePickCount();
 }
 function pickHave() { return new Set(pick.target === "gear" ? Object.keys(state.gear) : cur().items.map(i => gkey(i.name))); }
 function renderPickList(list, have) {
   list.innerHTML = ""; const q = gkey(pick.q);
   const items = sourceItems(pick.src).filter(it => (!pick.sec || secOf(it.cat) === pick.sec) && (!q || gkey(it.name).includes(q) || gkey(it.cat).includes(q)));
-  const groups = {}; items.forEach(it => (groups[it.cat || "Autre"] = groups[it.cat || "Autre"] || []).push(it));
+  const groups = dict(); items.forEach(it => (groups[it.cat || "Autre"] = groups[it.cat || "Autre"] || []).push(it));
   const order = [...CATS, ...Object.keys(groups).filter(c => !CATS.includes(c)).sort()].filter(c => groups[c]);
   if (!order.length) { const p = document.createElement("p"); p.className = "hint"; p.textContent = "Aucun article."; list.appendChild(p); return; }
   order.forEach(c => {
@@ -1237,12 +1372,14 @@ function renderPickList(list, have) {
     const all = document.createElement("button"); all.className = "iconbtn"; all.type = "button";
     const allOn = free.length && free.every(it => pick.sel.has(gkey(it.name)));
     all.textContent = allOn ? "Tout décocher" : "Tout cocher"; all.hidden = !free.length;
-    all.onclick = () => { free.forEach(it => allOn ? pick.sel.delete(gkey(it.name)) : pick.sel.set(gkey(it.name), it)); renderPickList(list, have); updatePickCount(); };
+    // cocher sur place, sans redessiner toute la liste
+    all.onclick = () => { const on = !free.every(it => pick.sel.has(gkey(it.name))); free.forEach(it => on ? pick.sel.set(gkey(it.name), it) : pick.sel.delete(gkey(it.name)));
+      sec.querySelectorAll("input[data-k]").forEach(cb => { if (!cb.disabled) cb.checked = pick.sel.has(cb.dataset.k); }); all.textContent = on ? "Tout décocher" : "Tout cocher"; updatePickCount(); };
     h.append(l, all); sec.appendChild(h);
-    groups[c].sort((a, b) => a.name.localeCompare(b.name, "fr")).forEach(it => {
+    groups[c].sort((a, b) => cmp(a.name, b.name)).forEach(it => {
       const k = gkey(it.name), already = have.has(k);
       const r = document.createElement("label"); r.className = "prow" + (already ? " off" : "");
-      const cb = document.createElement("input"); cb.type = "checkbox"; cb.disabled = already; cb.checked = already || pick.sel.has(k);
+      const cb = document.createElement("input"); cb.type = "checkbox"; cb.disabled = already; cb.checked = already || pick.sel.has(k); cb.dataset.k = k;
       cb.onchange = () => { cb.checked ? pick.sel.set(k, it) : pick.sel.delete(k); updatePickCount(); const a2 = sec.querySelector("h3 .iconbtn"); if (a2) { const on = free.every(f => pick.sel.has(gkey(f.name))); a2.textContent = on ? "Tout décocher" : "Tout cocher"; } };
       const t = document.createElement("span"); const st = document.createElement("strong"); st.textContent = it.name;
       const sm = document.createElement("small");
@@ -1279,26 +1416,27 @@ function renderGear() {
   const all = Object.values(state.gear); $("gearCount").textContent = all.length;
   if (!all.length) { const p = document.createElement("p"); p.className = "hint"; p.textContent = "Rien encore. Ajoute un article à une expédition et il apparaîtra ici."; box.appendChild(p); return; }
   const list = all.filter(g => !q || gkey(g.name).includes(q) || gkey(g.cat).includes(q));
-  const groups = {}; list.forEach(g => (groups[g.cat || "Autre"] = groups[g.cat || "Autre"] || []).push(g));
+  const groups = dict(); list.forEach(g => (groups[g.cat || "Autre"] = groups[g.cat || "Autre"] || []).push(g));
   const order = [...CATS, ...Object.keys(groups).filter(c => !CATS.includes(c)).sort()].filter(c => groups[c]);
   const e = cur(); const inExp = new Set(e.items.map(i => gkey(i.name)));
   order.forEach(c => {
     const sec = document.createElement("div"); sec.className = "cat";
     const h = document.createElement("h3"); const l = document.createElement("span"); l.textContent = c;
     const n = document.createElement("span"); n.className = "mono"; n.textContent = groups[c].length; h.append(l, n); sec.appendChild(h);
-    groups[c].sort((a, b) => a.name.localeCompare(b.name, "fr")).forEach(g => {
+    groups[c].sort((a, b) => cmp(a.name, b.name)).forEach(g => {
       const r = document.createElement("div"); r.className = "gear";
       const nm = document.createElement("div"); nm.className = "name";
       const st = document.createElement("strong"); st.textContent = g.name;
       const sm = document.createElement("small"); sm.textContent = specs(g) || "pas encore de caractéristiques";
       nm.append(st, sm);
+      const ex = expiryTxt(g); if (ex) { const x2 = document.createElement("small"); x2.className = ex.bad ? "exp" : ""; x2.textContent = ex.t; nm.appendChild(x2); }
       const ed = document.createElement("div"); ed.className = "ed";
       const add = document.createElement("button"); add.className = "small";
       if (inExp.has(gkey(g.name))) { add.textContent = "Dans la liste"; add.disabled = true; }
       else { add.textContent = "Ajouter"; add.onclick = () => { e.items.push({ id: uid(), name: g.name, cat: g.cat, qty: g.qty ?? 1, mode: g.mode || "fixe", unit: g.unit || "", w: g.w || 0, L: g.L || 0, l: g.l || 0, H: g.H || 0, v: g.v || 0, note: g.note || "", done: false }); persist(e); renderAll(false); toast(`« ${g.name} » ajouté à l'expédition`); }; }
-      const mod = document.createElement("button"); mod.className = "iconbtn"; mod.textContent = "Modifier";
+      const mod = document.createElement("button"); mod.className = "small ghost"; mod.textContent = "Modifier";
       mod.onclick = () => { const ex = r.nextElementSibling; if (ex && ex.classList.contains("gedit")) { ex.remove(); return; } r.after(gearEditor(g, () => { renderAll(false); })); };
-      const del = document.createElement("button"); del.className = "iconbtn"; del.textContent = "Oublier";
+      const del = document.createElement("button"); del.className = "small ghost danger-text"; del.textContent = "Oublier";
       del.onclick = () => { const k = gkey(g.name); delete state.gear[k]; persistGear(); renderGear(); renderCatalog();
         toast(`« ${g.name} » retiré de ton matériel`, () => { state.gear[k] = g; persistGear(); renderGear(); renderCatalog(); }); };
       ed.append(add, mod, del); r.append(nm, ed); sec.appendChild(r);
@@ -1311,10 +1449,11 @@ function gearEditor(src, done) {
   const box = document.createElement("div"); box.className = "gedit";
   const g = document.createElement("div"); g.className = "grid"; const inp = {};
   [["name","Article","text",src.name],["cat","Catégorie","text",src.cat || ""],["unit","Unité","text",src.unit || "pièce"],["w","Poids unitaire (g)","number",src.w || ""],
-   ["L","Long. (cm)","number",src.L || ""],["l","Larg. (cm)","number",src.l || ""],["H","Haut. (cm)","number",src.H || ""],["v","Volume (L)","number",src.v || ""]].forEach(([k, lab, type, val]) => {
-    const f = document.createElement("label"); f.className = "field" + (k === "name" ? " wide" : "");
+   ["L","Long. (cm)","number",src.L || ""],["l","Larg. (cm)","number",src.l || ""],["H","Haut. (cm)","number",src.H || ""],["v","Volume (L)","number",src.v || ""],
+   ["exp","Péremption ou entretien (facultatif)","date",(state.gear[gkey(src.name)] || src).exp || ""]].forEach(([k, lab, type, val]) => {
+    const f = document.createElement("label"); f.className = "field" + (k === "name" || k === "exp" ? " wide" : "");
     const l = document.createElement("span"); l.className = "label"; l.textContent = lab;
-    const i = document.createElement("input"); i.type = "text"; i.value = val; if (type === "number") { i.inputMode = "decimal"; i.autocomplete = "off"; }
+    const i = document.createElement("input"); i.type = type === "date" ? "date" : "text"; i.value = val; if (type === "number") { i.inputMode = "decimal"; i.autocomplete = "off"; }
     inp[k] = i; f.append(l, i); g.appendChild(f);
   });
   combo(inp.cat, "catList"); combo(inp.unit, "unitList");
@@ -1328,6 +1467,7 @@ function gearEditor(src, done) {
     if (k !== ok0) { if (state.gear[ok0]) delete state.gear[ok0]; if (!state.hidden.includes(ok0) && (REF_BY.has(ok0) || Object.values(PACKS).some(pk => pk.items.some(t => gkey(t[0]) === ok0)))) state.hidden.push(ok0); }
     state.gear[k] = { ...old, name, cat: inp.cat.value.trim() || "Autre", qty: src.qty ?? old.qty ?? 1, mode: src.mode || old.mode || "fixe", unit: inp.unit.value.trim(),
       w: pos(inp.w.value), L: pos(inp.L.value), l: pos(inp.l.value), H: pos(inp.H.value), v: pos(inp.v.value), note: "", uses: old.uses || 0, updatedAt: Date.now() };
+    if (okDate(inp.exp.value)) state.gear[k].exp = inp.exp.value; else delete state.gear[k].exp;
     persistGear(); box.remove(); toast(`« ${name} » enregistré dans ton matériel`); done && done();
   };
   a.append(ok, no); box.append(g, a); return box;
@@ -1353,9 +1493,9 @@ function renderPerso() {
     const shown = items.filter(([k]) => !state.hidden.includes(k)).length;
     const cnt = document.createElement("p"); cnt.className = "hint"; cnt.style.margin = "0"; cnt.textContent = `${shown} proposées · ${items.length - shown} masquées`; list.appendChild(cnt);
     SECTIONS.forEach(sx => {
-      const grp = items.filter(([, it]) => secOf(it.cat) === sx.k).sort((a2, b2) => a2[1].name.localeCompare(b2[1].name, "fr")); if (!grp.length) return;
+      const grp = items.filter(([, it]) => secOf(it.cat) === sx.k).sort((a2, b2) => cmp(a2[1].name, b2[1].name)); if (!grp.length) return;
       const sec = document.createElement("div"); sec.className = "cat";
-      const h3 = document.createElement("h3"); h3.textContent = `${sx.icon} ${sx.label}`; sec.appendChild(h3);
+      const h3 = document.createElement("h3"); const l3 = document.createElement("span"); l3.append(icoEl(sx.icon), sx.label); h3.appendChild(l3); sec.appendChild(h3);
       grp.forEach(([k, it]) => {
         const off = state.hidden.includes(k);
         const r = document.createElement("div"); r.className = "prow2" + (off ? " off" : "");
@@ -1373,9 +1513,30 @@ function renderPerso() {
   }
   fill();
 }
-function renderAll(force) { renderSelect(); renderParams(force); renderStats(); renderCatalog(); renderList(); renderGear(); renderSum(); renderSac(); renderWizard(); renderSaveInfo(); renderHome(); updatePreview(); }
-// après un cochage : seulement ce qui bouge
-function refresh() { renderStats(); renderSum(); renderList(); renderSac(); renderHome(); }
+const VIEWS = ["accueil", "liste", "sac", "mat", "reglages"], stale = new Set();
+function renderView(v) {
+  stale.delete(v);
+  keepFocus(() => {
+    if (v === "accueil") renderHome();
+    else if (v === "liste") { renderStats(); renderSum(); renderWizard(); renderList(); }
+    else if (v === "sac") { renderStats(); renderSum(); renderSac(); }
+    else if (v === "mat") { renderGear(); renderPerso(); }
+    else if (v === "reglages") { renderSaveInfo(); renderManage(); }
+  });
+}
+function renderAll(force) { renderAppBar(); renderParams(force); renderCatalog(); VIEWS.forEach(v => stale.add(v)); renderView(view); updatePreview(); }
+// après un cochage : seulement la vue affichée
+function refresh() { VIEWS.forEach(v => stale.add(v)); renderView(view); }
+// le focus clavier revient sur l'élément équivalent après un rendu (repère data-fk ou data-iid)
+let kbd = false;
+document.addEventListener("keydown", ev => { if (ev.key === "Tab" || ev.key === "Enter" || ev.key === " " || ev.key.startsWith("Arrow")) kbd = true; }, true);
+document.addEventListener("pointerdown", () => { kbd = false; }, true);
+function keepFocus(fn) {
+  const a = document.activeElement, fk = a && a.dataset && (a.dataset.fk ? `[data-fk="${CSS.escape(a.dataset.fk)}"]` : a.dataset.iid ? `input[data-iid="${CSS.escape(a.dataset.iid)}"]` : "");
+  fn();
+  if (fk && !(a && a.isConnected)) { const n = document.querySelector(fk); if (n) n.focus({ preventScroll: true }); }
+}
+function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
 
 // ---------- formulaire ----------
 function readForm() {
@@ -1420,10 +1581,12 @@ function fillSpecs(s) {
   $("fLen").value = s.L || ""; $("fWid").value = s.l || ""; $("fHei").value = s.H || ""; $("fV").value = s.v || "";
 }
 $("fSubmit").addEventListener("click", () => { try { submitItem(); } catch (err) { __sdlErr((err && err.message) || String(err)); } });
-["fName","fCat","fQty","fUnit","fW","fLen","fWid","fHei","fV","fNote"].forEach(id => $(id).addEventListener("keydown", ev => { if (ev.key === "Enter") { ev.preventDefault(); submitItem(); } }));
+// Entrée sur une suggestion surlignée la choisit (géré par la liste de choix) ; sinon elle valide
+const pickingSugg = el => el.getAttribute("aria-expanded") === "true" && !!el.parentNode.querySelector('.clist [aria-selected="true"]');
+["fName","fCat","fQty","fUnit","fW","fLen","fWid","fHei","fV","fNote"].forEach(id => $(id).addEventListener("keydown", ev => { if (ev.key === "Enter" && !pickingSugg(ev.target)) { ev.preventDefault(); submitItem(); } }));
 $("fCancel").onclick = resetForm;
 ["fName","fCat","fQty","fMode","fUnit","fW","fLen","fWid","fHei","fV"].forEach(id => $(id).addEventListener("input", updatePreview));
-$("gearSearch").addEventListener("input", renderGear);
+$("gearSearch").addEventListener("input", debounce(renderGear, 150));
 $("fName").addEventListener("change", () => {
   // reprend les réglages d'un article déjà utilisé ou d'un pack
   if (editingId) return; const n = $("fName").value.trim().toLowerCase(); let src = state.gear[n] || null;
@@ -1439,7 +1602,7 @@ function combo(input, listId) {
   const box = document.createElement("div"); box.className = "clist"; box.setAttribute("role", "listbox"); box.hidden = true; wrap.appendChild(box);
   input.setAttribute("role", "combobox"); input.setAttribute("aria-autocomplete", "list"); input.setAttribute("aria-expanded", "false"); input.autocomplete = "off";
   let sel = -1, showAll = false;
-  const opts = () => [...document.getElementById(listId).options].map(o => o.value).filter(Boolean);
+  const opts = () => { ensureCatalog(); return [...document.getElementById(listId).options].map(o => o.value).filter(Boolean); };
   function open() {
     const q = gkey(input.value), all = opts();
     const list = (showAll || !q ? all : all.filter(v => gkey(v).includes(q))).slice(0, 80);
@@ -1459,8 +1622,9 @@ function combo(input, listId) {
   input.addEventListener("keydown", e => {
     if (e.key === "ArrowDown") { e.preventDefault(); if (box.hidden) open(); mark(sel + 1); }
     else if (e.key === "ArrowUp") { e.preventDefault(); mark(sel - 1); }
-    else if (e.key === "Enter" && !box.hidden && sel >= 0) { e.preventDefault(); pickV(box.querySelectorAll("button")[sel].textContent); }
-    else if (e.key === "Escape") close();
+    // la suggestion choisie au clavier ne déclenche pas aussi l'ajout ; Échap ferme la liste, pas la fiche
+    else if (e.key === "Enter" && !box.hidden && sel >= 0) { e.preventDefault(); e.stopImmediatePropagation(); pickV(box.querySelectorAll("button")[sel].textContent); }
+    else if (e.key === "Escape" && !box.hidden) { e.stopPropagation(); close(); }
   });
 }
 document.querySelectorAll("input[data-list]").forEach(i => combo(i, i.dataset.list));
@@ -1473,7 +1637,7 @@ document.querySelectorAll("input[data-list]").forEach(i => combo(i, i.dataset.li
       v = k === "maxPP" ? Math.max(0, Math.round((n || 0) * 10) / 10) : Math.min(k === "people" ? 500 : 365, Math.max(k === "days" || k === "people" ? 1 : 0, Math.round(n))); }
     if (k === "days" && +e.nights === Math.max(0, +e.days - 1)) { e.nights = Math.max(0, v - 1); $("pNights").value = e.nights; }
     e[k] = v; if (k === "days" && e.start) { e.end = addDays(e.start, Math.max(0, v - 1)); $("pEnd").value = e.end; }
-    persist(e); renderSelect(); renderStats(); renderSum(); renderList(); renderSac(); updatePreview();
+    persist(e); renderAppBar(); paramsRefresh();
   });
   if (num) $(id).addEventListener("change", () => { const e = cur(), shown = k === "maxPP" ? (+e[k] || "") : e[k];
     if (String(shown) !== $(id).value.replace(",", ".").trim()) { $(id).value = shown; toast(`${$(id).labels[0] ? $(id).labels[0].textContent : "Valeur"} corrigé : ${shown || "aucun"}`); } });
@@ -1483,8 +1647,10 @@ document.querySelectorAll("input[data-list]").forEach(i => combo(i, i.dataset.li
   const e = cur(), v = $(id).value; e[k] = v;
   if (k === "start" && v) e.end = addDays(v, Math.max(0, (+e.days || 1) - 1));
   if (e.start && e.end) { if (dayDiff(e.start, e.end) < 0) e.end = e.start; syncDays(e); }
-  persist(e); renderParams(true); renderSelect(); renderStats(); renderSum(); renderList(); renderSac(); updatePreview();
+  persist(e); renderParams(true); renderAppBar(); refresh(); updatePreview();
 }));
+// chaque chiffre tapé ne redessine pas tout : on attend la fin de la frappe
+const paramsRefresh = debounce(() => { refresh(); updatePreview(); }, 150);
 // ---------- expéditions ----------
 $("btnDup").onclick = () => {
   const s = cur(); const e = JSON.parse(JSON.stringify(s)); e.id = uid(); e.name = (s.name || "Expédition") + " (copie)";
@@ -1518,15 +1684,28 @@ function renderManage() {
     const nb = [...manageSel].reduce((s2, id) => s2 + (state.exps[id] ? state.exps[id].items.length : 0), 0);
     p.textContent = `Supprimer ${n} expédition${n > 1 ? "s" : ""} et ${nb} article${nb > 1 ? "s" : ""} de liste ? C'est définitif. Ton matériel (« Mon matériel ») est conservé.`;
     const aa = document.createElement("div"); aa.className = "actions";
-    const y = document.createElement("button"); y.className = "danger small"; y.textContent = "Oui, supprimer";
+    const y = document.createElement("button"); y.className = "danger small"; y.textContent = "Oui, supprimer"; y.dataset.fk = "mng:yes";
     const no = document.createElement("button"); no.className = "small ghost"; no.textContent = "Annuler"; no.onclick = renderManage;
     y.onclick = async () => { const ids = [...manageSel]; manageSel.clear(); for (const id of ids) await removeExp(id); if (!state.exps[state.current]) pickDefault(); box.hidden = true; renderAll(true); toast(`${ids.length} expédition${ids.length > 1 ? "s" : ""} supprimée${ids.length > 1 ? "s" : ""}`); };
     aa.append(y, no); c.append(p, aa); a.appendChild(c);
   };
   a.appendChild(del); box.appendChild(a);
 }
-function openManage() { const box = $("manageBox"); closeMenu(); setView("reglages"); manageSel.clear(); manageSel.add(state.current); box.hidden = false; renderManage(); box.scrollIntoView({ behavior: "smooth", block: "center" }); }
-$("btnManage").onclick = openManage;
+function openManage() { const box = $("manageBox"); closeMenu(); setView("reglages"); manageSel.clear(); box.hidden = false; renderManage(); box.scrollIntoView({ behavior: "smooth", block: "center" }); }
+// question oui / non dans une fenêtre, à l'endroit où l'on est
+function askConfirm(title, txt, yes, fn) {
+  $("askTitle").textContent = title; $("askTxt").textContent = txt; $("askYes").textContent = yes;
+  $("askYes").onclick = () => { closeOv("askOv"); fn(); }; openOv("askOv"); setTimeout(() => $("askNo").focus({ preventScroll: true }), 40);
+}
+$("askNo").onclick = () => closeOv("askOv");
+$("askOv").addEventListener("click", ev => { if (ev.target === $("askOv")) closeOv("askOv"); });
+$("btnManage").onclick = () => {
+  closeMenu(); const e = cur(), n = e.items.length;
+  askConfirm(`Supprimer « ${e.name || "Sans nom"} » ?`, `L'expédition et ses ${n} article${n > 1 ? "s" : ""} de liste seront supprimés. Ton matériel est conservé.`, "Supprimer", async () => {
+    const copy = JSON.parse(JSON.stringify(e)); await removeExp(e.id); pickDefault(); renderAll(true); setView("accueil");
+    toast(`« ${copy.name} » supprimée`, () => { const x = sanitizeExp(copy); if (!x) return; state.exps[x.id] = x; state.current = x.id; persist(x); renderAll(true); });
+  });
+};
 $("btnManage2").onclick = () => { if (!$("manageBox").hidden) { $("manageBox").hidden = true; manageSel.clear(); } else openManage(); };
 $("secBack").onclick = () => openSection("");
 $("unitList").innerHTML = UNITS.map(u => `<option value="${u}"></option>`).join("");
@@ -1543,7 +1722,7 @@ $("qMore").onclick = () => {
   if ($("fName").value) $("fName").dispatchEvent(new Event("change")); updatePreview(); openOv("sheetOv"); $("addBox").scrollTop = 0;
 };
 $("fClose").onclick = resetForm;
-["qName","qQty","qUnit","qCat"].forEach(id => $(id).addEventListener("keydown", ev => { if (ev.key === "Enter") { ev.preventDefault(); quickAdd(); } }));
+["qName","qQty","qUnit","qCat"].forEach(id => $(id).addEventListener("keydown", ev => { if (ev.key === "Enter" && !pickingSugg(ev.target)) { ev.preventDefault(); quickAdd(); } }));
 $("btnPacks").onclick = () => { if (!$("packBox").hidden) closePicker(); else openPicker(); };
 $("btnRef").onclick = () => openPicker("gear");
 $("btnPerso").onclick = () => { const b = $("persoBox"); b.hidden = !b.hidden; renderPerso(); };
@@ -1556,8 +1735,8 @@ async function copy(text, okMsg, fallbackEl) {
 $("btnShare").onclick = () => {
   const e = cur(); const lines = [`${e.name}${e.type ? " · " + e.type : ""}`, `${e.start ? datesTxt(e) + " · " : ""}${e.days} j / ${e.nights} nuits · ${e.people} pers. · réserve ${e.reserve || 0} j`, ""];
   SECTIONS.filter(x => !curSec || x.k === curSec).forEach(x => {
-    const its = e.items.filter(i => secOf(i.cat) === x.k).sort((a2, b2) => a2.name.localeCompare(b2.name, "fr")); if (!its.length) return;
-    lines.push(`${x.icon} ${x.label.toUpperCase()}`); its.forEach(i => lines.push(`${i.done ? "☑" : "☐"} ${i.name} : ${qtyTxt(total(i, e), i.unit)}`)); lines.push("");
+    const its = e.items.filter(i => secOf(i.cat) === x.k).sort((a2, b2) => cmp(a2.name, b2.name)); if (!its.length) return;
+    lines.push(x.label.toUpperCase()); its.forEach(i => lines.push(`${i.done ? "☑" : "☐"} ${i.name} : ${qtyTxt(total(i, e), i.unit)}`)); lines.push("");
   });
   const text = lines.join("\n").trim();
   // téléphone : la feuille de partage ouvre directement WhatsApp, SMS, notes…
@@ -1572,12 +1751,6 @@ function loadPdf() {
   return pdfLib;
 }
 const pdfTxt = t => String(t ?? "").replace(/[  ]/g, " ").replace(/[’]/g, "'").replace(/[^\x20-\x7e -ÿŒœ…–—×]/g, "");
-function emojiPng(ch) {
-  try { const c = document.createElement("canvas"); c.width = c.height = 64; const x = c.getContext("2d");
-    x.font = '50px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif'; x.textAlign = "center"; x.textBaseline = "middle"; x.fillText(ch, 32, 36);
-    const px = x.getImageData(0, 0, 64, 64).data; let any = false; for (let i = 3; i < px.length; i += 4) if (px[i]) { any = true; break; }
-    return any ? c.toDataURL("image/png") : null; } catch (e) { return null; }
-}
 function buildPdf(JsPDF) {
   const e = cur(), doc = new JsPDF({ unit: "mm", format: "a4" });
   const W = 210, H = 297, M = 14, CW = W - 2 * M;
@@ -1605,7 +1778,7 @@ function buildPdf(JsPDF) {
   txt(`${d} / ${n} articles prêts`, M, y); txt(`Édité le ${new Date().toLocaleDateString("fr-FR")}`, W - M, y, { align: "right" });
   y += 2.5; col(C.soft, "f"); doc.roundedRect(M, y, CW, 2.2, 1.1, 1.1, "F"); if (n && d) { col(C.acc, "f"); doc.roundedRect(M, y, Math.max(2.2, CW * d / n), 2.2, 1.1, 1.1, "F"); }
   y += 9;
-  const icons = {}; const QX = W - M - 32, WX = W - M - 2, NX = M + 9, NW = QX - NX - 6;
+  const QX = W - M - 32, WX = W - M - 2, NX = M + 9, NW = QX - NX - 6;
   function newPage(cont) {
     doc.addPage(); y = 16; doc.setFont("helvetica", "bold"); doc.setFontSize(9); col(C.mut); txt(`${e.name}  ·  suite`, M, y); y += 7;
     if (cont) secTitle(cont, true);
@@ -1613,15 +1786,14 @@ function buildPdf(JsPDF) {
   function secTitle(sx, cont) {
     const its = e.items.filter(i => secOf(i.cat) === sx.k), dd = its.filter(i => i.done).length, ww = its.reduce((s0, i) => s0 + total(i, e) * (+i.w || 0), 0);
     col(C.soft, "f"); doc.roundedRect(M, y, CW, 9, 1.8, 1.8, "F");
-    if (!(sx.k in icons)) icons[sx.k] = emojiPng(sx.icon);
-    let tx = M + 3; if (icons[sx.k]) { doc.addImage(icons[sx.k], "PNG", M + 2.2, y + 1.3, 6.4, 6.4); tx = M + 10.5; }
+    const tx = M + 3;
     doc.setFont("helvetica", "bold"); doc.setFontSize(10.5); col(C.acc); txt(sx.label.toUpperCase() + (cont ? "  (suite)" : ""), tx, y + 6.1, { charSpace: 0.3 });
     doc.setFont("helvetica", "normal"); doc.setFontSize(8.5); col(C.mut); txt(`${dd}/${its.length} prêts${ww ? "  ·  " + fmtW(ww) : ""}`, W - M - 3, y + 6.1, { align: "right" });
     y += 11;
     doc.setFontSize(6.5); doc.setFont("helvetica", "bold"); txt("ARTICLE", NX, y + 1); txt("À EMPORTER", QX, y + 1, { align: "right" }); txt("POIDS", WX, y + 1, { align: "right" }); y += 3;
   }
   SECTIONS.forEach(sx => {
-    const its = e.items.filter(i => secOf(i.cat) === sx.k).sort((a2, b2) => (a2.cat || "").localeCompare(b2.cat || "", "fr") || a2.name.localeCompare(b2.name, "fr"));
+    const its = e.items.filter(i => secOf(i.cat) === sx.k).sort((a2, b2) => cmp((a2.cat || ""), b2.cat || "") || cmp(a2.name, b2.name));
     if (!its.length) return;
     if (y + 30 > H - 16) newPage(); else if (y > 80) y += 2;
     secTitle(sx);
@@ -1652,13 +1824,17 @@ function buildPdf(JsPDF) {
     doc.setFont("helvetica", "normal"); doc.setFontSize(7.5); col(C.mut); txt(`Sac de Layon  ·  ${e.name}`, M, H - 7); txt(`page ${pg} / ${pages}`, W - M, H - 7, { align: "right" }); }
   return doc;
 }
+// le bouton reste sur « Préparation… » jusqu'au fichier prêt : on voit que ça travaille
 async function exportPdf() {
-  const btn = $("btnPdf"); let JsPDF;
-  try { JsPDF = window.jspdf ? window.jspdf.jsPDF : null; if (!JsPDF) { btn.disabled = true; btn.textContent = "Préparation…"; JsPDF = await loadPdf(); } }
-  catch (err) { toast("Impossible de charger le module PDF. Ouvre l'appli une fois avec du réseau."); return; }
-  finally { btn.disabled = false; btn.textContent = "📄 PDF de la liste"; }
-  const e = cur(); const name = `Sac-de-Layon-${slug(e.name || "expedition")}.pdf`;
-  await saveBlob(buildPdf(JsPDF).output("blob"), name, "application/pdf", e.name, "PDF enregistré dans tes téléchargements");
+  const btn = $("btnPdf"), label = btn.innerHTML; btn.disabled = true; btn.textContent = "Préparation…";
+  try {
+    let JsPDF;
+    try { JsPDF = window.jspdf ? window.jspdf.jsPDF : await loadPdf(); }
+    catch (err) { toast("Impossible de charger le module PDF. Ouvre l'appli une fois avec du réseau."); return; }
+    await new Promise(r => setTimeout(r, 30));
+    const e = cur(); const name = `Sac-de-Layon-${slug(e.name || "expedition")}.pdf`;
+    await saveBlob(buildPdf(JsPDF).output("blob"), name, "application/pdf", e.name, "PDF enregistré dans tes téléchargements");
+  } finally { btn.disabled = false; btn.innerHTML = label; }
 }
 async function saveBlob(blob, name, type, title, okMsg) {
   // appli Claude : téléchargement par la plateforme
@@ -1674,9 +1850,13 @@ async function saveBlob(blob, name, type, title, okMsg) {
   const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 30000); toast(okMsg); return true;
 }
-function slug(n) { return gkey(n).normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "expedition"; }
+function slug(n) { return normT(n).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "expedition"; }
 $("btnPdf").onclick = exportPdf;
-function backupJson() { return JSON.stringify({ app: "sac-de-layon", v: 1, savedAt: new Date().toISOString(), exps: Object.values(state.exps).filter(e => !e.draft), gear: state.gear, hidden: state.hidden }); }
+function backupJson() {
+  const noSafe = $("bkNoSafe").checked;
+  const exps = Object.values(state.exps).filter(e => !e.draft).map(e => { if (!noSafe || !e.safety) return e; const { safety, ...rest } = e; return rest; });
+  return JSON.stringify({ app: "sac-de-layon", v: SCHEMA, savedAt: new Date().toISOString(), exps, gear: state.gear, hidden: state.hidden });
+}
 const LS_BK = "sacdelayon.lastBackup";
 function markBackup() { try { localStorage.setItem(LS_BK, String(Date.now())); } catch (e) {} renderSaveInfo(); renderHome(); }
 function renderSaveInfo() {
@@ -1691,10 +1871,14 @@ $("btnExportFile").onclick = async () => {
   if (await saveBlob(new Blob([backupJson()], { type: "application/json" }), `sac-de-layon-sauvegarde-${d}.json`, "application/json", "Sauvegarde Sac de Layon", "Sauvegarde enregistrée dans tes téléchargements")) markBackup();
 };
 $("btnImportFile").onclick = () => $("importFile").click();
-$("importFile").onchange = async () => { const f = $("importFile").files[0]; if (!f) return; try { importText(await f.text()); } finally { $("importFile").value = ""; } };
+const IMPORT_MAX = 2e6;
+$("importFile").onchange = async () => { const f = $("importFile").files[0]; if (!f) return;
+  try { if (f.size > IMPORT_MAX) { toast("Fichier trop gros pour une sauvegarde Sac de Layon (plus de 2 Mo) : rien n'a été chargé."); return; } importText(await f.text()); } finally { $("importFile").value = ""; } };
 function importText(txt) {
+  if (String(txt || "").length > IMPORT_MAX) { toast("Texte trop long pour une sauvegarde Sac de Layon (plus de 2 Mo) : rien n'a été chargé."); return false; }
   try {
     const d = JSON.parse(txt); if (!d || typeof d !== "object") throw 0;
+    if (!Array.isArray(d)) migrate(d);
     const list = Array.isArray(d) ? d : (Array.isArray(d.exps) ? d.exps : []);
     // 1. tout contrôler d'abord : rien n'est écrit tant que la sauvegarde n'est pas jugée lisible
     const exps = list.map(e => e && Array.isArray(e.items) ? sanitizeExp(e) : null).filter(Boolean);
@@ -1705,14 +1889,19 @@ function importText(txt) {
     const before = JSON.stringify({ exps: state.exps, gear: state.gear, hidden: state.hidden, current: state.current });
     const kept = exps.filter(e => state.exps[e.id] && !state.exps[e.id].draft && (+state.exps[e.id].updatedAt || 0) > (+e.updatedAt || 0));
     exps.forEach(e => { if (!kept.includes(e)) state.exps[e.id] = e; });
-    Object.entries(gear).forEach(([k, it]) => { const old = state.gear[k] || {}; state.gear[k] = { ...old, ...it, uses: old.uses || it.uses || 0, updatedAt: Date.now() }; });
+    let gKept = 0;
+    Object.entries(gear).forEach(([k, it]) => { const old = state.gear[k];
+      if (old && (+old.updatedAt || 0) > (+it.updatedAt || 0)) { gKept++; return; }
+      state.gear[k] = { ...(old || {}), ...it, uses: Math.max(+(old && old.uses) || 0, +it.uses || 0) }; });
     if (hid) state.hidden = [...new Set([...state.hidden, ...hid])];
     if (exps.length) { const old = cur(); if (old && old.draft) delete state.exps[old.id]; state.current = exps[0].id; }
-    if (!lsSave()) { const b = JSON.parse(before); state.exps = b.exps; state.gear = b.gear; state.hidden = b.hidden; state.current = b.current; renderAll(true);
+    if (!lsSave()) { const b = JSON.parse(before); state.exps = Object.assign(dict(), b.exps); state.gear = Object.assign(dict(), b.gear); state.hidden = b.hidden; state.current = b.current;
+      saveFailed(false); renderAll(true); // l'écriture refusée n'a rien changé à ce qui était enregistré
       toast("Restauration impossible : cet appareil n'a pas pu l'enregistrer (mémoire pleine ou bloquée). Rien n'a été modifié."); return false; }
     exps.forEach(e => { if (!kept.includes(e)) persist(e); }); if (g || hid) persistGear();
     $("importTxt").value = ""; renderAll(true);
-    toast([exps.length ? `${exps.length} expédition${exps.length > 1 ? "s" : ""} restaurée${exps.length > 1 ? "s" : ""}` : "", g ? `${g} article${g > 1 ? "s" : ""} ajouté${g > 1 ? "s" : ""} à ton matériel` : "",
+    toast([exps.length ? `${exps.length} expédition${exps.length > 1 ? "s" : ""} restaurée${exps.length > 1 ? "s" : ""}` : "", g - gKept ? `${g - gKept} article${g - gKept > 1 ? "s" : ""} de matériel chargé${g - gKept > 1 ? "s" : ""}` : "",
+      gKept ? `${gKept} article${gKept > 1 ? "s" : ""} de matériel gardé${gKept > 1 ? "s" : ""} (plus récent${gKept > 1 ? "s" : ""} sur ce téléphone)` : "",
       skipped ? `${skipped} illisible${skipped > 1 ? "s" : ""} ignorée${skipped > 1 ? "s" : ""}` : "",
       kept.length ? `${kept.length} gardée${kept.length > 1 ? "s" : ""} telle${kept.length > 1 ? "s" : ""} quelle${kept.length > 1 ? "s" : ""} (plus récente${kept.length > 1 ? "s" : ""} sur ce téléphone)` : ""].filter(Boolean).join(", "));
     return true;
@@ -1724,7 +1913,9 @@ $("saveWarnBtn").onclick = () => $("btnExportFile").click();
 let tt; function toast(m, undo, label) {
   const t = $("toast"); t.innerHTML = ""; const sp = document.createElement("span"); sp.textContent = m; t.appendChild(sp);
   if (undo) { const b = document.createElement("button"); b.type = "button"; b.textContent = label || "Annuler"; b.onclick = () => { t.classList.remove("show", "act"); undo(); }; t.appendChild(b); }
-  t.classList.toggle("act", !!undo); t.classList.add("show"); clearTimeout(tt); tt = setTimeout(() => t.classList.remove("show", "act"), label ? 12000 : undo ? 10000 : m.length > 90 ? 6000 : 2400);
+  t.classList.toggle("act", !!undo); t.classList.add("show"); clearTimeout(tt);
+  // au clavier, « Annuler » doit être atteignable : on y place le focus
+  if (undo && kbd) setTimeout(() => { const b = t.querySelector("button"); if (b && t.classList.contains("show")) b.focus({ preventScroll: true }); }, 30); tt = setTimeout(() => t.classList.remove("show", "act"), label ? 12000 : undo ? 10000 : m.length > 90 ? 6000 : 2400);
 }
 
 // ---------- onglets : Liste · Sac · Matériel · Réglages ----------
@@ -1733,7 +1924,8 @@ let view = "liste";
 // l'appli s'ouvre toujours sur les expéditions : ce qui t'attend d'abord
 function savedView() { return "accueil"; }
 function setView(v, quiet) {
-  view = v;
+  view = v; if (stale.has(v)) renderView(v);
+  if (v !== "accueil") guard();
   document.querySelectorAll("[data-view]").forEach(el => { el.hidden = !el.dataset.view.split(" ").includes(v) || (el.id === "installTip" && !el.dataset.on); });
   if (!["liste","sac"].includes(v)) { $("paramsPanel").hidden = true; $("sumBar").setAttribute("aria-expanded", "false"); }
   document.querySelectorAll(".tabbar button").forEach(b => b.dataset.go === v ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current"));
@@ -1744,11 +1936,32 @@ function setView(v, quiet) {
 }
 document.querySelectorAll(".tabbar button").forEach(b => b.onclick = () => { closeMenu(); setView(b.dataset.go); });
 
+// ---------- bouton retour du téléphone ----------
+// une entrée d'historique « garde » au-dessus de l'entrée de base tant qu'il y a quelque chose à fermer ;
+// retour la consomme : on ferme la fiche du dessus, sinon on revient à l'accueil, sinon on laisse sortir
+const OVS = ["askOv", "txtOv", "debOv", "urgOv", "safeOv", "doneOv", "packOv", "sheetOv"];
+function guard() { try { if (!(history.state && history.state.sdl === 1)) history.pushState({ sdl: 1 }, ""); } catch (e) {} }
+function closeTop() {
+  const id = OVS.find(o => !$(o).hidden); if (!id) return false;
+  if (id === "packOv") closePicker(); else if (id === "sheetOv") resetForm(); else if (id === "safeOv") $("safeClose").click(); else closeOv(id);
+  return true;
+}
+window.addEventListener("popstate", () => {
+  if (!$("moreMenu").hidden) closeMenu();
+  else if (closeTop()) {}
+  else if (!$("paramsPanel").hidden) toggleParams(false);
+  else if (curSec && view === "liste") openSection("");
+  else if (view !== "accueil") setView("accueil");
+  else { try { history.back(); } catch (e) {} return; }
+  if (view !== "accueil" || OVS.some(o => !$(o).hidden)) guard();
+});
+try { history.replaceState({ sdl: 0 }, ""); } catch (e) {}
+
 // ---------- fiches qui montent du bas ----------
 const ovBack = {};
 const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])';
 function openOv(id) {
-  const o = $(id); if (o.hidden) ovBack[id] = document.activeElement;
+  const o = $(id); if (o.hidden) ovBack[id] = document.activeElement; guard();
   o.hidden = false; document.body.classList.add("noscroll");
   document.querySelectorAll("main.wrap, nav.tabbar").forEach(x => x.inert = true);
   setTimeout(() => { if (o.hidden || o.contains(document.activeElement)) return; const f = o.querySelector('[role="dialog"], .sheet, .box') || o; const t = f.querySelector(FOCUSABLE); if (t) t.focus({ preventScroll: true }); }, 30);
@@ -1762,24 +1975,38 @@ $("sheetOv").addEventListener("click", ev => { if (ev.target === $("sheetOv")) r
 $("packOv").addEventListener("click", ev => { if (ev.target === $("packOv")) closePicker(); });
 $("txtOv").addEventListener("click", ev => { if (ev.target === $("txtOv")) closeOv("txtOv"); });
 $("txtClose").onclick = () => closeOv("txtOv");
-document.addEventListener("keydown", ev => { if (ev.key !== "Escape") return; if (!$("urgOv").hidden) closeOv("urgOv"); else if (!$("safeOv").hidden) closeOv("safeOv"); else if (!$("doneOv").hidden) closeOv("doneOv"); else if (!$("packOv").hidden) closePicker(); else if (!$("sheetOv").hidden) resetForm(); else if (!$("txtOv").hidden) closeOv("txtOv"); closeMenu(); });
+document.addEventListener("keydown", ev => { if (ev.key !== "Escape") return; closeTop(); closeMenu(); });
+// clavier à l'écran : le champ touché remonte au-dessus du clavier
+document.addEventListener("focusin", ev => { const t = ev.target; if (!t.matches || !t.matches("input:not([type=checkbox]), textarea, select") || !t.closest(".sheet")) return;
+  setTimeout(() => { if (document.activeElement === t) t.scrollIntoView({ block: "center", behavior: "smooth" }); }, 350); });
 
 // ---------- urgences et premiers secours ----------
 function openUrg() { closeMenu(); openOv("urgOv"); $("urgBox").scrollTop = 0; }
-$("btnUrg").onclick = openUrg; $("btnUrgMenu").onclick = openUrg;
+$("btnUrg").onclick = openUrg;
 $("urgClose").onclick = () => closeOv("urgOv");
 $("urgOv").addEventListener("click", ev => { if (ev.target === $("urgOv")) closeOv("urgOv"); });
+// position : d'abord une position rapide (réseau, dernière connue), puis le GPS précis si la première échoue
+function locate(btn, say, ok, maxAge) {
+  if (!navigator.geolocation) { say("Cet appareil ne donne pas sa position : lis-la sur ton GPS ou tape les coordonnées à la main.", true); return; }
+  const label = btn.innerHTML; btn.disabled = true; btn.textContent = "Recherche de la position…"; say("");
+  const done = () => { btn.disabled = false; btn.innerHTML = label; };
+  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent);
+  const fail = err => { done();
+    if (err && err.code === 1) say(ios ? "Accès à la position refusé. Sur iPhone : Réglages > Confidentialité et sécurité > Service de localisation (activé), puis « Sites web Safari » (ou Chrome) > « Lorsque l'app est active ». Dans Safari, touche aA > Réglages du site web > Position > Autoriser. Puis réessaie." : "Accès à la position refusé. Autorise la position pour ce site dans les réglages du navigateur, puis réessaie.", true);
+    else if (!window.isSecureContext) say("La position ne marche que sur le lien sécurisé (https) de l'appli.", true);
+    else say("Pas de signal GPS pour l'instant. Mets-toi à découvert et réessaie, ou lis la position sur ton GPS.", true); };
+  const got = p => { done(); ok(p); };
+  navigator.geolocation.getCurrentPosition(got, err => { if (err && err.code === 1) { fail(err); return; }
+    navigator.geolocation.getCurrentPosition(got, fail, { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }); }, { enableHighAccuracy: false, timeout: 8000, maximumAge: maxAge });
+}
 $("urgLoc").onclick = () => {
-  const b = $("urgLoc"), out = $("urgPos"), m = $("urgMsg");
+  const out = $("urgPos"), m = $("urgMsg");
   const say = (t, bad) => { m.hidden = !t; m.textContent = t || ""; m.classList.toggle("bad", !!bad); };
-  if (!navigator.geolocation) { say("Cet appareil ne donne pas sa position : lis-la sur ton GPS.", true); return; }
-  b.disabled = true; b.textContent = "Recherche de la position…"; say("");
-  const done = () => { b.disabled = false; b.textContent = "📍 Afficher ma position"; };
-  const ok = p => { const c = p.coords; done(); out.hidden = false; out.textContent = `${c.latitude.toFixed(5)}, ${c.longitude.toFixed(5)}`; $("urgCopy").hidden = false;
-    say(`Précision ± ${Math.round(c.accuracy)} m, relevée à ${new Date(p.timestamp || Date.now()).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}. Le GPS du téléphone marche sans réseau.`); };
-  const fail = err => { done(); say(err && err.code === 1 ? "Accès à la position refusé : autorise la localisation pour ce site dans les réglages du téléphone." : "Pas de signal GPS pour l'instant. Mets-toi à découvert et réessaie.", true); };
-  navigator.geolocation.getCurrentPosition(ok, err => { if (err && err.code === 1) { fail(err); return; }
-    navigator.geolocation.getCurrentPosition(ok, fail, { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }); }, { enableHighAccuracy: false, timeout: 8000, maximumAge: 120000 });
+  locate($("urgLoc"), say, p => { const c = p.coords, ll = `${c.latitude.toFixed(5)},${c.longitude.toFixed(5)}`;
+    out.hidden = false; out.textContent = ll.replace(",", ", "); $("urgCopy").hidden = false;
+    // lien geo: : ouvre OsmAnd, Organic Maps, Locus… qui marchent hors réseau
+    const a = $("urgMap"); a.href = "geo:" + ll + "?q=" + ll; a.hidden = false;
+    say(`Précision ± ${Math.round(c.accuracy)} m, relevée à ${gyTime(new Date(p.timestamp || Date.now()))} (heure de Guyane). Le GPS du téléphone marche sans réseau.`); }, 120000);
 };
 $("urgCopy").onclick = () => copy($("urgPos").textContent, "Position copiée");
 // bilan de la section Sécurité : ce qui manque saute aux yeux
@@ -1801,9 +2028,102 @@ function renderSecBilan(e) {
   lines.forEach(([ok, txt]) => { const li = document.createElement("li"); li.className = ok ? "ok" : "ko"; li.textContent = (ok ? "✓ " : "✗ ") + txt; ul.appendChild(li); });
   const a = document.createElement("div"); a.className = "actions";
   if (lines.slice(0, 4).some(l => !l[0])) { const b1 = document.createElement("button"); b1.className = "small primary"; b1.textContent = lines[2][0] && lines[3][0] ? "Compléter depuis le pack secours" : "Ajouter la trousse de secours"; b1.onclick = () => { pick.src = "trousse"; openPicker(); }; a.appendChild(b1); }
-  if (!lines[4][0]) { const b2 = document.createElement("button"); b2.className = "small"; b2.textContent = "🛟 Fiche sécurité"; b2.onclick = () => openSafety(); a.appendChild(b2); }
-  const b3 = document.createElement("button"); b3.className = "small ghost"; b3.textContent = "⛑️ Gestes d'urgence"; b3.onclick = openUrg; a.appendChild(b3);
+  const b2 = document.createElement("button"); b2.className = "small" + (lines[4][0] ? " ghost" : ""); b2.innerHTML = ico("shield"); b2.append("Fiche sécurité"); b2.onclick = () => openSafety(); a.appendChild(b2);
+  const b3 = document.createElement("button"); b3.className = "small ghost"; b3.innerHTML = ico("urg"); b3.append("Gestes d'urgence"); b3.onclick = openUrg; a.appendChild(b3);
+  // matériel périmé ou à réviser (dates saisies dans Mon matériel)
+  const old = e.items.filter(i => secOf(i.cat) === "secu").map(i => state.gear[gkey(i.name)]).filter(g => g && expiryTxt(g) && expiryTxt(g).bad);
+  if (old.length) { const w = document.createElement("p"); w.className = "hint danger-text"; w.style.margin = "0"; w.textContent = "À vérifier : " + old.map(g => `${g.name} (${expiryTxt(g).t.toLowerCase()})`).join(", "); box.append(t, ul, w, a); return; }
   box.append(t, ul, a);
+}
+
+// ---------- carburant de la pirogue : heures moteur × consommation, marge, huile du mélange ----------
+function fuelCalc(f) { const h = (+f.up || 0) + (+f.down || 0) + (+f.local || 0), ess = Math.ceil(h * (+f.lph || 0) * (1 + (+f.margin || 0) / 100)); return { h, ess, oil: Math.round(ess * (+f.mix || 0) / 10) / 10 }; }
+function renderFuel(e) {
+  const box = $("fuelBox"); box.hidden = curSec !== "pirogue"; if (box.hidden) return;
+  if (box.contains(document.activeElement)) return; // on ne redessine pas sous les doigts
+  box.innerHTML = "";
+  const f = e.fuel || { up: 0, down: 0, local: 0, lph: 6, margin: 30, mix: 2 };
+  const t = document.createElement("b"); t.textContent = "Carburant pirogue";
+  const g = document.createElement("div"); g.className = "grid";
+  const res = document.createElement("p"); res.className = "res";
+  const show = () => { const r = fuelCalc(f); res.textContent = r.h ? `${r.h} h de moteur → ${r.ess} L d'essence${r.oil ? ` dont ${fmtN(r.oil)} L d'huile 2 temps` : ""} (marge comprise)` : "Indique les heures de moteur prévues."; ok.disabled = !r.h; };
+  [["up", "Montée (h)"], ["down", "Descente (h)"], ["local", "Sur place (h)"], ["lph", "Conso (L/h)"], ["margin", "Marge (%)"], ["mix", "Huile du mélange (%)"]].forEach(([k, lab]) => {
+    const l = document.createElement("label"); l.className = "field"; const sp = document.createElement("span"); sp.className = "label"; sp.textContent = lab;
+    const i = document.createElement("input"); i.type = "text"; i.inputMode = "decimal"; i.autocomplete = "off"; i.value = f[k] ? String(f[k]).replace(".", ",") : (k === "up" || k === "down" || k === "local" ? "" : "0");
+    i.oninput = () => { const v = numIn(i.value); f[k] = Number.isFinite(v) && v >= 0 ? v : 0; e.fuel = f; lsSaveSoon(); show(); };
+    i.onchange = () => persist(e);
+    l.append(sp, i); g.appendChild(l);
+  });
+  const hint = document.createElement("p"); hint.className = "hint"; hint.textContent = "Ordre d'idée : 15 CV ≈ 6 L/h, 25 CV ≈ 9 L/h, 40 CV ≈ 15 L/h, à pleine charge. Prends la consommation réelle de ton moteur. Moteur 4 temps : huile du mélange à 0.";
+  const ok = document.createElement("button"); ok.className = "small primary"; ok.textContent = "Mettre ces quantités dans la liste";
+  ok.onclick = () => {
+    const r = fuelCalc(f); e.fuel = f;
+    const set = (name, qty, w) => { let it = e.items.find(i => gkey(i.name) === gkey(name));
+      if (!it) { it = { id: uid(), name, cat: "Pirogue", qty, mode: "fixe", unit: "L", w, L: 0, l: 0, H: 0, v: 1, note: "", done: false }; e.items.push(it); }
+      else Object.assign(it, { qty, mode: "fixe", unit: "L", w, v: 1 }); };
+    set("Essence moteur", r.ess, 750); if (r.oil) set("Huile 2 temps", r.oil, 920);
+    persist(e); renderAll(false); toast(`Liste mise à jour : ${r.ess} L d'essence${r.oil ? `, ${fmtN(r.oil)} L d'huile` : ""}`);
+  };
+  box.append(t, g, res, hint, ok); show();
+}
+
+// ---------- bilan du retour : ce qui n'a pas servi, ce qui a manqué, ce qui est cassé ----------
+const debSel = new Map(); let debAdd = "";
+function openDebrief() { closeMenu(); debSel.clear(); debAdd = ""; renderDebrief(); openOv("debOv"); $("debBox").scrollTop = 0; }
+$("btnDebrief").onclick = openDebrief;
+$("debOv").addEventListener("click", ev => { if (ev.target === $("debOv")) closeOv("debOv"); });
+function renderDebrief() {
+  const e = cur(), box = $("debBox"); box.innerHTML = "";
+  const head = document.createElement("div"); head.className = "toolbar";
+  const h = document.createElement("h2"); h.id = "debTitle"; h.textContent = "Bilan du retour";
+  const x = document.createElement("button"); x.className = "small ghost"; x.textContent = "Fermer"; x.setAttribute("aria-label", "Fermer"); x.onclick = () => closeOv("debOv");
+  head.append(h, x);
+  const p = document.createElement("p"); p.className = "hint"; p.textContent = "Pour alléger la prochaine expé : marque ce qui n'a pas servi et ce qui est cassé, ajoute ce qui a manqué. Par défaut, tout a servi.";
+  box.append(head, p);
+  SECTIONS.forEach(sx => {
+    const its = e.items.filter(i => secOf(i.cat) === sx.k).sort((a, b) => cmp(a.name, b.name)); if (!its.length) return;
+    const sec = document.createElement("div"); sec.className = "cat";
+    const h3 = document.createElement("h3"); const l = document.createElement("span"); l.append(icoEl(sx.icon), sx.label); h3.appendChild(l); sec.appendChild(h3);
+    its.forEach(i => {
+      const r = document.createElement("div"); r.className = "debrief-row";
+      const n = document.createElement("strong"); n.textContent = `${i.name} · ${qtyTxt(total(i, e), i.unit)}`;
+      const seg = document.createElement("div"); seg.className = "seg"; seg.setAttribute("role", "group"); seg.setAttribute("aria-label", i.name);
+      [["", "A servi"], ["unused", "Pas servi"], ["broken", "Cassé / perdu"]].forEach(([v, t]) => {
+        const b = document.createElement("button"); b.type = "button"; b.textContent = t; b.setAttribute("aria-pressed", (debSel.get(i.id) || "") === v ? "true" : "false"); b.dataset.fk = `deb:${i.id}:${v}`;
+        b.onclick = () => { v ? debSel.set(i.id, v) : debSel.delete(i.id); seg.querySelectorAll("button").forEach(z => z.setAttribute("aria-pressed", z === b ? "true" : "false")); upd(); };
+        seg.appendChild(b);
+      });
+      r.append(n, seg); sec.appendChild(r);
+    });
+    box.appendChild(sec);
+  });
+  const f = document.createElement("label"); f.className = "field"; const fl = document.createElement("span"); fl.className = "label"; fl.textContent = "Ce qui a manqué (un article par ligne)";
+  const ta = document.createElement("textarea"); ta.rows = 3; ta.value = debAdd; ta.placeholder = "Ex. Seconde bâche\nPiles AAA"; ta.oninput = () => { debAdd = ta.value; upd(); };
+  f.append(fl, ta); box.appendChild(f);
+  const foot = document.createElement("div"); foot.className = "pfoot";
+  const ok = document.createElement("button"); ok.className = "primary big"; foot.appendChild(ok); box.appendChild(foot);
+  const upd = () => { const u = [...debSel.values()].filter(v => v === "unused").length, b = [...debSel.values()].filter(v => v === "broken").length, m = debAdd.split("\n").filter(z => z.trim()).length;
+    ok.textContent = u || b || m ? `Appliquer : ${[u ? u + " retiré" + (u > 1 ? "s" : "") : "", b ? b + " à remplacer" : "", m ? m + " ajouté" + (m > 1 ? "s" : "") : ""].filter(Boolean).join(", ")}` : "Tout a servi : terminer"; };
+  ok.onclick = () => {
+    const unused = e.items.filter(i => debSel.get(i.id) === "unused"), broken = e.items.filter(i => debSel.get(i.id) === "broken");
+    e.items = e.items.filter(i => !unused.includes(i));
+    broken.forEach(i => { const k = gkey(i.name); if (state.gear[k]) { state.gear[k].note = "À réparer ou remplacer (bilan du " + new Date().toLocaleDateString("fr-FR") + ")"; state.gear[k].updatedAt = Date.now(); } i.note = "À réparer ou remplacer"; });
+    const have = new Set(e.items.map(i => gkey(i.name)));
+    debAdd.split("\n").map(z => z.trim()).filter(Boolean).forEach(name => { if (have.has(gkey(name))) return; have.add(gkey(name));
+      const src = state.gear[gkey(name)] || REF_BY.get(gkey(name));
+      e.items.push(src ? { ...src, id: uid(), name: src.name, done: false, uses: undefined, updatedAt: undefined, exp: undefined } : { id: uid(), name, cat: "Autre", qty: 1, mode: "fixe", unit: "pièce", w: 0, L: 0, l: 0, H: 0, v: 0, note: "", done: false }); });
+    e.items.forEach(i => { delete i.uses; delete i.updatedAt; i.done = false; });
+    e.debriefAt = Date.now(); persist(e); persistGear(); closeOv("debOv"); renderAll(false);
+    toast(unused.length || broken.length || debAdd.trim() ? "Liste ajustée pour la prochaine fois : « Dupliquer » repart de cette liste, cases décochées." : "Bilan noté. Bonne prochaine expé.");
+  };
+  upd();
+}
+
+// ---------- péremptions et entretiens (Mon matériel) ----------
+function expiryTxt(g) {
+  if (!g || !g.exp || !dParse(g.exp)) return null;
+  const d = dayDiff(todayS(), g.exp), dt = dParse(g.exp).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" });
+  return d < 0 ? { t: `Périmé ou à réviser depuis le ${dt}`, bad: true } : d <= 30 ? { t: `À vérifier avant le ${dt}`, bad: true } : { t: `Valable jusqu'au ${dt}`, bad: false };
 }
 
 // ---------- menu ⋯ ----------
@@ -1818,12 +2138,12 @@ function renderSum() {
   const n = e.items.length, d = e.items.filter(i => i.done).length, wpp = weightPP(e), lv = wLevel(e);
   const l1 = document.createElement("div"); l1.className = "l1";
   const a = document.createElement("span"); a.textContent = `${e.days} j · ${e.nights} nuit${+e.nights > 1 ? "s" : ""} · ${e.people} pers.${+e.reserve ? ` · +${e.reserve} j de réserve` : ""}`;
-  const m = document.createElement("span"); m.textContent = $("paramsPanel").hidden ? "Régler ▾" : "Fermer ▴";
+  const m = document.createElement("span"); m.textContent = $("paramsPanel").hidden ? "Paramètres ▾" : "Fermer ▴";
   l1.append(a, m);
   const l2 = document.createElement("div"); l2.className = "l2";
   const c = document.createElement("span"); c.textContent = n ? `${d}/${n} prêt${d > 1 ? "s" : ""}` : "liste vide";
   const w = document.createElement("span"); w.className = "w " + lv;
-  w.textContent = wpp ? `${fmtW(wpp)} / pers.${+e.maxPP ? ` sur ${fmtN(e.maxPP)} kg` : ""}${lv === "over" ? " ⚠" : ""}` : (+e.maxPP ? `objectif ${fmtN(e.maxPP)} kg / pers.` : "");
+  w.textContent = wpp ? `${fmtW(wpp)} / pers.${+e.maxPP ? ` sur ${fmtN(e.maxPP)} kg` : ""}${lv === "over" ? " · dépassé" : ""}` : (+e.maxPP ? `objectif ${fmtN(e.maxPP)} kg / pers.` : "");
   l2.append(c, w);
   const bar = document.createElement("div"); bar.className = "bar"; const sp = document.createElement("span"); sp.style.width = n ? (d / n * 100) + "%" : "0"; bar.appendChild(sp);
   b.append(l1, l2, bar);
@@ -1853,12 +2173,12 @@ function renderSac() {
     box.append(p, go); return;
   }
   if (d === n) { const p = document.createElement("p"); p.className = "done-msg"; p.textContent = "Sac bouclé. Bon layon."; box.appendChild(p);
-    if (!safeSent(e)) { const b = document.createElement("button"); b.className = "primary"; b.textContent = "🛟 Préparer la fiche sécurité"; b.onclick = () => openSafety(); box.appendChild(b); } }
+    if (!safeSent(e)) { const b = document.createElement("button"); b.className = "primary"; b.innerHTML = ico("shield"); b.append("Préparer la fiche sécurité"); b.onclick = () => openSafety(); box.appendChild(b); } }
   SECTIONS.forEach(sx => {
     const its = e.items.filter(i => secOf(i.cat) === sx.k); if (!its.length) return;
-    const todo = its.filter(i => !i.done).sort((a, b) => a.name.localeCompare(b.name, "fr")), done = its.filter(i => i.done).sort((a, b) => a.name.localeCompare(b.name, "fr"));
+    const todo = its.filter(i => !i.done).sort((a, b) => cmp(a.name, b.name)), done = its.filter(i => i.done).sort((a, b) => cmp(a.name, b.name));
     const sec = document.createElement("div"); sec.className = "cat";
-    const h3 = document.createElement("h3"); const l = document.createElement("span"); l.textContent = `${sx.icon} ${sx.label}`;
+    const h3 = document.createElement("h3"); const l = document.createElement("span"); l.append(icoEl(sx.icon), sx.label);
     const r = document.createElement("span"); r.className = "mono"; r.textContent = `${done.length}/${its.length}`; h3.append(l, r); sec.appendChild(h3);
     todo.forEach(i => sec.appendChild(sacRow(i, e)));
     if (done.length) {
@@ -1889,7 +2209,7 @@ function sacRow(i, e) {
 
 // ---------- démarrage guidé : nom, durée et équipe, puis par où commencer ----------
 const wiz = { step: 1 }, wizSkip = new Set();
-function packForType(t) { const k = gkey(t).normalize("NFD").replace(/[̀-ͯ]/g, ""); return /peche/.test(k) ? "peche" : /pirogue|fleuve|lac|riviere/.test(k) ? "pirogue" : "foret"; }
+function packForType(t) { const k = normT(t); return /peche/.test(k) ? "peche" : /pirogue|fleuve|lac|riviere/.test(k) ? "pirogue" : "foret"; }
 function renderWizard() {
   const e = cur(), box = $("wizard");
   const on = view === "liste" && !!e.draft && !e.items.length && !wizSkip.has(e.id);
@@ -1900,8 +2220,11 @@ function renderWizard() {
   const st = document.createElement("div"); st.className = "wstep"; st.textContent = `Nouvelle expédition · étape ${wiz.step} sur 3`;
   const h = document.createElement("h2"); box.append(st, h);
   const nav = document.createElement("div"); nav.className = "wnav";
-  const back = document.createElement("button"); back.className = "ghost"; back.textContent = "← Retour"; back.onclick = () => { wiz.step--; renderWizard(); };
-  const next = document.createElement("button"); next.className = "primary"; next.textContent = "Suivant →"; next.onclick = () => { wiz.step++; renderWizard(); };
+  h.tabIndex = -1;
+  // au clavier, on arrive sur le titre de l'étape suivante
+  const go = d => { wiz.step += d; renderWizard(); if (kbd) { const t = box.querySelector("h2"); if (t) t.focus(); } };
+  const back = document.createElement("button"); back.className = "ghost"; back.textContent = "← Retour"; back.onclick = () => go(-1);
+  const next = document.createElement("button"); next.className = "primary"; next.textContent = "Suivant →"; next.onclick = () => go(1);
   if (wiz.step === 1) {
     h.textContent = "Où tu pars ?";
     const f1 = document.createElement("label"); f1.className = "field"; const l1 = document.createElement("span"); l1.className = "label"; l1.textContent = "Nom de l'expédition";
@@ -1944,17 +2267,17 @@ function renderWizard() {
     const finish = () => { if (!e.name || e.name === "Nouvelle expédition") e.name = "Expédition du " + (e.start ? dParse(e.start) : new Date()).toLocaleDateString("fr-FR", { day: "numeric", month: "long" }); persist(e); wiz.step = 1; renderAll(true); };
     const pk = packForType(e.type);
     const c1 = document.createElement("button"); c1.className = "primary choice";
-    c1.innerHTML = "<b></b><small></small>"; c1.firstChild.textContent = `🎒 Choisir dans « ${PACKS[pk].label} »`;
+    c1.innerHTML = "<b></b><small></small>"; c1.firstChild.textContent = `Choisir dans le pack « ${PACKS[pk].label} »`;
     c1.lastChild.textContent = "Recommandé : tu coches ce que tu emportes, les quantités se calculent seules.";
     c1.onclick = () => { finish(); pick.src = pk; openPicker(); };
     box.appendChild(c1);
     if (Object.keys(state.gear).length) {
       const c2 = document.createElement("button"); c2.className = "choice"; c2.innerHTML = "<b></b><small></small>";
-      c2.firstChild.textContent = "🧰 Partir de mon matériel"; c2.lastChild.textContent = `${Object.keys(state.gear).length} articles déjà enregistrés avec leurs poids.`;
+      c2.firstChild.textContent = "Partir de mon matériel"; c2.lastChild.textContent = `${Object.keys(state.gear).length} articles déjà enregistrés avec leurs poids.`;
       c2.onclick = () => { finish(); pick.src = "gear"; openPicker(); }; box.appendChild(c2);
     }
     const c3 = document.createElement("button"); c3.className = "choice"; c3.innerHTML = "<b></b><small></small>";
-    c3.firstChild.textContent = "✏️ Liste vide"; c3.lastChild.textContent = "J'ajoute mes articles moi-même, section par section.";
+    c3.firstChild.textContent = "Liste vide"; c3.lastChild.textContent = "J'ajoute mes articles moi-même, section par section.";
     c3.onclick = finish; box.appendChild(c3);
     nav.append(back, document.createElement("span"));
   }
@@ -1974,7 +2297,7 @@ function renderInstall() {
   $("installPanel").dataset.view = need ? "reglages" : "none";
   let dismissed = false; try { dismissed = !!localStorage.getItem(LS_TIP); } catch (e) {}
   const tip = $("installTip"); tip.dataset.on = need && !dismissed ? "1" : "";
-  const how = ios ? "Sur iPhone : dans Safari, bouton Partager ⬆️ puis « Sur l'écran d'accueil »." : installEvt ? "" : "Sur Android : menu ⋮ de Chrome puis « Installer l'application » ou « Ajouter à l'écran d'accueil ».";
+  const how = ios ? "Sur iPhone : dans Safari, bouton Partager (carré avec une flèche) puis « Sur l'écran d'accueil »." : installEvt ? "" : "Sur Android : menu ⋮ de Chrome puis « Installer l'application » ou « Ajouter à l'écran d'accueil ».";
   const fill = (box, withLater) => {
     box.innerHTML = "";
     const p = document.createElement("p"); p.textContent = "Installe Sac de Layon sur ton écran d'accueil : l'appli marche sans réseau en forêt, et tes listes ne risquent pas d'être effacées par le navigateur.";
@@ -2020,16 +2343,15 @@ const TICO = {
   foret: '<path d="M12 3l6 9h-3l4 6H5l4-6H6z"/><path d="M12 18v3"/>',
   sac: '<path d="M6 8a6 6 0 0 1 12 0v12H6z"/><path d="M9 4.5V3h6v1.5"/><path d="M9 13h6v4H9z"/>'
 };
-function typeKey(t) { const k = gkey(t || "").normalize("NFD").replace(/[̀-ͯ]/g, ""); return /peche/.test(k) ? "peche" : /pirogue|fleuve|lac|riviere/.test(k) ? "pirogue" : /topo|reco/.test(k) ? "topo" : /carbet|bivouac/.test(k) ? "carbet" : /foret|layon|raid/.test(k) ? "foret" : "sac"; }
+function typeKey(t) { const k = normT(t); return /peche/.test(k) ? "peche" : /pirogue|fleuve|lac|riviere/.test(k) ? "pirogue" : /topo|reco/.test(k) ? "topo" : /carbet|bivouac/.test(k) ? "carbet" : /foret|layon|raid/.test(k) ? "foret" : "sac"; }
 function typeSvg(t) { return `<svg viewBox="0 0 24 24" aria-hidden="true">${TICO[typeKey(t)]}</svg>`; }
-function typeIcon(t) { const k = gkey(t).normalize("NFD").replace(/[̀-ͯ]/g, ""); return /peche/.test(k) ? "🎣" : /pirogue|fleuve|lac|riviere/.test(k) ? "🛶" : /topo|reco/.test(k) ? "🧭" : /carbet|bivouac/.test(k) ? "⛺" : /foret|layon|raid/.test(k) ? "🌳" : "🎒"; }
 function datesTxt(e) { return e.start ? `${dShort(e.start)} → ${dShort(endOf(e))}` : "Pas encore de date"; }
 
 // ---------- barre du haut ----------
 function renderAppBar() {
   const e = cur(), ph = phase(e);
   $("appName").textContent = e.name || "Sans nom";
-  $("appKicker").textContent = [ph.k === "none" ? "" : ph.label, e.type].filter(Boolean).join(" · ") || "Touche pour voir tes expéditions";
+  $("appKicker").textContent = [ph.k === "none" ? "" : ph.label, e.type].filter(Boolean).join(" · ") || "Mes expéditions";
 }
 $("appTitle").onclick = () => setView("accueil");
 $("appHome").onclick = () => setView("accueil");
@@ -2071,20 +2393,23 @@ function expCard(e, big) {
   const l1 = document.createElement("p"); l1.textContent = datesTxt(e);
   const l2 = document.createElement("p"); const wpp = weightPP(e), lv = wLevel(e);
   l2.textContent = n ? `${d}/${n} prêt${d > 1 ? "s" : ""}` : "Liste vide";
-  if (wpp) { const w = document.createElement("span"); w.className = "w " + lv; w.textContent = ` · ${fmtW(wpp)} / pers.${lv === "over" ? " ⚠" : ""}`; l2.appendChild(w); }
+  if (wpp) { const w = document.createElement("span"); w.className = "w " + lv; w.textContent = ` · ${fmtW(wpp)} / pers.${lv === "over" ? " · dépassé" : ""}`; l2.appendChild(w); }
   info.append(l1, l2);
   if (ph.k !== "none" && ph.k !== "past") { const l3 = document.createElement("p"); l3.className = "safe " + (safeSent(e) ? "ok" : "todo"); l3.textContent = safeSent(e) ? "Fiche sécurité envoyée" : safeStale(e) ? "Fiche sécurité à renvoyer (dates changées)" : "Fiche sécurité à envoyer"; info.appendChild(l3); }
   if (s.backAt) { const l3 = document.createElement("p"); l3.className = "safe ok"; l3.textContent = "Retour signalé"; info.appendChild(l3); }
   mid.appendChild(info);
   c.append(top, mid);
   c.onclick = ev => { if (!ev.target.closest("button")) openExp(e.id, "liste"); };
-  const back = safeSent(e) && !s.backAt && (ph.k === "during" || ph.k === "past" || ph.k === "today");
-  if (big || back) {
+  // « Je suis rentré » : pendant l'expé et jusqu'à 3 jours après le retour prévu, pas au-delà
+  const back = safeSent(e) && !s.backAt && (ph.k === "during" || ph.k === "today" || (ph.k === "past" && dayDiff(endOf(e), todayS()) <= 3));
+  const deb = ph.k === "past" && n && !e.debriefAt;
+  if (big || back || deb) {
     const a = document.createElement("div"); a.className = "actions";
     const btn = (txt, cls, fn) => { const b = document.createElement("button"); b.className = cls; b.textContent = txt; b.onclick = fn; a.appendChild(b); };
     if (back) btn("Je suis rentré", "primary", () => { state.current = e.id; renderAll(true); openSafety(true); });
+    if (deb && !back) btn("Bilan du retour", big ? "primary" : "small", () => { state.current = e.id; renderAll(true); openDebrief(); });
     if (big) {
-      btn("Ouvrir la liste", back ? "" : "primary", () => openExp(e.id, "liste"));
+      btn("Ouvrir la liste", back || deb ? "" : "primary", () => openExp(e.id, "liste"));
       btn("Faire le sac", "", () => openExp(e.id, "sac"));
       if (!back && ph.k !== "past") btn("Fiche sécurité", "ghost", () => { state.current = e.id; renderAll(true); openSafety(); });
     }
@@ -2095,6 +2420,7 @@ function expCard(e, big) {
 function renderHome() {
   const box = $("homeList"); if (!box) return; box.innerHTML = "";
   const all = Object.values(state.exps).filter(e => !e.draft || draftTouched(e));
+  $("btnNew").hidden = !all.length; // accueil vide : un seul bouton pour commencer
   if (!all.length) {
     const d = document.createElement("div"); d.className = "card big empty-home";
     const h = document.createElement("h3"); h.textContent = "Ta première expédition";
@@ -2137,11 +2463,7 @@ let tickT = null;
 function tick(i, e, row, on) {
   i.done = on; persist(e); row.classList.toggle("done", on); row.classList.add("tick");
   if (on && view === "sac") seeHint("sac");
-  clearTimeout(tickT); tickT = setTimeout(() => {
-    const a = document.activeElement, id = a && a.dataset ? a.dataset.iid : "", inSac = a && a.closest && !!a.closest("#sacView");
-    refresh();
-    if (id) { const n = document.querySelector(`${inSac ? "#sacView" : "#list"} input[data-iid="${CSS.escape(id)}"]`); if (n) n.focus({ preventScroll: true }); }
-  }, 420);
+  clearTimeout(tickT); tickT = setTimeout(refresh, 420); // le focus revient sur la même case (keepFocus)
   renderSum();
   if (on && e.items.length && e.items.every(x => x.done)) setTimeout(() => { if (cur() === e && e.items.length && e.items.every(x => x.done)) celebrate(e); }, 450);
 }
@@ -2175,6 +2497,7 @@ function phoneIntl(p) {
   if (/^0(596|696)/.test(d)) return "596" + d.slice(1);
   if (/^0(590|690|691)/.test(d)) return "590" + d.slice(1);
   if (/^0(262|692|693|269|639)/.test(d)) return "262" + d.slice(1);
+  if (/^0508\d{6}$/.test(d)) return "508" + d.slice(4); // Saint-Pierre-et-Miquelon : 0508 41 23 45 → +508 41 23 45
   if (/^0\d{9}$/.test(d)) return "33" + d.slice(1);
   return d;
 }
@@ -2187,43 +2510,52 @@ function safetyOf(e) {
   }
   return e.safety;
 }
+// heures de la fiche = heure de Guyane (UTC−3, sans changement d'heure), quel que soit le réglage du téléphone :
+// un téléphone resté à l'heure de Paris ne décale plus l'alerte de 4 ou 5 h
+const GY_OFF = -3;
+function gyDate(day, hm) { const [y, m, d] = day.split("-").map(Number), [hh, mm] = (hm || "00:00").split(":").map(Number); return new Date(Date.UTC(y, m - 1, d, (hh || 0) - GY_OFF, mm || 0)); }
+const DTF = {};
+function inZone(d, zone, opts) {
+  const k = zone + JSON.stringify(opts);
+  try { return (DTF[k] || (DTF[k] = new Intl.DateTimeFormat("fr-FR", { ...opts, timeZone: zone }))).format(d); }
+  catch (e) { if (zone !== "America/Cayenne") return ""; return new Intl.DateTimeFormat("fr-FR", { ...opts, timeZone: "UTC" }).format(new Date(d.getTime() + GY_OFF * 3600e3)); }
+}
+const gyTime = d => inZone(d, "America/Cayenne", { hour: "2-digit", minute: "2-digit" });
+const gyDay = d => inZone(d, "America/Cayenne", { weekday: "long", day: "numeric", month: "long" });
 function alertDate(e) {
   const s = safetyOf(e), end = endOf(e); if (!end) return null;
-  const [hh, mm] = (s.retTime || "18:00").split(":").map(Number); const d = dParse(end); d.setHours(hh || 0, mm || 0, 0, 0);
-  return new Date(d.getTime() + (+s.margin || 0) * 3600e3);
+  return new Date(gyDate(end, s.retTime || "18:00").getTime() + (+s.margin || 0) * 3600e3);
 }
-// heures saisies = heure de l'appareil ; on dit laquelle, et on donne l'équivalent à Paris (proches en métropole)
-function tzName() { let z = ""; try { z = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch (e) {}
-  if (z === "America/Cayenne") return "heure de Guyane";
-  const o = -new Date().getTimezoneOffset() / 60; return "heure locale, UTC" + (o >= 0 ? "+" : "−") + Math.abs(o); }
-function isParis() { try { return Intl.DateTimeFormat().resolvedOptions().timeZone === "Europe/Paris"; } catch (e) { return false; } }
-function parisTxt(d) { try { return d.toLocaleString("fr-FR", { timeZone: "Europe/Paris", weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }); } catch (e) { return ""; } }
-function fmtAlert(d) { const p = isParis() ? "" : parisTxt(d);
-  return d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" }) + " à " + d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) + ` (${tzName()}${p ? ", soit le " + p + " heure de Paris" : ""})`; }
+function tzName() { return "heure de Guyane"; }
+function parisTxt(d) { return inZone(d, "Europe/Paris", { weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }); }
+function fmtAlert(d) { const p = parisTxt(d); return `${gyDay(d)} à ${gyTime(d)} (heure de Guyane${p ? ", soit le " + p + " heure de Paris" : ""})`; }
 function safetyMsg(e) {
   const s = safetyOf(e), L = [], end = endOf(e);
-  L.push("🛟 FICHE SÉCURITÉ · SAC DE LAYON");
+  L.push("FICHE SÉCURITÉ · SAC DE LAYON");
   L.push(`${e.name}${e.type ? " (" + e.type + ")" : ""}`, "");
-  L.push(`👥 ${e.people} personne${+e.people > 1 ? "s" : ""}${s.who ? " : " + s.who : ""}`);
-  if (e.start) L.push(`🚩 Départ : ${dLongY(e.start)}${s.startTime ? " à " + s.startTime + " (" + tzName() + ")" : ""}`);
-  if (s.from) L.push(`📌 Point de départ : ${s.from}`);
-  if (s.gps) L.push(`📍 GPS : ${s.gps} · https://maps.google.com/?q=${encodeURIComponent(s.gps.replace(/\s+/g, ""))}`);
-  if (s.route) L.push(`🗺️ Itinéraire : ${s.route}`);
-  if (end) L.push(`🏁 Retour prévu : ${dLongY(end)} vers ${s.retTime || "18:00"} (${tzName()})`);
-  if (s.car) L.push(`🚙 Véhicule : ${s.car}`);
-  if (s.boat) L.push(`🛶 Pirogue : ${s.boat}`);
-  if (s.comms) L.push(`📡 Moyens de communication : ${s.comms}`);
-  if (s.note) L.push(`⚕️ À savoir : ${s.note}`);
+  L.push(`Participants : ${e.people} personne${+e.people > 1 ? "s" : ""}${s.who ? " (" + s.who + ")" : ""}`);
+  if (e.start) L.push(`Départ : ${dLongY(e.start)}${s.startTime ? " à " + s.startTime + " (heure de Guyane)" : ""}`);
+  if (s.from) L.push(`Point de départ : ${s.from}`);
+  if (s.gps) L.push(`GPS : ${s.gps} · https://maps.google.com/?q=${encodeURIComponent(s.gps.replace(/\s+/g, ""))}`);
+  if (s.route) L.push(`Itinéraire : ${s.route}`);
+  if (end) L.push(`Retour prévu : ${dLongY(end)} vers ${s.retTime || "18:00"} (heure de Guyane)`);
+  if (s.car) L.push(`Véhicule : ${s.car}`);
+  if (s.boat) L.push(`Pirogue : ${s.boat}`);
+  if (s.comms) L.push(`Moyens de communication : ${s.comms}`);
+  if (s.okTime) L.push(`Message « tout va bien » chaque jour vers ${s.okTime} (heure de Guyane)${s.missN ? ` : sans message ${s.missN === 1 ? "un jour" : s.missN + " jours de suite"}, donne l'alerte` : ""}.`);
+  if (s.track) L.push(`Suivi de la balise : ${s.track}`);
+  if (s.condAt) L.push(`Crues et météo vérifiées le ${gyDay(new Date(s.condAt))}.`);
+  if (s.note) L.push(`À savoir (santé) : ${s.note}`);
   L.push("");
   const al = alertDate(e);
-  L.push(al ? `⚠️ Sans nouvelles de nous le ${fmtAlert(al)}, appelle la gendarmerie (17) ou le 112 et lis-leur ce message.`
-    : "⚠️ Sans nouvelles de nous après la date de retour prévue, appelle la gendarmerie (17) ou le 112 et lis-leur ce message.");
+  L.push(al ? `SANS NOUVELLES DE NOUS le ${fmtAlert(al)}, appelle la gendarmerie (17) ou le 112 et lis-leur ce message.`
+    : "SANS NOUVELLES DE NOUS après la date de retour prévue, appelle la gendarmerie (17) ou le 112 et lis-leur ce message.");
   L.push("Si tu n'es pas en Guyane, le 17 ou le 112 te répondent là où tu es : dis-leur que l'expédition est en Guyane et demande qu'ils préviennent la gendarmerie de Guyane.");
   return L.join("\n");
 }
 function backMsg(e) {
   const now = new Date();
-  return `✅ Bien rentrés de « ${e.name} », ${now.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })} à ${now.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}. Tout va bien, merci d'avoir veillé sur nous.`;
+  return `Bien rentrés de « ${e.name} », ${gyDay(now)} à ${gyTime(now)} (heure de Guyane). Tout va bien, merci d'avoir veillé sur nous.`;
 }
 function sendTo(channel, text) {
   const s = safetyOf(cur()), ph = phoneIntl(s.phone);
@@ -2233,10 +2565,11 @@ function sendTo(channel, text) {
   const a = document.createElement("a"); a.href = url; a.target = "_blank"; a.rel = "noopener"; document.body.appendChild(a); a.click(); a.remove();
 }
 let safeBack = false;
-function openSafety(back) { safeBack = !!back; closeMenu(); renderSafety(); openOv("safeOv"); $("safeBox").scrollTop = 0; }
+function openSafety(back) { safeBack = !!back; closeMenu(); $("safeTitle").textContent = safeBack ? "Je suis rentré" : "Si je ne rentre pas"; renderSafety(); openOv("safeOv"); $("safeBox").scrollTop = 0; }
 $("safeClose").onclick = () => { closeOv("safeOv"); renderHome(); if (curSec === "secu") renderList(); };
 $("safeOv").addEventListener("click", ev => { if (ev.target === $("safeOv")) { closeOv("safeOv"); renderHome(); if (curSec === "secu") renderList(); } });
-$("btnSafety").onclick = () => openSafety();
+// une seule entrée Sécurité par expédition : la section, avec son bilan, la fiche et les gestes
+$("btnSafety").onclick = () => { closeMenu(); setView("liste"); openSection("secu"); };
 function renderSafety() {
   const e = cur(), s = safetyOf(e), box = $("safeForm"); box.innerHTML = "";
   const intro = $("safeIntro");
@@ -2262,36 +2595,40 @@ function renderSafety() {
     g.append(field("Nom du contact", "contact", { ph: "Ex. Marie", wide: false })[0], field("Téléphone", "phone", { type: "tel", ph: "0694 12 34 56", wide: false })[0]);
     const t2 = document.createElement("h3"); t2.className = "sfh"; t2.textContent = "Qui, où, quand"; g.appendChild(t2);
     g.append(field("Participants", "who", { ph: "Samuel, Paul, Jo" })[0]);
-    g.append(field("Départ le", "start", { type: "date", exp: true, wide: false })[0], field("à", "startTime", { type: "time", wide: false })[0]);
-    g.append(field("Retour prévu le", "end", { type: "date", exp: true, wide: false })[0], field("vers", "retTime", { type: "time", wide: false })[0]);
+    const tz = document.createElement("p"); tz.className = "hint wide"; tz.style.gridColumn = "1 / -1"; tz.textContent = "Heures en heure de Guyane, même si ton téléphone est réglé sur Paris.";
+    g.append(tz);
+    g.append(field("Départ le", "start", { type: "date", exp: true, wide: false })[0], field("à (Guyane)", "startTime", { type: "time", wide: false })[0]);
+    g.append(field("Retour prévu le", "end", { type: "date", exp: true, wide: false })[0], field("vers (Guyane)", "retTime", { type: "time", wide: false })[0]);
     g.append(field("Alerter si pas de nouvelles après", "margin", { num: true, select: [[2, "2 h de retard"], [6, "6 h de retard"], [12, "12 h de retard"], [24, "24 h de retard"]] })[0]);
     const [fFrom] = field("Point de départ", "from", { ph: "Dégrad, piste, début de layon…" });
     const [fGps, iGps] = field("Coordonnées GPS du départ", "gps", { ph: "4.9372, -52.3260" });
-    const loc = document.createElement("button"); loc.type = "button"; loc.className = "small"; loc.textContent = "📍 Ma position actuelle";
+    const loc = document.createElement("button"); loc.type = "button"; loc.className = "small"; loc.innerHTML = ico("pin"); loc.append("Ma position actuelle");
     const gmsg = document.createElement("small"); gmsg.className = "gmsg"; gmsg.hidden = true;
     const say = (t, bad) => { gmsg.hidden = !t; gmsg.textContent = t || ""; gmsg.classList.toggle("bad", !!bad); };
-    const done = () => { loc.disabled = false; loc.textContent = "📍 Ma position actuelle"; };
-    const ok = p => { const c = p.coords; iGps.value = `${c.latitude.toFixed(5)}, ${c.longitude.toFixed(5)}`; s.gps = iGps.value; save(); done();
-      say(`Position enregistrée (précision ± ${Math.round(c.accuracy)} m).`); };
-    const ios = /iPhone|iPad|iPod/.test(navigator.userAgent);
-    const fail = err => { done();
-      if (err && err.code === 1) say(ios ? "Accès à la position refusé. Sur iPhone : Réglages > Confidentialité et sécurité > Service de localisation (activé), puis « Sites web Safari » (ou Chrome) > « Lorsque l'app est active ». Dans Safari, touche aA > Réglages du site web > Position > Autoriser. Puis réessaie." : "Accès à la position refusé. Autorise la position pour ce site dans les réglages du navigateur, puis réessaie.", true);
-      else if (!window.isSecureContext) say("La position ne marche que sur le lien sécurisé (https) de l'appli.", true);
-      else say("Pas de signal GPS pour l'instant. Mets-toi à découvert et réessaie, ou tape les coordonnées à la main.", true); };
-    loc.onclick = () => {
-      if (!navigator.geolocation) { say("Cet appareil ne donne pas sa position : tape les coordonnées à la main.", true); return; }
-      loc.disabled = true; loc.textContent = "Recherche de la position…"; say("");
-      // d'abord une position rapide (réseau, dernière connue), puis le GPS précis si la première échoue
-      navigator.geolocation.getCurrentPosition(ok, err => {
-        if (err && err.code === 1) { fail(err); return; }
-        navigator.geolocation.getCurrentPosition(ok, fail, { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 });
-      }, { enableHighAccuracy: false, timeout: 8000, maximumAge: 600000 });
-    };
+    loc.onclick = () => locate(loc, say, p => { const c = p.coords; iGps.value = `${c.latitude.toFixed(5)}, ${c.longitude.toFixed(5)}`; s.gps = iGps.value; save();
+      say(`Position enregistrée (précision ± ${Math.round(c.accuracy)} m).`); }, 600000);
     fGps.append(loc, gmsg);
     g.append(fFrom, fGps, field("Itinéraire, zone, campements", "route", { area: true, ph: "Remontée jusqu'au saut X, bivouac au carbet Y, retour par…" })[0]);
     const t3 = document.createElement("h3"); t3.className = "sfh"; t3.textContent = "Moyens et à savoir"; g.appendChild(t3);
     g.append(field("Véhicule", "car", { ph: "Modèle, couleur, immatriculation, où il est garé" })[0], field("Pirogue", "boat", { ph: "Longueur, couleur, moteur" })[0],
-      field("Moyens de communication", "comms", { ph: "Balise inReach, VHF, téléphone satellite…" })[0], field("Santé, allergies, traitements", "note", { area: true, ph: "Facultatif" })[0]);
+      field("Moyens de communication", "comms", { ph: "Balise inReach, VHF, téléphone satellite…" })[0]);
+    // plan de communication : ce que le proche doit attendre, et quand s'inquiéter
+    const t5 = document.createElement("h3"); t5.className = "sfh"; t5.textContent = "Plan de communication"; g.appendChild(t5);
+    g.append(field("Message « tout va bien » chaque jour vers (Guyane)", "okTime", { type: "time", wide: false })[0],
+      field("Alerter si pas de message pendant", "missN", { num: true, wide: false, select: [[0, "rien de prévu"], [1, "1 jour"], [2, "2 jours de suite"], [3, "3 jours de suite"]] })[0],
+      field("Lien de suivi de la balise (MapShare, etc.)", "track", { type: "url", ph: "https://share.garmin.com/…" })[0]);
+    g.append(field("Santé, allergies, traitements", "note", { area: true, ph: "Facultatif" })[0]);
+    // conditions avant départ : liens officiels, et la date de vérification reprise dans la fiche
+    const t6 = document.createElement("h3"); t6.className = "sfh"; t6.textContent = "Conditions avant départ"; g.appendChild(t6);
+    const cw = document.createElement("div"); cw.className = "field wide";
+    const ul = document.createElement("ul"); ul.className = "links";
+    [["Vigicrues : vigilance crues (Maroni) et niveaux des fleuves", "https://www.vigicrues.gouv.fr/"], ["Vigilance météo Guyane", "https://meteo.franceinfo.fr/vigilance-meteo-guyane"], ["Marées (SHOM), pour les embouchures", "https://maree.shom.fr/"]]
+      .forEach(([t, u]) => { const li = document.createElement("li"); const a2 = document.createElement("a"); a2.href = u; a2.target = "_blank"; a2.rel = "noopener"; a2.textContent = t; li.appendChild(a2); ul.appendChild(li); });
+    const cnote = document.createElement("p"); cnote.className = "hint"; cnote.textContent = "Besoin de réseau. La vigilance crues ne couvre pas tous les fleuves : renseigne-toi aussi sur place (dégrad, habitants).";
+    const cb = document.createElement("label"); cb.className = "chk"; const ci = document.createElement("input"); ci.type = "checkbox"; ci.checked = !!s.condAt && Date.now() - s.condAt < 3 * 864e5;
+    const ct = document.createElement("span"); ct.textContent = s.condAt ? `Vérifié le ${gyDay(new Date(s.condAt))}` : "J'ai vérifié crues et météo";
+    ci.onchange = () => { if (ci.checked) s.condAt = Date.now(); else delete s.condAt; ct.textContent = s.condAt ? `Vérifié le ${gyDay(new Date(s.condAt))}` : "J'ai vérifié crues et météo"; save(); };
+    cb.append(ci, ct); cw.append(ul, cnote, cb); g.appendChild(cw);
   }
   const t4 = document.createElement("h3"); t4.className = "sfh"; t4.textContent = "Message"; g.appendChild(t4);
   const pw = document.createElement("div"); pw.className = "field wide"; pw.appendChild(preview); g.appendChild(pw);
@@ -2311,11 +2648,21 @@ function renderSafety() {
       if (!/^(0\d{9}|(\+|00)\d{8,15})$/.test(d)) { toast("Numéro invalide : 10 chiffres commençant par 0 (ex. 0694 12 34 56), ou au format +594…"); return; } }
     if (ch === "share") { navigator.share({ text: preview.textContent }).then(ask, () => {}); return; }
     sendTo(ch, preview.textContent); ask(); }; a.appendChild(b); };
-  btn(safeBack ? "✅ Prévenir par WhatsApp" : "Envoyer par WhatsApp", "primary big", "wa");
+  btn(safeBack ? "Prévenir par WhatsApp" : "Envoyer par WhatsApp", "primary big", "wa");
   btn("SMS", "", "sms");
   if (navigator.share) btn("Autre…", "", "share");
   btn("Copier", "ghost", "copy");
+  // rappel dans le calendrier du proche : son téléphone le prévient tout seul à l'heure d'alerte
+  if (!safeBack && alertDate(e)) { const c = document.createElement("button"); c.className = "ghost"; c.innerHTML = ico("cal"); c.append("Rappel calendrier (.ics)"); c.onclick = () => saveIcs(e); a.appendChild(c); }
   if (!safeBack && s.sentAt) { const p = document.createElement("p"); p.className = "hint"; p.textContent = safeSent(e) ? `Déjà envoyée le ${new Date(s.sentAt).toLocaleDateString("fr-FR")}. Renvoie-la si quelque chose change.` : "Dates ou heures changées depuis l'envoi : renvoie la fiche à ton contact."; a.appendChild(p); }
+}
+function saveIcs(e) {
+  const al = alertDate(e), z = d => d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  const esc = t => String(t).replace(/\\/g, "\\\\").replace(/[,;]/g, m => "\\" + m).replace(/\n/g, "\\n");
+  const ics = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Sac de Layon//FR", "BEGIN:VEVENT", `UID:${e.id}-${al.getTime()}@sac-de-layon`, `DTSTAMP:${z(new Date())}`,
+    `DTSTART:${z(al)}`, `DTEND:${z(new Date(al.getTime() + 1800e3))}`, `SUMMARY:${esc("Sans nouvelles de " + (e.name || "l'expédition") + " ? Donner l'alerte")}`,
+    `DESCRIPTION:${esc(safetyMsg(e))}`, "BEGIN:VALARM", "TRIGGER:PT0M", "ACTION:DISPLAY", "DESCRIPTION:Donner l'alerte si pas de nouvelles", "END:VALARM", "END:VEVENT", "END:VCALENDAR"].join("\r\n");
+  saveBlob(new Blob([ics], { type: "text/calendar" }), `alerte-${slug(e.name)}.ics`, "text/calendar", "Rappel d'alerte", "Rappel enregistré : envoie le fichier à ton contact");
 }
 function syncDays(e) { const n = dayDiff(e.start, e.end); if (n >= 0) { e.days = n + 1; e.nights = n; } }
 
@@ -2341,7 +2688,18 @@ new MutationObserver(drawTopo).observe(document.documentElement, { attributes: t
 
 // ---------- démarrage ----------
 lsLoad(); if (!state.exps[state.current]) pickDefault();
-setView(savedView(), true); renderAll(true); drawTopo(); renderSaveInfo(); renderInstall();
+setView(savedView(), true); renderAll(true); drawTopo(); renderInstall();
+// raccourci de l'icône installée (appui long) : ouvre directement Urgences
+try { if (new URLSearchParams(location.search).get("urg") === "1") openUrg(); } catch (e) {}
+// rien ne se perd si l'appli passe en arrière-plan juste après une coche
+document.addEventListener("visibilitychange", () => { if (document.hidden && lsT) lsSave(); });
+window.addEventListener("pagehide", () => { if (lsT) lsSave(); });
+// appli ouverte dans deux onglets : l'autre onglet a enregistré, on recharge ses données au lieu de les écraser
+window.addEventListener("storage", ev => {
+  if (ev.key !== LS_KEY || !ev.newValue || lsT) return;
+  const keep = state.current; state.exps = dict(); state.gear = dict(); state.hidden = [];
+  lsLoad(); if (state.exps[keep]) state.current = keep; else pickDefault(); renderAll(false);
+});
 if (loadWarn) toast(loadWarn, () => setView("reglages"), "Réglages");
 // une nouvelle version vient de s'installer pendant que l'appli est ouverte : on le dit
 try { if (navigator.serviceWorker && navigator.serviceWorker.controller) navigator.serviceWorker.addEventListener("controllerchange", () => toast("Nouvelle version de l'appli prête.", () => location.reload(), "Recharger")); } catch (e) {}
