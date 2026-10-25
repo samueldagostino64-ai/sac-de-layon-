@@ -1799,7 +1799,7 @@ function renderSecBilan(e) {
   const ul = document.createElement("ul");
   lines.forEach(([ok, txt]) => { const li = document.createElement("li"); li.className = ok ? "ok" : "ko"; li.textContent = (ok ? "✓ " : "✗ ") + txt; ul.appendChild(li); });
   const a = document.createElement("div"); a.className = "actions";
-  if (!lines[2][0] || !lines[3][0] || !lines[1][0]) { const b1 = document.createElement("button"); b1.className = "small primary"; b1.textContent = "Ajouter la trousse de secours"; b1.onclick = () => { pick.src = "trousse"; openPicker(); }; a.appendChild(b1); }
+  if (lines.slice(0, 4).some(l => !l[0])) { const b1 = document.createElement("button"); b1.className = "small primary"; b1.textContent = lines[2][0] && lines[3][0] ? "Compléter depuis le pack secours" : "Ajouter la trousse de secours"; b1.onclick = () => { pick.src = "trousse"; openPicker(); }; a.appendChild(b1); }
   if (!lines[4][0]) { const b2 = document.createElement("button"); b2.className = "small"; b2.textContent = "🛟 Fiche sécurité"; b2.onclick = () => openSafety(); a.appendChild(b2); }
   const b3 = document.createElement("button"); b3.className = "small ghost"; b3.textContent = "⛑️ Gestes d'urgence"; b3.onclick = openUrg; a.appendChild(b3);
   box.append(t, ul, a);
