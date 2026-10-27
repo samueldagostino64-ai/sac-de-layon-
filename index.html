@@ -441,6 +441,29 @@ button .ico { margin-right: 6px; }
 .ask p { margin: 0; }
 /* grand zoom ou écran très bas : la ligne résumé ne reste plus collée en haut */
 @media (max-height: 520px) { .sumbar { position: static; } }
+/* ---- v25 : onglet Boussole ---- */
+.tabbar { grid-template-columns: repeat(6, 1fr); }
+@media (max-width: 380px) { .tabbar button { font-size: .66rem; padding-left: 0; padding-right: 0; } }
+.cmp-dial { display: grid; place-items: center; margin: 4px 0; }
+.cmp-dial svg { width: min(78vw, 300px); height: auto; overflow: visible; }
+#cmpRose { transition: transform .15s linear; }
+.cmp-ring { fill: var(--surface); stroke: var(--line); stroke-width: 2; }
+.cmp-tick { stroke: var(--muted); stroke-width: 1; }
+.cmp-tick.maj { stroke: var(--ink); stroke-width: 2; }
+.cmp-lab { fill: var(--ink); font: 600 12px var(--f-body); text-anchor: middle; dominant-baseline: central; }
+.cmp-lab.card { font: 700 19px var(--f-display); }
+.cmp-lab.n { fill: var(--laterite); }
+.cmp-tgt { fill: var(--accent); }
+.cmp-index { fill: var(--laterite); }
+.cmp-axis { stroke: var(--laterite); stroke-width: 1.5; stroke-dasharray: 4 5; opacity: .55; }
+.cmp-read { text-align: center; margin: 0; font-family: var(--f-display); }
+.cmp-read b { font-size: 3.4rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.cmp-read span { font-size: 1.6rem; margin-left: 10px; color: var(--muted); }
+.cmp-sub { text-align: center; margin: 2px 0 0; font-size: .85rem; color: var(--muted); }
+.cmp-turn { text-align: center; margin: 8px 0 0; font-size: 1.2rem; font-weight: 700; color: var(--laterite); }
+.cmp-turn.ok { color: var(--accent); }
+.cmp-tips { margin: 6px 0 0; padding-left: 20px; display: grid; gap: 6px; font-size: .9rem; }
+#cmpBasics { display: grid; gap: 8px; }
 </style>
 
 <main class="wrap">
@@ -601,6 +624,76 @@ button .ico { margin-right: 6px; }
     <div id="gearList"></div>
   </section>
 
+  <!-- ===== Boussole : marche sans réseau ni GPS ===== -->
+  <section class="panel" id="cmpPanel" aria-labelledby="hCmp" data-view="boussole" hidden>
+    <h2 id="hCmp">Boussole</h2>
+    <p class="hint">Dépannage : elle marche sans GPS ni réseau, mais si le téléphone lâche tu perds tout d'un coup. <b>Ta boussole à plaque reste le vrai secours.</b></p>
+    <div class="cmp-dial"><svg id="cmpSvg" viewBox="-120 -120 240 240" aria-hidden="true"><g id="cmpRose"></g><path class="cmp-index" d="M0 -119 L-10 -99 L10 -99 Z"/><line class="cmp-axis" x1="0" y1="-96" x2="0" y2="96"/></svg></div>
+    <p class="cmp-read"><b id="cmpDeg">—</b><span id="cmpCard"></span></p>
+    <p class="cmp-sub" id="cmpSub">Cap magnétique : le même chiffre que ta boussole à plaque.</p>
+    <p class="cmp-turn" id="cmpTurn" aria-live="polite" hidden></p>
+    <small class="gmsg" id="cmpMsg" role="status" hidden></small>
+    <div class="actions">
+      <button class="primary" id="cmpStart"><svg class="ico" aria-hidden="true"><use href="#i-compass"/></svg>Activer la boussole</button>
+      <button class="small ghost" id="cmpCalBtn" aria-expanded="false" aria-controls="cmpCal">Calibrer</button>
+    </div>
+    <ul class="cmp-tips" id="cmpCal" hidden>
+      <li>Éloigne-toi du métal : un bon mètre de la machette, de la gamelle, de la pirogue ; enlève la coque aimantée.</li>
+      <li>Dessine plusieurs grands 8 dans l'air avec le téléphone, en le retournant dans tous les sens.</li>
+      <li>Puis tiens-le <b>à plat</b>, écran vers le ciel, haut du téléphone devant toi.</li>
+      <li>Compare avec ta boussole à plaque : plus de 5° d'écart, ne te fie pas au téléphone.</li>
+    </ul>
+  </section>
+  <section class="panel" aria-labelledby="hCap" data-view="boussole" hidden>
+    <h2 id="hCap">Cap à suivre</h2>
+    <div class="grid">
+      <label class="field"><span class="label">Cap (°)</span><input id="cmpTgt" type="text" inputmode="decimal" autocomplete="off" placeholder="ex. 135"></label>
+      <label class="field"><span class="label">Déclinaison (° Ouest)</span><input id="cmpDecl" type="text" inputmode="decimal" autocomplete="off"></label>
+    </div>
+    <label class="chk"><input type="checkbox" id="cmpMap"> Cap lu sur la carte (l'appli ajoute la déclinaison)</label>
+    <div class="actions"><button class="small" id="cmpTake">Prendre le cap actuel</button><button class="small ghost" id="cmpClear">Effacer</button></div>
+    <p class="hint" id="cmpInfo"></p>
+    <p class="hint">Déclinaison : 18,5° Ouest partout en Guyane (modèle magnétique mondial WMM 2025 : 18,2° vers Saint-Laurent, 18,8° vers Saint-Georges). Elle bouge à peine d'ici 2030.</p>
+  </section>
+  <section class="panel" id="cmpBasics" aria-labelledby="hFond" data-view="boussole" hidden>
+    <h2 id="hFond">Les fondamentaux</h2>
+    <details class="proto"><summary><svg class="ico" aria-hidden="true"><use href="#i-compass"/></svg>Prendre un azimut sur la carte</summary><ul>
+      <li>Pose le bord de la plaque entre ton point de départ et ton but, <b>flèche de direction vers le but</b>.</li>
+      <li>Tourne le cadran jusqu'à ce que ses lignes nord-sud soient parallèles aux lignes nord-sud de la carte, le N du cadran vers le haut de la carte. L'aiguille ne compte pas à cette étape.</li>
+      <li>Lis l'azimut à l'index, au pied de la flèche. Puis corrige la déclinaison (fiche suivante).</li></ul></details>
+    <details class="proto"><summary><svg class="ico" aria-hidden="true"><use href="#i-compass"/></svg>La déclinaison en Guyane : 18,5° Ouest</summary><ul>
+      <li>Le nord de l'aiguille n'est pas le nord de la carte : ici, il est 18,5° plus à l'ouest.</li>
+      <li><b>De la carte vers la boussole : ajoute 18,5°.</b> Un azimut carte de 90° se marche à 108,5° sur la boussole.</li>
+      <li><b>De la boussole vers la carte : retire 18,5°.</b></li>
+      <li>Oublier la correction, c'est finir à environ 330 m à côté au bout d'1 km.</li></ul></details>
+    <details class="proto"><summary><svg class="ico" aria-hidden="true"><use href="#i-compass"/></svg>Suivre un azimut</summary><ul>
+      <li>Boussole à plat devant toi, flèche de direction vers l'avant.</li>
+      <li>Tourne sur toi-même jusqu'à ce que le nord de l'aiguille soit dans la flèche du cadran : « le rouge dans la niche ».</li>
+      <li>Vise un repère dans l'axe (un arbre, une souche), range la boussole, marche jusqu'à lui. Recommence.</li>
+      <li>Ne marche jamais les yeux sur la boussole, et contrôle souvent : en sous-bois, on dévie vite.</li></ul></details>
+    <details class="proto"><summary><svg class="ico" aria-hidden="true"><use href="#i-compass"/></svg>En forêt dense : avancer en relais</summary><ul>
+      <li>Un équipier part devant (machette, rubalise). Tu restes sur l'azimut et tu le guides « gauche, droite » jusqu'à ce qu'il soit dans l'axe.</li>
+      <li>Il s'arrête à la limite de la vue. Tu le rejoins, en comptant tes pas, puis on recommence.</li>
+      <li>Obstacle (chablis, bas-fond) : contourne-le à angle droit en comptant tes pas, avance parallèlement, puis reviens du même nombre de pas pour retrouver ton axe.</li></ul></details>
+    <details class="proto"><summary><svg class="ico" aria-hidden="true"><use href="#i-compass"/></svg>Azimut retour</summary><ul>
+      <li>Pour revenir sur tes pas : ajoute 180° si ton azimut est sous 180°, sinon retire 180°. Exemple : aller 135°, retour 315°.</li>
+      <li>Avec le compte de pas, c'est ce qui te ramène au dernier point sûr.</li></ul></details>
+    <details class="proto"><summary><svg class="ico" aria-hidden="true"><use href="#i-compass"/></svg>Viser à côté pour ne pas rater le but</summary><ul>
+      <li><b>Visée décalée</b> : pour rejoindre un point sur une ligne (crique, layon, piste), vise exprès 10° d'un côté. En arrivant sur la ligne, tu sais de quel côté tourner.</li>
+      <li><b>Main courante</b> : une crique, une crête, un layon que tu longes sans réfléchir.</li>
+      <li><b>Ligne d'arrêt</b> : un repère au-delà du but (crique, fleuve) qui te dit que tu es allé trop loin.</li></ul></details>
+    <details class="proto"><summary><svg class="ico" aria-hidden="true"><use href="#i-compass"/></svg>Mesurer la distance au pas</summary><ul>
+      <li>Étalonne ton double pas (chaque fois que le même pied touche le sol) sur 100 m mesurés au GPS, sur piste <b>et</b> en sous-bois : en forêt, il en faut nettement plus.</li>
+      <li>Compte sur une cordelette à nœuds ou un compteur, un nœud par 100 m.</li>
+      <li>La pente, la boue et la fatigue raccourcissent le pas : refais l'étalonnage de temps en temps.</li></ul></details>
+    <details class="proto" id="cmpLost"><summary><svg class="ico" aria-hidden="true"><use href="#i-urg"/></svg>Perdu : la conduite à tenir</summary><ul>
+      <li><b>Stop.</b> Assieds-toi, bois, mange. Avancer au hasard aggrave tout.</li>
+      <li>Reconstitue : dernier point sûr, azimut suivi, nombre de pas, temps de marche.</li>
+      <li>Si tu peux, reviens au dernier point sûr par l'azimut retour et le compte de pas, en balisant ton passage (rubalise, branches cassées).</li>
+      <li>Sinon, vise une ligne sûre repérée sur la carte (layon, piste, crique connue) avec une visée décalée.</li>
+      <li>Si quelqu'un sait où tu es (fiche sécurité envoyée) ou si tu es blessé : <b>reste sur place</b>, rends-toi visible et audible (sifflet : 3 coups), et déclenche la balise si c'est grave.</li></ul></details>
+  </section>
+
   <!-- ===== Réglages ===== -->
   <section class="panel" aria-labelledby="hSave" data-view="reglages" hidden>
     <h2 id="hSave">Sauvegarde</h2>
@@ -632,7 +725,7 @@ button .ico { margin-right: 6px; }
     <p class="hint">Supprime les expéditions de test ou passées, avec leur liste. Ton matériel est conservé.</p>
     <div class="actions"><button class="small danger" id="btnManage2">Supprimer des expéditions…</button></div>
     <div id="manageBox" class="manage" hidden></div>
-    <p class="ver mono">Sac de Layon · version 24</p>
+    <p class="ver mono">Sac de Layon · version 25</p>
   </section>
 </main>
 
@@ -641,6 +734,7 @@ button .ico { margin-right: 6px; }
   <button data-go="liste"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6h10M10 12h10M10 18h10"/><path d="m3.5 6 1.5 1.5L7.5 5M3.5 12l1.5 1.5L7.5 11M3.5 18l1.5 1.5L7.5 17"/></svg>Liste</button>
   <button data-go="sac"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 10a6 6 0 0 1 12 0v9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z"/><path d="M9.5 4.5V3h5v1.5M9 14h6v3.5H9z"/></svg>Sac</button>
   <button data-go="mat"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M8.5 8V5h7v3M3 13h18M10.5 12v2.5h3V12"/></svg>Matériel</button>
+  <button data-go="boussole"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/></svg>Boussole</button>
   <button data-go="reglages"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 12h3M11 12h9M4 17h11M19 17h1"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="17" r="2"/></svg>Réglages</button>
 </nav>
 
@@ -711,6 +805,10 @@ button .ico { margin-right: 6px; }
       <p class="urg-pos" id="urgPos" aria-live="polite" hidden></p>
       <small class="gmsg" id="urgMsg" hidden></small>
     </div>
+    <details class="proto"><summary><svg class="ico" aria-hidden="true"><use href="#i-compass"/></svg>Perdu en forêt</summary><ul>
+      <li><b>Stop.</b> Assieds-toi, bois, mange. Avancer au hasard aggrave tout.</li>
+      <li>Si quelqu'un sait où tu es ou si tu es blessé : reste sur place, sifflet (3 coups), balise si c'est grave.</li>
+      <li><button type="button" class="small" id="urgLost"><svg class="ico" aria-hidden="true"><use href="#i-compass"/></svg>Ouvrir la boussole et la conduite à tenir</button></li></ul></details>
     <details class="proto"><summary><svg class="ico" aria-hidden="true"><use href="#i-snake"/></svg>Morsure de serpent (grage, Bothrops)</summary><ul>
       <li>Calme et repos complet de la victime. Retirer bagues, montre, bracelets.</li>
       <li>Immobiliser le membre. Noter l'heure de la morsure.</li>
@@ -1514,7 +1612,7 @@ function renderPerso() {
   }
   fill();
 }
-const VIEWS = ["accueil", "liste", "sac", "mat", "reglages"], stale = new Set();
+const VIEWS = ["accueil", "liste", "sac", "mat", "boussole", "reglages"], stale = new Set();
 function renderView(v) {
   stale.delete(v);
   keepFocus(() => {
@@ -1523,6 +1621,7 @@ function renderView(v) {
     else if (v === "sac") { renderStats(); renderSum(); renderSac(); }
     else if (v === "mat") { renderGear(); renderPerso(); }
     else if (v === "reglages") { renderSaveInfo(); renderManage(); }
+    else if (v === "boussole") renderCompass();
   });
 }
 function renderAll(force) { renderAppBar(); renderParams(force); renderCatalog(); VIEWS.forEach(v => stale.add(v)); renderView(view); updatePreview(); }
@@ -1933,6 +2032,7 @@ function setView(v, quiet) {
   renderWizard();
   if (v === "accueil") { renderHome(); requestAnimationFrame(drawTopo); }
   if (v === "mat") $("matIntro").hidden = hintSeen("mat");
+  if (v === "boussole") cmpEnter(); else cmpStop();
   if (!quiet) scrollTo(0, 0);
 }
 document.querySelectorAll(".tabbar button").forEach(b => b.onclick = () => { closeMenu(); setView(b.dataset.go); });
@@ -1986,6 +2086,105 @@ function openUrg() { closeMenu(); openOv("urgOv"); $("urgBox").scrollTop = 0; }
 $("btnUrg").onclick = openUrg;
 $("urgClose").onclick = () => closeOv("urgOv");
 $("urgOv").addEventListener("click", ev => { if (ev.target === $("urgOv")) closeOv("urgOv"); });
+// ---------- boussole : capteur magnétique du téléphone, sans GPS ni réseau ----------
+// iPhone : webkitCompassHeading (nord magnétique, après autorisation) ; Android : deviceorientationabsolute
+const LS_CMP = "sacdelayon.boussole", DECL_GY = 18.5;
+const bsl = { on: false, h: null, sx: 0, sy: 0, acc: null, flat: true, last: 0, timer: 0, tgt: null, decl: DECL_GY, map: false, built: false };
+try { const o = JSON.parse(localStorage.getItem(LS_CMP) || "{}");
+  if (Number.isFinite(o.decl) && Math.abs(o.decl) <= 60) bsl.decl = o.decl;
+  if (Number.isFinite(o.tgt) && o.tgt >= 0 && o.tgt < 360) bsl.tgt = o.tgt; bsl.map = !!o.map; } catch (e) {}
+const cmpSave = () => { try { localStorage.setItem(LS_CMP, JSON.stringify({ decl: bsl.decl, tgt: bsl.tgt, map: bsl.map })); } catch (e) {} };
+const norm360 = a => ((a % 360) + 360) % 360;
+const CARDS = ["N", "NE", "E", "SE", "S", "SO", "O", "NO"];
+const cardOf = a => CARDS[Math.round(norm360(a) / 45) % 8];
+const degTxt = a => String(Math.round(norm360(a)) % 360).replace(".", ",") + "°";
+const degTxt1 = a => String(Math.round(norm360(a) * 10) / 10 % 360).replace(".", ",") + "°";
+// cap magnétique à suivre : un cap lu sur la carte reçoit la déclinaison (Ouest : on l'ajoute)
+const cmpGoal = () => bsl.tgt === null ? null : norm360(bsl.tgt + (bsl.map ? bsl.decl : 0));
+function cmpSay(t, bad) { const m = $("cmpMsg"); m.hidden = !t; m.textContent = t || ""; m.classList.toggle("bad", !!bad); }
+function buildRose() {
+  if (bsl.built) return; bsl.built = true;
+  const NS = "http://www.w3.org/2000/svg", g = $("cmpRose");
+  const el = (n, a) => { const x = document.createElementNS(NS, n); for (const k in a) x.setAttribute(k, a[k]); g.appendChild(x); return x; };
+  el("circle", { r: 98, class: "cmp-ring" });
+  for (let a = 0; a < 360; a += 5) { const maj = a % 30 === 0, r1 = maj ? 84 : a % 10 === 0 ? 89 : 92, t = a * Math.PI / 180;
+    el("line", { x1: Math.sin(t) * r1, y1: -Math.cos(t) * r1, x2: Math.sin(t) * 97, y2: -Math.cos(t) * 97, class: "cmp-tick" + (maj ? " maj" : "") }); }
+  for (let a = 0; a < 360; a += 30) { const t = a * Math.PI / 180, c = a % 90 === 0, r = c ? 68 : 72;
+    const x = el("text", { x: Math.sin(t) * r, y: -Math.cos(t) * r, class: "cmp-lab" + (c ? " card" : "") + (a === 0 ? " n" : ""), transform: `rotate(${a} ${Math.sin(t) * r} ${-Math.cos(t) * r})` });
+    x.textContent = c ? ["N", "E", "S", "O"][a / 90] : String(a); }
+  el("path", { id: "cmpTgtMark", class: "cmp-tgt", d: "M0 -98 L-8 -114 L8 -114 Z", visibility: "hidden" });
+}
+function renderCompass() {
+  buildRose();
+  const d = $("cmpDecl"), t = $("cmpTgt");
+  if (document.activeElement !== d) d.value = String(bsl.decl).replace(".", ",");
+  if (document.activeElement !== t) t.value = bsl.tgt === null ? "" : String(Math.round(bsl.tgt * 10) / 10).replace(".", ",");
+  $("cmpMap").checked = bsl.map;
+  const goal = cmpGoal(), info = $("cmpInfo");
+  info.textContent = goal === null ? "Tape un cap, ou vise ton but et touche « Prendre le cap actuel »."
+    : `À suivre sur la boussole : ${degTxt1(goal)} (${cardOf(goal)})${bsl.map ? `, soit ${degTxt1(bsl.tgt)} + ${String(bsl.decl).replace(".", ",")}° de déclinaison` : ""}. Azimut retour : ${degTxt1(goal + 180)}.`;
+  const mk = $("cmpTgtMark"); if (mk) { mk.setAttribute("visibility", goal === null ? "hidden" : "visible"); mk.setAttribute("transform", `rotate(${goal || 0})`); }
+  $("cmpStart").hidden = bsl.on;
+  cmpDraw();
+}
+function cmpDraw() {
+  const h = bsl.h, turn = $("cmpTurn");
+  $("cmpDeg").textContent = h === null ? "—" : degTxt(h); $("cmpCard").textContent = h === null ? "" : cardOf(h);
+  $("cmpSub").textContent = h === null ? "Cap magnétique : le même chiffre que ta boussole à plaque."
+    : `Cap magnétique · sur la carte : ${degTxt(h - bsl.decl)}`;
+  $("cmpRose").style.transform = h === null ? "" : `rotate(${-h}deg)`;
+  const goal = cmpGoal();
+  if (h === null || goal === null) { turn.hidden = true; return; }
+  const diff = norm360(goal - h + 180) - 180; turn.hidden = false;
+  turn.classList.toggle("ok", Math.abs(diff) <= 5);
+  turn.textContent = Math.abs(diff) <= 5 ? "Dans l'axe" : `Tourne de ${Math.round(Math.abs(diff))}° à ${diff > 0 ? "droite" : "gauche"}`;
+}
+function cmpRead(ev) {
+  let h = null, abs = false;
+  if (typeof ev.webkitCompassHeading === "number" && ev.webkitCompassHeading >= 0) { h = ev.webkitCompassHeading; abs = true; bsl.acc = ev.webkitCompassAccuracy; }
+  else if (ev.alpha !== null && ev.alpha !== undefined && (ev.absolute || ev.type === "deviceorientationabsolute")) {
+    const so = (screen.orientation && screen.orientation.angle) || window.orientation || 0;
+    h = norm360(360 - ev.alpha + so); abs = true; }
+  if (!abs || !Number.isFinite(h)) return;
+  bsl.flat = !(Math.abs(ev.beta || 0) > 35 || Math.abs(ev.gamma || 0) > 35);
+  // lissage sur le cercle : 359° et 1° se moyennent en 0°, pas en 180°
+  const t = h * Math.PI / 180, k = bsl.h === null ? 1 : .25;
+  bsl.sx = bsl.sx * (1 - k) + Math.sin(t) * k; bsl.sy = bsl.sy * (1 - k) + Math.cos(t) * k;
+  bsl.h = norm360(Math.atan2(bsl.sx, bsl.sy) * 180 / Math.PI); bsl.last = Date.now();
+  if (!bsl.flat) cmpSay("Tiens le téléphone à plat, écran vers le ciel.", true);
+  else if (Number.isFinite(bsl.acc) && (bsl.acc < 0 || bsl.acc > 20)) cmpSay(`Précision faible (± ${Math.round(Math.max(bsl.acc, 0)) || "?"}°) : touche « Calibrer ».`, true);
+  else cmpSay("");
+  cmpDraw();
+}
+const CMP_EV = "ondeviceorientationabsolute" in window ? "deviceorientationabsolute" : "deviceorientation";
+function cmpListen() {
+  if (bsl.on) return; bsl.on = true; $("cmpStart").hidden = true;
+  window.addEventListener(CMP_EV, cmpRead);
+  clearTimeout(bsl.timer);
+  bsl.timer = setTimeout(() => { if (bsl.on && !bsl.last) {
+    cmpSay("Pas de capteur magnétique lisible sur ce téléphone ou dans ce navigateur. Sers-toi de ta boussole à plaque : les fiches ci-dessous marchent avec elle.", true);
+    cmpStop(); $("cmpStart").hidden = false; } }, 3000);
+}
+function cmpStop() { if (!bsl.on) return; bsl.on = false; clearTimeout(bsl.timer); window.removeEventListener(CMP_EV, cmpRead); }
+// iPhone : l'autorisation ne peut être demandée qu'au toucher d'un bouton
+const cmpAsk = typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function";
+function cmpEnter() { if (!cmpAsk && "DeviceOrientationEvent" in window) cmpListen(); else if (!("DeviceOrientationEvent" in window)) cmpSay("Ce navigateur ne donne pas accès à la boussole du téléphone. Sers-toi de ta boussole à plaque.", true); }
+$("cmpStart").onclick = async () => {
+  cmpSay("");
+  if (cmpAsk) { try { const r = await DeviceOrientationEvent.requestPermission(); if (r !== "granted") { cmpSay("Accès aux capteurs refusé. Sur iPhone : ferme l'onglet, rouvre l'appli et réponds « Autoriser ». Sinon, Réglages > Safari > Avancé > Données de site web, efface l'appli puis réessaie.", true); return; } }
+    catch (e) { cmpSay("Le téléphone n'a pas autorisé la boussole. Réessaie en touchant le bouton.", true); return; } }
+  bsl.last = 0; cmpListen();
+};
+$("cmpCalBtn").onclick = () => { const c = $("cmpCal"), o = c.hidden; c.hidden = !o; $("cmpCalBtn").setAttribute("aria-expanded", String(o)); };
+$("cmpTgt").oninput = () => { const v = numIn($("cmpTgt").value); bsl.tgt = Number.isFinite(v) && v >= 0 && v <= 360 ? norm360(v) : null; cmpSave(); renderCompass(); };
+$("cmpDecl").oninput = () => { const v = numIn($("cmpDecl").value); bsl.decl = Number.isFinite(v) && Math.abs(v) <= 60 ? v : DECL_GY; cmpSave(); renderCompass(); };
+$("cmpDecl").onchange = () => renderCompass();
+$("cmpMap").onchange = () => { bsl.map = $("cmpMap").checked; cmpSave(); renderCompass(); };
+$("cmpTake").onclick = () => { if (bsl.h === null) { cmpSay("Active d'abord la boussole, vise ton but, puis touche ce bouton.", true); return; }
+  bsl.tgt = Math.round(bsl.h); bsl.map = false; cmpSave(); renderCompass(); toast(`Cap pris : ${degTxt(bsl.tgt)}. Garde la flèche rouge sur ce cap.`); };
+$("cmpClear").onclick = () => { bsl.tgt = null; cmpSave(); renderCompass(); };
+document.addEventListener("visibilitychange", () => { if (document.hidden) cmpStop(); else if (view === "boussole" && bsl.last) cmpListen(); });
+$("urgLost").onclick = () => { closeOv("urgOv"); setView("boussole"); const d = $("cmpLost"); d.open = true; setTimeout(() => d.scrollIntoView({ block: "start" }), 50); };
 // position : d'abord une position rapide (réseau, dernière connue), puis le GPS précis si la première échoue
 function locate(btn, say, ok, maxAge) {
   if (!navigator.geolocation) { say("Cet appareil ne donne pas sa position : lis-la sur ton GPS ou tape les coordonnées à la main.", true); return; }
