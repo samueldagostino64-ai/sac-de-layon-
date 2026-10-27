@@ -319,3 +319,37 @@ test("aucune donnée n'est insérée comme du HTML (protection contre l'injectio
     .filter(v => !/^(""|ico\("[a-z]+"\)|ico\([a-z.]+\)|label|typeSvg\([^)]*\)|"<b><\/b>(<small><\/small>)?"|UNITS\.map\(u => `<option value="\$\{u\}"><\/option>`\)\.join\(""\))$/.test(v));
   assert.deepEqual(bad, []);
 });
+
+test("boussole : cap lu sur le capteur, déclinaison de Guyane ajoutée au cap de la carte, consigne gauche/droite", async () => {
+  const p = await open();
+  await p.click('.tabbar [data-go="boussole"]');
+  const turn = alpha => p.evaluate(a => { for (let i = 0; i < 20; i++) window.dispatchEvent(new DeviceOrientationEvent("deviceorientationabsolute", { alpha: a, beta: 0, gamma: 0, absolute: true })); }, alpha);
+  await turn(360 - 75);
+  assert.equal(await p.textContent("#cmpDeg"), "75°");
+  assert.match(await p.textContent("#cmpSub"), /sur la carte : 57°/); // 75 − 18,5
+  await p.fill("#cmpTgt", "90"); await p.check("#cmpMap");
+  assert.match(await p.textContent("#cmpInfo"), /108,5° \(E\).*Azimut retour : 288,5°/);
+  assert.equal(await p.textContent("#cmpTurn"), "Tourne de 34° à droite");
+  await turn(360 - 120);
+  assert.match(await p.textContent("#cmpTurn"), /à gauche/);
+  await turn(360 - 108);
+  assert.equal(await p.textContent("#cmpTurn"), "Dans l'axe");
+  assert.deepEqual(await p.evaluate(() => JSON.parse(localStorage.getItem("sacdelayon.boussole"))), { decl: 18.5, tgt: 90, map: true });
+  await close(p);
+});
+
+test("boussole : sans capteur magnétique, l'appli le dit et renvoie à la boussole à plaque", async () => {
+  const p = await open();
+  await p.click('.tabbar [data-go="boussole"]'); await p.waitForTimeout(3300);
+  assert.match(await p.textContent("#cmpMsg"), /Pas de capteur magnétique/);
+  assert.ok(await p.isVisible("#cmpStart"));
+  await close(p);
+});
+
+test("urgences : « perdu » ouvre la boussole sur la conduite à tenir", async () => {
+  const p = await open();
+  await p.click("#btnUrg"); await p.locator("#urgBox details", { hasText: "Perdu" }).click(); await p.click("#urgLost");
+  assert.ok(await p.isVisible("#cmpPanel"));
+  assert.equal(await p.evaluate(() => document.getElementById("cmpLost").open), true);
+  await close(p);
+});
