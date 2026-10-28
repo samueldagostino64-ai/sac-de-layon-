@@ -749,7 +749,7 @@ button .ico { margin-right: 6px; }
   <section class="panel" id="aboutPanel" aria-labelledby="hAbout" data-view="reglages" hidden>
     <h2 id="hAbout">À propos</h2>
     <p class="hint">Un oubli dans le catalogue, un bug, une idée pour la forêt&nbsp;? Je lis tout.</p>
-    <div class="actions"><a class="btnlink" id="btnFeedback" href="#"><svg class="ico" aria-hidden="true"><use href="#i-edit"/></svg>Une idée, un bug&nbsp;? Écris-moi</a></div>
+    <div class="actions" id="fbActions"><a class="btnlink" id="btnGmail" href="#" hidden><svg class="ico" aria-hidden="true"><use href="#i-edit"/></svg>Écrire avec Gmail</a><a class="btnlink" id="btnFeedback" href="#"><svg class="ico" aria-hidden="true"><use href="#i-edit"/></svg>Une idée, un bug&nbsp;? Écris-moi</a><button class="small" id="btnFbCopy" type="button">Copier l'adresse</button></div>
     <details class="legal">
       <summary>Avertissement</summary>
       <p>Sac de Layon est un aide-mémoire. Les quantités sont des estimations, les fiches d'urgence rappellent des gestes de base et la boussole du téléphone peut se tromper. Rien de tout cela ne remplace une formation (premiers secours, orientation), un équipement adapté ni les secours (15, 112). Tu restes seul responsable de ta préparation et de tes décisions en forêt.</p>
@@ -766,7 +766,7 @@ button .ico { margin-right: 6px; }
       <p>Hébergeur de la version en ligne : GitHub Pages, GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis.</p>
       <p>Polices Barlow sous licence SIL Open Font License. Déclinaison magnétique d'après le modèle magnétique mondial WMM 2025 (NOAA et BGS).</p>
     </details>
-    <p class="ver mono">Sac de Layon · version 27</p>
+    <p class="ver mono">Sac de Layon · version 28</p>
   </section>
 </main>
 
@@ -2711,7 +2711,7 @@ function tick(i, e, row, on) {
   if (on && e.items.length && e.items.every(x => x.done)) setTimeout(() => { if (cur() === e && e.items.length && e.items.every(x => x.done)) celebrate(e); }, 450);
 }
 // ---------- à propos : retours par mail, mesure d'audience anonyme ----------
-const APP_VER = 27, FEEDBACK_MAIL = "sacdelayon@gmail.com", GC_CODE = "sacdelayon";
+const APP_VER = 28, FEEDBACK_MAIL = "sacdelayon@gmail.com", GC_CODE = "sacdelayon";
 const mailOk = /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(FEEDBACK_MAIL);
 function feedbackHref() {
   const ua = navigator.userAgent, phone = /iPhone|iPad/.test(ua) ? "iPhone / iPad" : /Android/.test(ua) ? "Android" : "ordinateur";
@@ -2719,8 +2719,15 @@ function feedbackHref() {
   const body = `Ce qui s'est passé, ou ton idée :\n\n\n---\nVersion ${APP_VER} · ${phone} · ${inst ? "appli installée" : "dans le navigateur"}\n${ua}`;
   return `mailto:${FEEDBACK_MAIL}?subject=${encodeURIComponent(`Sac de Layon v${APP_VER} : idée ou bug`)}&body=${encodeURIComponent(body)}`;
 }
+if (mailOk && /iPhone|iPad/.test(navigator.userAgent)) {
+  // sur iPhone, mailto ouvre l'appli Mail d'Apple, souvent sans compte : on propose Gmail en premier
+  const q = new URL(feedbackHref()).search.slice(1).replace(/^subject=/, "&subject=");
+  $("btnGmail").href = "googlegmail:///co?to=" + encodeURIComponent(FEEDBACK_MAIL) + q; $("btnGmail").hidden = false;
+  $("btnFeedback").lastChild.textContent = "Avec Mail (Apple)";
+}
+if (mailOk) { $("btnFbCopy").onclick = () => copy(FEEDBACK_MAIL, "Adresse copiée : " + FEEDBACK_MAIL); }
 if (mailOk) { $("btnFeedback").href = feedbackHref(); $("legalMail").href = "mailto:" + FEEDBACK_MAIL; $("legalMail").textContent = FEEDBACK_MAIL; }
-else { $("btnFeedback").closest(".actions").remove(); $("aboutPanel").querySelector(".hint").remove(); $("legalMail").parentNode.textContent = "Éditeur : Samuel, à titre personnel et non professionnel, en Guyane."; }
+else { $("fbActions").remove(); $("aboutPanel").querySelector(".hint").remove(); $("legalMail").parentNode.textContent = "Éditeur : Samuel, à titre personnel et non professionnel, en Guyane."; }
 // une image d'un pixel par ouverture et par onglet vu : ni cookie, ni contenu des listes. Seulement sur la version en ligne.
 var gcOn = /\.github\.io$/.test(location.hostname) && /^[a-z0-9-]+$/.test(GC_CODE);
 var gcSeen = new Set();
