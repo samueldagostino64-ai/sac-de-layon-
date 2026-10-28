@@ -368,3 +368,30 @@ test("don : proposé quand le sac est bouclé, une seule fois par expédition, e
   assert.equal(await p.isVisible("#urgOv .don"), false);
   await close(p);
 });
+
+test("version en ligne : compteur anonyme (une fois par onglet, rien des listes) et bouton de retours par mail", async () => {
+  const ctx = await browser.newContext({ ...devices["iPhone 13"], serviceWorkers: "block" });
+  const hits = [];
+  await ctx.route("https://samueldagostino64-ai.github.io/**", async r => {
+    const f = new URL(r.request().url()).pathname.replace("/sac-de-layon-/", "") || "index.html";
+    try { r.fulfill({ body: await readFile(join(ROOT, f)), contentType: TYPES[extname(f)] || "application/octet-stream" }); } catch { r.fulfill({ status: 404 }); }
+  });
+  await ctx.route("https://sacdelayon.goatcounter.com/**", r => { hits.push(r.request().url()); r.fulfill({ status: 200, contentType: "image/gif", body: Buffer.from("R0lGODlhAQABAAAAACw=", "base64") }); });
+  await ctx.addInitScript(d => localStorage.setItem("sacdelayon.v1", d), JSON.stringify({ v: 2, current: "A", gear: {}, hidden: [], exps: [exp({ id: "A", name: "Expé secrète", items: [item()] })] }));
+  const p = await ctx.newPage(); const errs = []; p.on("pageerror", e => errs.push(e.message));
+  await p.goto("https://samueldagostino64-ai.github.io/sac-de-layon-/"); await p.waitForTimeout(400);
+  await p.click('.tabbar [data-go="boussole"]'); await p.click('.tabbar [data-go="reglages"]'); await p.click('.tabbar [data-go="boussole"]'); await p.waitForTimeout(300);
+  const paths = hits.map(u => new URL(u).searchParams.get("p"));
+  assert.ok(paths.includes("/ouverture-navigateur")); assert.equal(paths.filter(x => x === "/onglet-boussole").length, 1);
+  assert.ok(!hits.some(u => /secr|Hamac/i.test(decodeURIComponent(u))), "aucun contenu des listes n'est envoyé");
+  await p.click('.tabbar [data-go="reglages"]');
+  assert.match(await p.getAttribute("#btnFeedback", "href"), /^mailto:sacdelayon@gmail\.com\?subject=Sac%20de%20Layon%20v27/);
+  assert.deepEqual(errs, []); await ctx.close();
+});
+
+test("en local (et dans Claude), le compteur ne part pas", async () => {
+  const p = await open(); const hits = [];
+  await p.context().route("https://sacdelayon.goatcounter.com/**", r => { hits.push(1); r.abort(); });
+  await p.click('.tabbar [data-go="boussole"]'); await p.waitForTimeout(200);
+  assert.equal(hits.length, 0); await close(p);
+});

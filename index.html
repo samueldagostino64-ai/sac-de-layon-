@@ -13,7 +13,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Sac de Layon">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://sacdelayon.goatcounter.com; font-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Sac de Layon : ta checklist d'expédition en Guyane">
 <meta property="og:description" content="Dis où tu pars, combien de jours et à combien : l'appli calcule ton matériel, le poids du sac, et prépare ta fiche sécurité. Gratuit, sans compte, marche sans réseau.">
@@ -472,6 +472,13 @@ button .ico { margin-right: 6px; }
 .don .don-go .ico { margin: 0; }
 .don small { grid-column: 1 / -1; color: var(--muted); font-size: .78rem; }
 .celebrate .don { margin-top: 14px; }
+/* ---- v27 : à propos, retours, mentions ---- */
+.btnlink { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 8px 16px; border: 1px solid var(--fline); border-radius: var(--r); color: var(--ink); font-weight: 600; text-decoration: none; background: var(--surface); }
+.btnlink .ico { margin: 0; }
+.legal { border-top: 1px solid var(--line); padding: 10px 0 2px; }
+.legal summary { cursor: pointer; font-weight: 600; min-height: 32px; }
+.legal a { color: var(--accent); }
+.legal p { font-size: .88rem; color: var(--muted); margin: 6px 0; line-height: 1.45; }
 </style>
 
 <main class="wrap">
@@ -738,7 +745,28 @@ button .ico { margin-right: 6px; }
     <p class="hint">Supprime les expéditions de test ou passées, avec leur liste. Ton matériel est conservé.</p>
     <div class="actions"><button class="small danger" id="btnManage2">Supprimer des expéditions…</button></div>
     <div id="manageBox" class="manage" hidden></div>
-    <p class="ver mono">Sac de Layon · version 26</p>
+  </section>
+  <section class="panel" id="aboutPanel" aria-labelledby="hAbout" data-view="reglages" hidden>
+    <h2 id="hAbout">À propos</h2>
+    <p class="hint">Un oubli dans le catalogue, un bug, une idée pour la forêt&nbsp;? Je lis tout.</p>
+    <div class="actions"><a class="btnlink" id="btnFeedback" href="#"><svg class="ico" aria-hidden="true"><use href="#i-edit"/></svg>Une idée, un bug&nbsp;? Écris-moi</a></div>
+    <details class="legal">
+      <summary>Avertissement</summary>
+      <p>Sac de Layon est un aide-mémoire. Les quantités sont des estimations, les fiches d'urgence rappellent des gestes de base et la boussole du téléphone peut se tromper. Rien de tout cela ne remplace une formation (premiers secours, orientation), un équipement adapté ni les secours (15, 112). Tu restes seul responsable de ta préparation et de tes décisions en forêt.</p>
+    </details>
+    <details class="legal">
+      <summary>Tes données</summary>
+      <p>Tes expéditions, ton matériel et tes fiches sécurité restent sur ton téléphone : ils ne sont envoyés nulle part. Pense à faire une sauvegarde de temps en temps.</p>
+      <p>Pour savoir si l'appli sert, la version en ligne compte ses ouvertures avec GoatCounter, de façon anonyme : sans cookie, sans adresse IP conservée, et sans rien de tes listes.</p>
+      <p>Les dons passent par Ko-fi et PayPal ou Stripe, selon leurs propres conditions : l'appli n'en voit rien.</p>
+    </details>
+    <details class="legal">
+      <summary>Mentions légales</summary>
+      <p>Éditeur : Samuel, à titre personnel et non professionnel, en Guyane. Contact : <a id="legalMail" href="#"></a>.</p>
+      <p>Hébergeur de la version en ligne : GitHub Pages, GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis.</p>
+      <p>Polices Barlow sous licence SIL Open Font License. Déclinaison magnétique d'après le modèle magnétique mondial WMM 2025 (NOAA et BGS).</p>
+    </details>
+    <p class="ver mono">Sac de Layon · version 27</p>
   </section>
 </main>
 
@@ -2047,6 +2075,7 @@ function setView(v, quiet) {
   if (v === "accueil") { renderHome(); requestAnimationFrame(drawTopo); }
   if (v === "mat") $("matIntro").hidden = hintSeen("mat");
   if (v === "boussole") cmpEnter(); else cmpStop();
+  gcCount("/onglet-" + v);
   if (!quiet) scrollTo(0, 0);
 }
 document.querySelectorAll(".tabbar button").forEach(b => b.onclick = () => { closeMenu(); setView(b.dataset.go); });
@@ -2681,6 +2710,25 @@ function tick(i, e, row, on) {
   renderSum();
   if (on && e.items.length && e.items.every(x => x.done)) setTimeout(() => { if (cur() === e && e.items.length && e.items.every(x => x.done)) celebrate(e); }, 450);
 }
+// ---------- à propos : retours par mail, mesure d'audience anonyme ----------
+const APP_VER = 27, FEEDBACK_MAIL = "sacdelayon@gmail.com", GC_CODE = "sacdelayon";
+const mailOk = /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(FEEDBACK_MAIL);
+function feedbackHref() {
+  const ua = navigator.userAgent, phone = /iPhone|iPad/.test(ua) ? "iPhone / iPad" : /Android/.test(ua) ? "Android" : "ordinateur";
+  const inst = (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+  const body = `Ce qui s'est passé, ou ton idée :\n\n\n---\nVersion ${APP_VER} · ${phone} · ${inst ? "appli installée" : "dans le navigateur"}\n${ua}`;
+  return `mailto:${FEEDBACK_MAIL}?subject=${encodeURIComponent(`Sac de Layon v${APP_VER} : idée ou bug`)}&body=${encodeURIComponent(body)}`;
+}
+if (mailOk) { $("btnFeedback").href = feedbackHref(); $("legalMail").href = "mailto:" + FEEDBACK_MAIL; $("legalMail").textContent = FEEDBACK_MAIL; }
+else { $("btnFeedback").closest(".actions").remove(); $("aboutPanel").querySelector(".hint").remove(); $("legalMail").parentNode.textContent = "Éditeur : Samuel, à titre personnel et non professionnel, en Guyane."; }
+// une image d'un pixel par ouverture et par onglet vu : ni cookie, ni contenu des listes. Seulement sur la version en ligne.
+var gcOn = /\.github\.io$/.test(location.hostname) && /^[a-z0-9-]+$/.test(GC_CODE);
+var gcSeen = new Set();
+function gcCount(path) {
+  if (!gcOn || gcSeen.has(path)) return; gcSeen.add(path);
+  try { const im = new Image(); im.referrerPolicy = "no-referrer"; im.src = `https://${GC_CODE}.goatcounter.com/count?p=${encodeURIComponent(path)}&t=${encodeURIComponent("Sac de Layon")}&rnd=${Math.random().toString(36).slice(2)}`; } catch (e) {}
+}
+gcCount(((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true) ? "/ouverture-appli-installee" : "/ouverture-navigateur");
 // ---------- don : gratuit, sans pub ; on demande au bon moment, une fois par expédition ----------
 const DON_URL = "https://ko-fi.com/sacdelayon", LS_DON = "sacdelayon.don";
 const donState = () => { try { const o = JSON.parse(localStorage.getItem(LS_DON) || "{}"); return { seen: Array.isArray(o.seen) ? o.seen.slice(-50) : [], gave: +o.gave || 0 }; } catch (e) { return { seen: [], gave: 0 }; } };
