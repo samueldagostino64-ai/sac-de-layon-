@@ -13,7 +13,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Sac de Layon">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://__GC__.goatcounter.com; font-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://sacdelayon.goatcounter.com; font-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Sac de Layon : ta checklist d'expédition en Guyane">
 <meta property="og:description" content="Dis où tu pars, combien de jours et à combien : l'appli calcule ton matériel, le poids du sac, et prépare ta fiche sécurité. Gratuit, sans compte, marche sans réseau.">
@@ -2711,7 +2711,7 @@ function tick(i, e, row, on) {
   if (on && e.items.length && e.items.every(x => x.done)) setTimeout(() => { if (cur() === e && e.items.length && e.items.every(x => x.done)) celebrate(e); }, 450);
 }
 // ---------- à propos : retours par mail, mesure d'audience anonyme ----------
-const APP_VER = 27, FEEDBACK_MAIL = "__MAIL__", GC_CODE = "__GC__";
+const APP_VER = 27, FEEDBACK_MAIL = "sacdelayon@gmail.com", GC_CODE = "sacdelayon";
 const mailOk = /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(FEEDBACK_MAIL);
 function feedbackHref() {
   const ua = navigator.userAgent, phone = /iPhone|iPad/.test(ua) ? "iPhone / iPad" : /Android/.test(ua) ? "Android" : "ordinateur";
