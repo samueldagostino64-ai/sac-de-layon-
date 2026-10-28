@@ -2682,7 +2682,7 @@ function tick(i, e, row, on) {
   if (on && e.items.length && e.items.every(x => x.done)) setTimeout(() => { if (cur() === e && e.items.length && e.items.every(x => x.done)) celebrate(e); }, 450);
 }
 // ---------- don : gratuit, sans pub ; on demande au bon moment, une fois par expédition ----------
-const DON_URL = "__DON_URL__", LS_DON = "sacdelayon.don";
+const DON_URL = "https://ko-fi.com/sacdelayon", LS_DON = "sacdelayon.don";
 const donState = () => { try { const o = JSON.parse(localStorage.getItem(LS_DON) || "{}"); return { seen: Array.isArray(o.seen) ? o.seen.slice(-50) : [], gave: +o.gave || 0 }; } catch (e) { return { seen: [], gave: 0 }; } };
 const donSave = d => { try { localStorage.setItem(LS_DON, JSON.stringify(d)); } catch (e) {} };
 const donOk = () => /^https:\/\//.test(DON_URL);
