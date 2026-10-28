@@ -353,3 +353,18 @@ test("urgences : « perdu » ouvre la boussole sur la conduite à tenir", async 
   assert.equal(await p.evaluate(() => document.getElementById("cmpLost").open), true);
   await close(p);
 });
+
+test("don : proposé quand le sac est bouclé, une seule fois par expédition, et toujours dans Réglages", async () => {
+  const its = [item({ name: "Bâche", done: true }), item({ name: "Hamac" })];
+  const p = await open({ v: 2, current: "A", gear: {}, hidden: [], exps: [exp({ id: "A", items: its })] });
+  await p.click("#homeList .card.big .actions .primary"); await p.click('.tabbar [data-go="sac"]');
+  await p.locator("#sacView .srow", { hasText: "Hamac" }).click(); await p.waitForTimeout(1200);
+  assert.ok(await p.isVisible("#doneDon .don-go"), "encart de don sous « sac bouclé »");
+  assert.equal(await p.getAttribute("#doneDon .don-go", "href"), "https://ko-fi.com/sacdelayon");
+  // l'expé est notée : on ne redemandera pas pour elle
+  assert.deepEqual(await p.evaluate(() => JSON.parse(localStorage.getItem("sacdelayon.don")).seen), ["A"]);
+  await p.click("#doneClose"); await p.click('.tabbar [data-go="reglages"]');
+  assert.ok(await p.isVisible("#setDon .don-go"));
+  assert.equal(await p.isVisible("#urgOv .don"), false);
+  await close(p);
+});
