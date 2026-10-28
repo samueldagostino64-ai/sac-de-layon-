@@ -385,7 +385,7 @@ test("version en ligne : compteur anonyme (une fois par onglet, rien des listes)
   assert.ok(paths.includes("/ouverture-navigateur")); assert.equal(paths.filter(x => x === "/onglet-boussole").length, 1);
   assert.ok(!hits.some(u => /secr|Hamac/i.test(decodeURIComponent(u))), "aucun contenu des listes n'est envoyé");
   await p.click('.tabbar [data-go="reglages"]');
-  assert.match(await p.getAttribute("#btnFeedback", "href"), /^mailto:sacdelayon@gmail\.com\?subject=Sac%20de%20Layon%20v27/);
+  assert.match(await p.getAttribute("#btnFeedback", "href"), /^mailto:sacdelayon@gmail\.com\?subject=Sac%20de%20Layon%20v28/);
   assert.deepEqual(errs, []); await ctx.close();
 });
 
@@ -394,4 +394,13 @@ test("en local (et dans Claude), le compteur ne part pas", async () => {
   await p.context().route("https://sacdelayon.goatcounter.com/**", r => { hits.push(1); r.abort(); });
   await p.click('.tabbar [data-go="boussole"]'); await p.waitForTimeout(200);
   assert.equal(hits.length, 0); await close(p);
+});
+
+test("retours : sur iPhone, Gmail est proposé en plus de Mail et de la copie de l'adresse", async () => {
+  const p = await open(); await p.click('.tabbar [data-go="reglages"]');
+  assert.ok(await p.isVisible("#btnGmail"));
+  assert.match(await p.getAttribute("#btnGmail", "href"), /^googlegmail:\/\/\/co\?to=sacdelayon%40gmail\.com&subject=Sac%20de%20Layon%20v28[^&]*&body=/);
+  assert.match(await p.textContent("#btnFeedback"), /Avec Mail \(Apple\)/);
+  assert.ok(await p.isVisible("#btnFbCopy"));
+  await close(p);
 });
