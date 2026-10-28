@@ -464,6 +464,14 @@ button .ico { margin-right: 6px; }
 .cmp-turn.ok { color: var(--accent); }
 .cmp-tips { margin: 6px 0 0; padding-left: 20px; display: grid; gap: 6px; font-size: .9rem; }
 #cmpBasics { display: grid; gap: 8px; }
+/* ---- v26 : bouton de don ---- */
+.don { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; align-items: center; text-align: left; padding: 12px 14px; border: 1px dashed var(--fline); border-radius: 14px; background: var(--bg); }
+.don > .ico { width: 34px; height: 34px; color: var(--laterite); grid-row: span 2; margin: 0; }
+.don p { margin: 0; font-size: .9rem; line-height: 1.4; }
+.don .don-go { grid-column: 1 / -1; justify-self: start; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 8px 16px; border-radius: 999px; background: var(--laterite); color: var(--accent-ink); font-weight: 700; text-decoration: none; }
+.don .don-go .ico { margin: 0; }
+.don small { grid-column: 1 / -1; color: var(--muted); font-size: .78rem; }
+.celebrate .don { margin-top: 14px; }
 </style>
 
 <main class="wrap">
@@ -496,6 +504,7 @@ button .ico { margin-right: 6px; }
   <symbol id="i-gear" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M8.5 8V5h7v3M3 13h18M10.5 12v2.5h3V12"/></symbol>
   <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4 10-10"/></symbol>
+  <symbol id="i-jus" viewBox="0 0 24 24"><path d="M6 7h12l-1.6 13.2a1 1 0 0 1-1 .8H8.6a1 1 0 0 1-1-.8z"/><path d="M13.5 7 15.5 2.5h3"/><path d="M6.7 12.5h10.6"/></symbol>
 </svg>
   <header class="top" data-view="accueil">
     <canvas id="topo" aria-hidden="true"></canvas>
@@ -720,12 +729,16 @@ button .ico { margin-right: 6px; }
     <h2>Installer l'appli</h2>
     <div id="installHelp"></div>
   </section>
+  <section class="panel" id="donPanel" aria-labelledby="hDon" data-view="reglages" hidden>
+    <h2 id="hDon">Soutenir Sac de Layon</h2>
+    <div class="don" id="setDon"></div>
+  </section>
   <section class="panel" aria-labelledby="hDel" data-view="reglages" hidden>
     <h2 id="hDel">Faire le ménage</h2>
     <p class="hint">Supprime les expéditions de test ou passées, avec leur liste. Ton matériel est conservé.</p>
     <div class="actions"><button class="small danger" id="btnManage2">Supprimer des expéditions…</button></div>
     <div id="manageBox" class="manage" hidden></div>
-    <p class="ver mono">Sac de Layon · version 25</p>
+    <p class="ver mono">Sac de Layon · version 26</p>
   </section>
 </main>
 
@@ -791,6 +804,7 @@ button .ico { margin-right: 6px; }
       <button class="primary" id="doneSafety"><svg class="ico" aria-hidden="true"><use href="#i-shield"/></svg>Préparer la fiche sécurité</button>
       <button class="ghost" id="doneClose">Fermer</button>
     </div>
+    <div class="don" id="doneDon" hidden></div>
   </div>
 </div>
 
@@ -2667,6 +2681,27 @@ function tick(i, e, row, on) {
   renderSum();
   if (on && e.items.length && e.items.every(x => x.done)) setTimeout(() => { if (cur() === e && e.items.length && e.items.every(x => x.done)) celebrate(e); }, 450);
 }
+// ---------- don : gratuit, sans pub ; on demande au bon moment, une fois par expédition ----------
+const DON_URL = "__DON_URL__", LS_DON = "sacdelayon.don";
+const donState = () => { try { const o = JSON.parse(localStorage.getItem(LS_DON) || "{}"); return { seen: Array.isArray(o.seen) ? o.seen.slice(-50) : [], gave: +o.gave || 0 }; } catch (e) { return { seen: [], gave: 0 }; } };
+const donSave = d => { try { localStorage.setItem(LS_DON, JSON.stringify(d)); } catch (e) {} };
+const donOk = () => /^https:\/\//.test(DON_URL);
+// pas deux fois pour la même expé, et rien pendant 6 mois après un clic
+function donDue(e) { if (!donOk() || !e) return false; const d = donState(); return !d.seen.includes(e.id) && Date.now() - d.gave > 180 * 864e5; }
+function donSeen(e) { const d = donState(); if (e && !d.seen.includes(e.id)) d.seen.push(e.id); donSave(d); }
+function donOpen() { const d = donState(); d.gave = Date.now(); donSave(d); try { window.open(DON_URL, "_blank", "noopener"); } catch (err) {} }
+function donFill(box, txt) {
+  box.textContent = ""; box.hidden = !donOk(); if (box.hidden) return;
+  const ic = document.createElementNS("http://www.w3.org/2000/svg", "svg"); ic.setAttribute("class", "ico"); ic.setAttribute("aria-hidden", "true");
+  const u = document.createElementNS("http://www.w3.org/2000/svg", "use"); u.setAttribute("href", "#i-jus"); ic.appendChild(u);
+  const p = document.createElement("p"); p.textContent = txt;
+  const a = document.createElement("a"); a.className = "don-go"; a.href = DON_URL; a.target = "_blank"; a.rel = "noopener";
+  a.textContent = "Offrir un jus au layonneur"; a.onclick = () => { const d = donState(); d.gave = Date.now(); donSave(d); };
+  const sm = document.createElement("small"); sm.textContent = "Don libre, en quelques secondes, sans créer de compte.";
+  box.append(ic, p, a, sm);
+}
+const DON_TXT = "Sac de Layon est gratuit, sans pub, et tes données restent sur ton téléphone. Si l'appli t'a servi, offre un jus de maracudja au layonneur : ça paie le temps passé à l'améliorer.";
+if (donOk()) donFill($("setDon"), DON_TXT); else $("donPanel").remove();
 function celebrate(e) {
   const ov = $("doneOv"), svg = $("doneArt"); svg.innerHTML = "";
   const ns = "http://www.w3.org/2000/svg";
@@ -2681,6 +2716,7 @@ function celebrate(e) {
   const w = e.items.reduce((s0, i) => s0 + total(i, e) * (+i.w || 0), 0);
   $("doneTxt").textContent = `${e.items.length} articles prêts${w ? ` · ${fmtW(w)} au total · ${fmtW(weightPP(e))} par personne` : ""}.`;
   const s = e.safety || {}; $("doneSafety").hidden = safeSent(e);
+  const dd = $("doneDon"); if (donDue(e)) { donFill(dd, "Sac bouclé grâce à une appli gratuite et sans pub. Si elle t'a fait gagner du temps, offre un jus au layonneur."); donSeen(e); } else dd.hidden = true;
   openOv("doneOv"); try { navigator.vibrate && navigator.vibrate([40, 60, 40, 60, 120]); } catch (err) {}
 }
 $("doneClose").onclick = () => closeOv("doneOv");
@@ -2835,7 +2871,8 @@ function renderSafety() {
   box.appendChild(g); upd();
   const a = $("safeActions"); a.innerHTML = "";
   const mark = () => { if (safeBack) s.backAt = Date.now(); else { s.sentAt = Date.now(); s.sentKey = safeKey(e); } persist(e); renderHome(); renderSafety();
-    toast(safeBack ? "Bon retour !" : "Fiche envoyée. Au retour : « Je suis rentré » depuis l'accueil."); };
+    if (safeBack && donDue(e)) { donSeen(e); toast("Bon retour ! Content que l'appli t'ait accompagné : un jus pour le layonneur ?", donOpen, "Offrir un jus"); }
+    else toast(safeBack ? "Bon retour !" : "Fiche envoyée. Au retour : « Je suis rentré » depuis l'accueil."); };
   // l'appli ne peut pas savoir si le message est vraiment parti : on demande
   const ask = () => { const q = $("safeAsk"); if (q) q.remove(); const box2 = document.createElement("div"); box2.id = "safeAsk"; box2.className = "safeask";
     const p = document.createElement("p"); p.textContent = safeBack ? "Ton contact a bien reçu le message ?" : "La fiche est bien partie chez ton contact ?";
