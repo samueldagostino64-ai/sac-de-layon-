@@ -385,7 +385,7 @@ test("version en ligne : compteur anonyme (une fois par onglet, rien des listes)
   assert.ok(paths.includes("/ouverture-navigateur")); assert.equal(paths.filter(x => x === "/onglet-boussole").length, 1);
   assert.ok(!hits.some(u => /secr|Hamac/i.test(decodeURIComponent(u))), "aucun contenu des listes n'est envoyé");
   await p.click('.tabbar [data-go="reglages"]');
-  assert.match(await p.getAttribute("#btnFeedback", "href"), /^mailto:sacdelayon@gmail\.com\?subject=Sac%20de%20Layon%20v29/);
+  assert.match(await p.getAttribute("#btnFeedback", "href"), /^mailto:sacdelayon@gmail\.com\?subject=Sac%20de%20Layon%20v30/);
   assert.deepEqual(errs, []); await ctx.close();
 });
 
@@ -399,7 +399,7 @@ test("en local (et dans Claude), le compteur ne part pas", async () => {
 test("retours : sur iPhone, Gmail est proposé en plus de Mail et de la copie de l'adresse", async () => {
   const p = await open(); await p.click('.tabbar [data-go="reglages"]');
   assert.ok(await p.isVisible("#btnGmail"));
-  assert.match(await p.getAttribute("#btnGmail", "href"), /^googlegmail:\/\/\/co\?to=sacdelayon%40gmail\.com&subject=Sac%20de%20Layon%20v29[^&]*&body=/);
+  assert.match(await p.getAttribute("#btnGmail", "href"), /^googlegmail:\/\/\/co\?to=sacdelayon%40gmail\.com&subject=Sac%20de%20Layon%20v30[^&]*&body=/);
   assert.match(await p.textContent("#btnFeedback"), /Avec Mail \(Apple\)/);
   assert.ok(await p.isVisible("#btnFbCopy"));
   await close(p);
@@ -410,10 +410,39 @@ test("boussole : les fiches ne bougent pas quand le cap ou l'inclinaison changen
   await p.click('.tabbar [data-go="boussole"]');
   const ev = (a, beta) => p.evaluate(([a, b]) => { for (let i = 0; i < 20; i++) window.dispatchEvent(new DeviceOrientationEvent("deviceorientationabsolute", { alpha: a, beta: b, gamma: 0, absolute: true })); }, [a, beta]);
   const top = () => p.evaluate(() => document.getElementById("cmpBasics").getBoundingClientRect().top + scrollY);
+  await p.evaluate(() => document.fonts.ready); // en CI, les polices peuvent arriver après l'ouverture et décaler la page
   const t0 = await top();
   await ev(300, 0); assert.equal(await top(), t0);
   await ev(10, 60); assert.equal(await top(), t0, "le message « à plat » ne décale rien");
   await p.fill("#cmpTgt", "90"); await p.locator("#cmpTgt").blur(); const t1 = await top(); // le texte du cap à suivre change, c'est voulu
   await ev(200, 0); await ev(95, 0); assert.equal(await top(), t1, "la consigne gauche/droite ne décale rien");
+  await close(p);
+});
+
+test("soleil : compte à rebours avant la nuit sur l'accueil et dans « Perdu en forêt », sans réseau", async () => {
+  const at = async (hm, pos) => {
+    const ctx = await browser.newContext({ ...devices["iPhone 13"], timezoneId: "Europe/Paris" }); // téléphone resté à l'heure de Paris
+    if (pos) await ctx.addInitScript(v => localStorage.setItem("sacdelayon.pos", v), JSON.stringify(pos));
+    const p = await ctx.newPage(); p.errors = []; p.on("pageerror", e => p.errors.push(e.message));
+    await p.clock.setFixedTime(new Date(`2026-10-29T${hm}:00-03:00`));
+    await p.goto(url); await p.waitForTimeout(300); return p;
+  };
+  // Cayenne le 29 octobre 2026 : lever 6 h 14, coucher 18 h 11 (montre Garmin de Samuel : 6:14 et 18:12)
+  let p = await at("14:00", { lat: 4.93, lon: -52.33 });
+  assert.match(await p.textContent("#sunBox"), /Nuit dans 4 h 1\d/);
+  assert.match(await p.textContent("#sunBox"), /Coucher 18 h 1[01]/);
+  assert.match(await p.textContent("#sunBox"), /Commence ton camp avant 16 h 4[01]/);
+  assert.match(await p.textContent("#sunBox"), /dernière position/);
+  await close(p);
+  p = await at("17:10");
+  assert.match(await p.textContent("#sunBox"), /Il est temps d'installer le camp/);
+  assert.match(await p.textContent("#sunBox"), /centre de la Guyane/);
+  await p.click("#btnUrg");
+  assert.match(await p.textContent("#urgOv .sunleft"), /Il reste 1 h 0\d de jour : arrête-toi et installe ton camp maintenant/);
+  await close(p);
+  p = await at("21:00");
+  assert.match(await p.textContent("#sunBox"), /Nuit · jour dans 9 h/);
+  assert.match(await p.textContent("#sunBox"), /Demain : aube 5 h 5\d · lever 6 h 1\d/);
+  assert.match(await p.evaluate(() => document.querySelector("#cmpBasics .sunleft").textContent), /Il fait nuit : ne marche pas/);
   await close(p);
 });
