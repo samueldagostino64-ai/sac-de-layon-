@@ -166,6 +166,14 @@ details.add[open] > summary::after { content: "−"; }
 .sechead { display: grid; gap: 10px; border: 1px solid var(--accent); border-radius: var(--r); padding: 12px; background: var(--surface); }
 .sechead .t { display: flex; align-items: center; gap: 10px; justify-content: space-between; }
 .sechead .t h3 { margin: 0; font-family: var(--f-display); font-size: 1.25rem; text-transform: uppercase; letter-spacing: .04em; display: flex; gap: 8px; align-items: center; }
+.gadd { display: flex; gap: 8px; align-items: start; margin: 4px 0 10px; }
+.gadd .qn { flex: 1; min-width: 0; }
+.gadd input { width: 100%; min-height: 48px; font-size: 1rem; }
+.gadd > button { min-height: 48px; flex: none; }
+.gwhere { margin: -2px 0 12px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+.gwhere p { margin: 0 0 8px; font-size: .92rem; }
+.gwhere .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.gwhere .chips button { min-height: 40px; }
 .qadd { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; align-items: start; }
 .qadd .qn { grid-column: 1 / -1; }
 .qadd .ql { display: grid; gap: 2px; min-width: 0; }
@@ -618,6 +626,11 @@ button .ico { margin-right: 6px; }
 
   <section class="panel" id="listPanel" aria-labelledby="hList" data-view="liste">
     <h2 id="hList">Liste</h2>
+    <div id="gAddBox" class="gadd">
+      <div class="qn"><input id="gAdd" data-list="catalog" placeholder="Ajouter un objet : tape son nom" aria-label="Ajouter un objet à la liste"></div>
+      <button class="primary" id="gAddBtn">Ajouter</button>
+    </div>
+    <div id="gWhere" class="gwhere" hidden></div>
     <div id="secTiles" class="secs" role="group" aria-label="Sections de la liste"></div>
     <div id="secHead" class="sechead" hidden>
       <div class="t"><h3 id="secTitle"></h3><button class="small ghost" id="secBack">Toutes les sections</button></div>
@@ -784,7 +797,7 @@ button .ico { margin-right: 6px; }
       <p>Hébergeur de la version en ligne : GitHub Pages, GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis.</p>
       <p>Polices Barlow sous licence SIL Open Font License. Déclinaison magnétique d'après le modèle magnétique mondial WMM 2025 (NOAA et BGS).</p>
     </details>
-    <p class="ver mono">Sac de Layon · version 30</p>
+    <p class="ver mono">Sac de Layon · version 31</p>
   </section>
 </main>
 
@@ -1043,7 +1056,7 @@ const REF = { label: "Catalogue", items: [
   ["Machette","Outils","p","pièce",600,62,8,3],["Lime à machette","Outils","fixe","pièce",100,25,3,1],["Couteau","Outils","p","pièce",120,22,4,2],["Scie pliante","Outils","fixe","pièce",200,23,5,2],["Pince multifonction","Outils","fixe","pièce",250,11,4,3],["Rouleau de chatterton","Outils","fixe","rouleau",100,10,10,5],
   ["Lampe frontale","Éclairage & énergie","p","pièce",100,8,5,4],["Piles de rechange frontale","Éclairage & énergie","p","jeu",40],["Batterie externe","Éclairage & énergie","p","pièce",250,10,6,2.5],["Panneau solaire pliant 21 W","Éclairage & énergie","fixe","pièce",500,28,16,3],["Lanterne","Éclairage & énergie","fixe","pièce",150,12,6,6],["Câbles de charge","Éclairage & énergie","p","lot",60,10,8,3],
   ["Balise satellite / inReach","Sécurité & secours","fixe","pièce",110,10,6,3],["Trousse de secours","Sécurité & secours","fixe","pièce",500,22,15,8],["Sifflet","Sécurité & secours","p","pièce",10],["Répulsif moustiques","Sécurité & secours","p","flacon",100,12,4,4],
-  ["Sac étanche","Sécurité & secours","p","pièce",100,20,10,3],["Couverture de survie","Sécurité & secours","p","pièce",60,10,7,1],["Garrot tourniquet","Sécurité & secours","fixe","pièce",80,19,6,4],
+  ["Sac étanche","Sécurité & secours","p","pièce",100,20,10,3],["Touque étanche 30 L (fût)","Outils","fixe","pièce",1300,30,30,50],["Touque étanche 60 L (fût)","Outils","fixe","pièce",2600,38,38,65],["Harnais de portage pour touque","Outils","fixe","pièce",900,50,30,8],["Couverture de survie","Sécurité & secours","p","pièce",60,10,7,1],["Garrot tourniquet","Sécurité & secours","fixe","pièce",80,19,6,4],
   ["Tenue sèche de bivouac","Vêtements","p","tenue",500,25,20,8],["Chaussettes","Vêtements","pj","paire",60],["Poncho","Vêtements","p","pièce",350,20,15,6],["Pantalon de forêt","Vêtements","p","pièce",600,25,20,5],["Rangers jungle","Vêtements","p","paire",1600,32,28,14],["Chapeau de brousse","Vêtements","p","pièce",100],
   ["Papier toilette","Hygiène","p","rouleau",80,11,11,10],["Sacs poubelle","Hygiène","fixe","sac",20],["Savon","Hygiène","fixe","pièce",100,8,5,3],["Serviette microfibre","Hygiène","p","pièce",150,20,10,5],["Brosse à dents + dentifrice","Hygiène","p","lot",60],["Crème anti-frottements","Hygiène","p","tube",50],
   ["Canne + moulinet","Pêche","p","ensemble",450],["Tresse de rechange","Pêche","fixe","bobine",120,10,10,5],["Bas de ligne acier","Pêche","p","pièce",10],["Leurres","Pêche","p","pièce",25],["Hameçons assortis","Pêche","fixe","boîte",80,15,10,3],
@@ -1185,6 +1198,8 @@ async function removeExp(id) {
   if (col) { try { await col.doc(id).delete(); } catch (e) {} }
 }
 function gkey(n) { return (n || "").trim().toLowerCase(); }
+// écriture « à l'oreille » pour la recherche seulement : accents, qu/c/k, doubles lettres, e muet
+function pho(n) { return gkey(n).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/qu|ck|q|c(?=[aou])|c\b/g, "k").replace(/ph/g, "f").replace(/y/g, "i").replace(/([a-z])\1+/g, "$1").replace(/e\b/g, ""); }
 // texte sans accents ni majuscules, pour reconnaître un type d'expédition ou fabriquer un nom de fichier
 const normT = t => gkey(t).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 // suggestions masquées par l'utilisateur (référentiel et packs) ; un article de « Mon matériel » reste toujours visible
@@ -1376,7 +1391,7 @@ function renderList() {
   const e = cur(), box = $("list"); box.innerHTML = "";
   renderTiles(e);
   const x = curSec && secDef(curSec);
-  $("secHead").hidden = !x; if (!x) { $("secBilan").hidden = true; $("fuelBox").hidden = true; }
+  $("secHead").hidden = !x; $("gAddBox").hidden = !!x; if (x) $("gWhere").hidden = true; if (!x) { $("secBilan").hidden = true; $("fuelBox").hidden = true; }
   const pool = x ? e.items.filter(i => secOf(i.cat) === curSec) : e.items;
   if (x) {
     $("secTitle").innerHTML = ico(x.icon); $("secTitle").append(x.label);
@@ -1409,13 +1424,48 @@ function renderList() {
     box.appendChild(sec);
   });
 }
+function findSrc(k) {
+  let src = state.gear[k] || REF_BY.get(k) || null;
+  if (!src) Object.values(PACKS).forEach(pk => pk.items.forEach(t => { if (!src && gkey(t[0]) === k) src = refFill(packItem(t)); }));
+  return src;
+}
+function makeItem(name, src, cat, unitIn, qtyIn) {
+  const unit = unitIn || (src && src.unit) || "pièce", q = numIn(qtyIn || "");
+  const same = src && gkey(src.unit) === gkey(unit);
+  const sp = same ? null : unitSpecs(unit, name);
+  return { id: uid(), name: src ? src.name : name, cat, qty: q > 0 ? q : (same && src.qty) || 1, mode: (same && src.mode) || "fixe", unit,
+    w: sp ? sp.w : same ? src.w || 0 : 0, L: sp ? 0 : same ? src.L || 0 : 0, l: sp ? 0 : same ? src.l || 0 : 0, H: sp ? 0 : same ? src.H || 0 : 0, v: sp ? sp.v : same ? src.v || 0 : 0,
+    note: (same && src.note) || "", done: false };
+}
+// barre générale : un objet connu va tout seul dans sa section ; un objet nouveau, on demande où le ranger
+function globalAdd(catForced) {
+  const name = $("gAdd").value.trim(); if (!name) { $("gAdd").focus(); return; }
+  const k = gkey(name), e = cur();
+  if (e.items.some(i => gkey(i.name) === k)) { toast(`« ${name} » est déjà dans la liste`); return; }
+  const src = findSrc(k);
+  if (!src && !catForced) { askWhere(name); return; }
+  const it = makeItem(name, src, catForced || src.cat || "Autre");
+  e.items.push(it); rememberGear(it); persist(e);
+  $("gAdd").value = ""; $("gWhere").hidden = true;
+  const sk = secOf(it.cat); renderAll(false);
+  toast(`« ${it.name} » ajouté dans ${secDef(sk).label}${it.w ? " · " + fmtW(total(it, e) * it.w) : ""}. Touche-le pour régler quantité et poids.`, () => openSection(sk), "Voir");
+}
+function askWhere(name) {
+  const box = $("gWhere"); box.textContent = ""; box.hidden = false;
+  const p = document.createElement("p"); p.textContent = `« ${name} » n'est pas encore dans le catalogue. Où le ranger ?`;
+  const ch = document.createElement("div"); ch.className = "chips";
+  SECTIONS.forEach(x => { const b = document.createElement("button"); b.type = "button"; b.className = "small"; b.append(icoEl(x.icon), x.label);
+    b.onclick = () => globalAdd(x.cats[0] || "Autre"); ch.appendChild(b); });
+  const no = document.createElement("button"); no.type = "button"; no.className = "small ghost"; no.textContent = "Annuler"; no.onclick = () => { box.hidden = true; $("gAdd").focus(); };
+  ch.appendChild(no); box.append(p, ch);
+  const f = ch.querySelector("button"); if (f && kbd) f.focus();
+}
 function quickAdd() {
   const x = secDef(curSec); if (!x) return;
   const name = $("qName").value.trim(); if (!name) { $("qName").focus(); return; }
   const k = gkey(name), e = cur();
   if (e.items.some(i => gkey(i.name) === k)) { toast(`« ${name} » est déjà dans la liste`); return; }
-  let src = state.gear[k] || REF_BY.get(k) || null;
-  if (!src) Object.values(PACKS).forEach(pk => pk.items.forEach(t => { if (!src && gkey(t[0]) === k) src = refFill(packItem(t)); }));
+  const src = findSrc(k);
   const cat = $("qCat").value.trim() || (src && src.cat) || x.cats[0] || "Autre";
   const unit = $("qUnit").value.trim() || (src && src.unit) || "pièce";
   const q = numIn($("qQty").value);
@@ -1461,7 +1511,7 @@ function row(i, e) {
 }
 function emptyState() {
   const d = document.createElement("div"); d.className = "empty";
-  const p = document.createElement("p"); p.textContent = "Liste vide. Touche une section au-dessus pour y ajouter tes articles, ou coche-les dans les packs tout faits.";
+  const p = document.createElement("p"); p.textContent = "Liste vide. Tape le nom d'un objet dans la barre « Ajouter un objet » au-dessus, ou coche-les dans les packs tout faits.";
   const b = document.createElement("button"); b.className = "primary"; b.textContent = "Ajouter depuis les packs";
   b.onclick = () => openPicker();
   d.append(p, b); return d;
@@ -1766,7 +1816,7 @@ function combo(input, listId) {
   const opts = () => { ensureCatalog(); return [...document.getElementById(listId).options].map(o => o.value).filter(Boolean); };
   function open() {
     const q = gkey(input.value), all = opts();
-    const list = (showAll || !q ? all : all.filter(v => gkey(v).includes(q))).slice(0, 80);
+    const pq = pho(q), list = (showAll || !q ? all : all.filter(v => gkey(v).includes(q) || (pq.length > 2 && pho(v).includes(pq)))).slice(0, 80);
     box.innerHTML = ""; sel = -1;
     if (!list.length || (list.length === 1 && gkey(list[0]) === q)) { close(); return; }
     list.forEach(v => { const b = document.createElement("button"); b.type = "button"; b.setAttribute("role", "option"); b.textContent = v;
@@ -1877,6 +1927,11 @@ $("qName").addEventListener("change", () => {
   if (src) { if (src.unit) $("qUnit").value = src.unit; if (src.cat) $("qCat").value = src.cat; }
 });
 $("qAdd").onclick = quickAdd;
+$("gAddBtn").onclick = () => globalAdd();
+$("gAdd").addEventListener("keydown", ev => { if (ev.key === "Enter") { ev.preventDefault(); globalAdd(); } });
+// choisir un objet connu dans la liste suffit : il est ajouté d'un seul geste
+$("gAdd").addEventListener("change", () => { const k = gkey($("gAdd").value); if (k && findSrc(k) && !cur().items.some(i => gkey(i.name) === k)) globalAdd(); });
+$("gAdd").addEventListener("input", () => { $("gWhere").hidden = true; });
 $("qMore").onclick = () => {
   const x = secDef(curSec); resetForm(); $("fName").value = $("qName").value.trim(); $("fCat").value = $("qCat").value.trim() || (x && x.cats[0]) || "";
   if ($("qQty").value) $("fQty").value = $("qQty").value; if ($("qUnit").value) $("fUnit").value = $("qUnit").value;
@@ -2788,7 +2843,7 @@ setInterval(() => { if (document.hidden) return; if (view === "accueil") renderS
 document.addEventListener("visibilitychange", () => { if (!document.hidden) { renderSun(); renderLostSun(); } });
 renderLostSun();
 // ---------- à propos : retours par mail, mesure d'audience anonyme ----------
-const APP_VER = 30, FEEDBACK_MAIL = "sacdelayon@gmail.com", GC_CODE = "sacdelayon";
+const APP_VER = 31, FEEDBACK_MAIL = "sacdelayon@gmail.com", GC_CODE = "sacdelayon";
 const mailOk = /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(FEEDBACK_MAIL);
 function feedbackHref() {
   const ua = navigator.userAgent, phone = /iPhone|iPad/.test(ua) ? "iPhone / iPad" : /Android/.test(ua) ? "Android" : "ordinateur";

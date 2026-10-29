@@ -385,7 +385,7 @@ test("version en ligne : compteur anonyme (une fois par onglet, rien des listes)
   assert.ok(paths.includes("/ouverture-navigateur")); assert.equal(paths.filter(x => x === "/onglet-boussole").length, 1);
   assert.ok(!hits.some(u => /secr|Hamac/i.test(decodeURIComponent(u))), "aucun contenu des listes n'est envoyé");
   await p.click('.tabbar [data-go="reglages"]');
-  assert.match(await p.getAttribute("#btnFeedback", "href"), /^mailto:sacdelayon@gmail\.com\?subject=Sac%20de%20Layon%20v30/);
+  assert.match(await p.getAttribute("#btnFeedback", "href"), /^mailto:sacdelayon@gmail\.com\?subject=Sac%20de%20Layon%20v31/);
   assert.deepEqual(errs, []); await ctx.close();
 });
 
@@ -399,7 +399,7 @@ test("en local (et dans Claude), le compteur ne part pas", async () => {
 test("retours : sur iPhone, Gmail est proposé en plus de Mail et de la copie de l'adresse", async () => {
   const p = await open(); await p.click('.tabbar [data-go="reglages"]');
   assert.ok(await p.isVisible("#btnGmail"));
-  assert.match(await p.getAttribute("#btnGmail", "href"), /^googlegmail:\/\/\/co\?to=sacdelayon%40gmail\.com&subject=Sac%20de%20Layon%20v30[^&]*&body=/);
+  assert.match(await p.getAttribute("#btnGmail", "href"), /^googlegmail:\/\/\/co\?to=sacdelayon%40gmail\.com&subject=Sac%20de%20Layon%20v31[^&]*&body=/);
   assert.match(await p.textContent("#btnFeedback"), /Avec Mail \(Apple\)/);
   assert.ok(await p.isVisible("#btnFbCopy"));
   await close(p);
@@ -444,5 +444,27 @@ test("soleil : compte à rebours avant la nuit sur l'accueil et dans « Perdu en
   assert.match(await p.textContent("#sunBox"), /Nuit · jour dans 9 h/);
   assert.match(await p.textContent("#sunBox"), /Demain : aube 5 h 5\d · lever 6 h 1\d/);
   assert.match(await p.evaluate(() => document.querySelector("#cmpBasics .sunleft").textContent), /Il fait nuit : ne marche pas/);
+  await close(p);
+});
+
+test("ajouter un objet : barre en tête de liste, « touk » trouve la touque, un objet inconnu demande sa section", async () => {
+  const p = await open({ v: 2, current: "A", gear: {}, hidden: [], exps: [exp({ id: "A", items: [item()] })] });
+  await p.click('.tabbar [data-go="liste"]');
+  assert.ok(await p.isVisible("#gAdd"));
+  await p.click("#gAdd"); await p.keyboard.type("touk");
+  const opt = p.locator("#gAddBox .clist button", { hasText: "Touque étanche 60 L" });
+  await opt.click();
+  let st = await p.stored(); let t = st.exps[0].items.find(i => /Touque étanche 60/.test(i.name));
+  assert.ok(t, "la touque est ajoutée d'un geste"); assert.equal(t.cat, "Outils"); assert.equal(t.w, 2600);
+  assert.match(await p.textContent("#toast"), /ajouté dans Matériel & outils/);
+  assert.equal(await p.inputValue("#gAdd"), "");
+  // objet inconnu : l'appli demande où le ranger
+  await p.fill("#gAdd", "Hamac de secours maison"); await p.click("#gAddBtn");
+  assert.ok(await p.isVisible("#gWhere"));
+  await p.click('#gWhere button:has-text("Bivouac")');
+  st = await p.stored(); t = st.exps[0].items.find(i => i.name === "Hamac de secours maison");
+  assert.equal(t.cat, "Bivouac"); assert.ok(await p.isHidden("#gWhere"));
+  // dans une section, c'est la barre de la section qui sert
+  await p.click('#secTiles [data-fk="sec:bivouac"]'); assert.ok(await p.isHidden("#gAddBox"));
   await close(p);
 });
