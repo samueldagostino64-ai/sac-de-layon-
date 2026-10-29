@@ -335,6 +335,16 @@ body.noscroll { overflow: hidden; }
 .cic svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .card.big .cic { width: 52px; height: 52px; border-radius: 14px; }
 .card.big .cic svg { width: 30px; height: 30px; }
+.sunbox { margin-top: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+.sunbox .sun-top { display: flex; align-items: center; gap: 10px; }
+.sunbox .sun-top .ico { width: 26px; height: 26px; margin: 0; flex: none; }
+.sunbox .sun-big { font-family: var(--f-display); font-size: 1.35rem; font-weight: 700; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.sunbox .sun-line { margin: 6px 0 0; font-size: .9rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.sunbox .sun-camp { margin: 6px 0 0; font-weight: 700; color: var(--accent); }
+.sunbox .sun-camp.bad { color: var(--laterite); }
+.sunbox details { margin-top: 6px; font-size: .88rem; }
+.sunbox details summary { cursor: pointer; color: var(--muted); }
+.sunbox details p { margin: 6px 0 0; }
 .bkremind { margin-top: 18px; padding: 12px 14px; border: 1px dashed var(--line, #c9cfc2); border-radius: 14px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .bkremind p { margin: 0; flex: 1 1 200px; font-size: .9rem; color: var(--muted); }
 .card.draft { background: transparent; border-style: dashed; padding: 12px 14px; gap: 6px; }
@@ -516,6 +526,7 @@ button .ico { margin-right: 6px; }
   <symbol id="i-gear" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M8.5 8V5h7v3M3 13h18M10.5 12v2.5h3V12"/></symbol>
   <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4 10-10"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><path d="M4 18h16M7 18a5 5 0 0 1 10 0M12 5v3M5.6 8.6l2 2M18.4 8.6l-2 2M2.5 14h2.5M19 14h2.5"/></symbol>
   <symbol id="i-jus" viewBox="0 0 24 24"><path d="M6 7h12l-1.6 13.2a1 1 0 0 1-1 .8H8.6a1 1 0 0 1-1-.8z"/><path d="M13.5 7 15.5 2.5h3"/><path d="M6.7 12.5h10.6"/></symbol>
 </svg>
   <header class="top" data-view="accueil">
@@ -540,6 +551,7 @@ button .ico { margin-right: 6px; }
 
   <section id="homeView" class="home" data-view="accueil" hidden>
     <div class="homehead"><button id="btnUrg" class="urgbtn" aria-label="Urgences et premiers secours"><svg class="ico" aria-hidden="true"><use href="#i-urg"/></svg>Urgences</button><button id="btnNew" class="primary">+ Nouvelle expédition</button></div>
+    <div id="sunBox" class="sunbox"></div>
     <div id="homeList"></div>
   </section>
   <div id="installTip" class="tip" data-view="accueil" hidden></div>
@@ -709,6 +721,7 @@ button .ico { margin-right: 6px; }
       <li>La pente, la boue et la fatigue raccourcissent le pas : refais l'étalonnage de temps en temps.</li></ul></details>
     <details class="proto" id="cmpLost"><summary><svg class="ico" aria-hidden="true"><use href="#i-urg"/></svg>Perdu : la conduite à tenir</summary><ul>
       <li><b>Stop.</b> Assieds-toi, bois, mange. Avancer au hasard aggrave tout.</li>
+      <li class="sunleft"></li>
       <li>Reconstitue : dernier point sûr, azimut suivi, nombre de pas, temps de marche.</li>
       <li>Si tu peux, reviens au dernier point sûr par l'azimut retour et le compte de pas, en balisant ton passage (rubalise, branches cassées).</li>
       <li>Sinon, vise une ligne sûre repérée sur la carte (layon, piste, crique connue) avec une visée décalée.</li>
@@ -771,7 +784,7 @@ button .ico { margin-right: 6px; }
       <p>Hébergeur de la version en ligne : GitHub Pages, GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis.</p>
       <p>Polices Barlow sous licence SIL Open Font License. Déclinaison magnétique d'après le modèle magnétique mondial WMM 2025 (NOAA et BGS).</p>
     </details>
-    <p class="ver mono">Sac de Layon · version 29</p>
+    <p class="ver mono">Sac de Layon · version 30</p>
   </section>
 </main>
 
@@ -854,6 +867,7 @@ button .ico { margin-right: 6px; }
     </div>
     <details class="proto"><summary><svg class="ico" aria-hidden="true"><use href="#i-compass"/></svg>Perdu en forêt</summary><ul>
       <li><b>Stop.</b> Assieds-toi, bois, mange. Avancer au hasard aggrave tout.</li>
+      <li class="sunleft"></li>
       <li>Si quelqu'un sait où tu es ou si tu es blessé : reste sur place, sifflet (3 coups), balise si c'est grave.</li>
       <li><button type="button" class="small" id="urgLost"><svg class="ico" aria-hidden="true"><use href="#i-compass"/></svg>Ouvrir la boussole et la conduite à tenir</button></li></ul></details>
     <details class="proto"><summary><svg class="ico" aria-hidden="true"><use href="#i-snake"/></svg>Morsure de serpent (grage, Bothrops)</summary><ul>
@@ -2130,7 +2144,7 @@ document.addEventListener("focusin", ev => { const t = ev.target; if (!t.matches
   setTimeout(() => { if (document.activeElement === t) t.scrollIntoView({ block: "center", behavior: "smooth" }); }, 350); });
 
 // ---------- urgences et premiers secours ----------
-function openUrg() { closeMenu(); openOv("urgOv"); $("urgBox").scrollTop = 0; }
+function openUrg() { closeMenu(); renderLostSun(); openOv("urgOv"); $("urgBox").scrollTop = 0; }
 $("btnUrg").onclick = openUrg;
 $("urgClose").onclick = () => closeOv("urgOv");
 $("urgOv").addEventListener("click", ev => { if (ev.target === $("urgOv")) closeOv("urgOv"); });
@@ -2252,6 +2266,7 @@ $("urgLoc").onclick = () => {
   const say = (t, bad) => { m.hidden = !t; m.textContent = t || ""; m.classList.toggle("bad", !!bad); };
   locate($("urgLoc"), say, p => { const c = p.coords, ll = `${c.latitude.toFixed(5)},${c.longitude.toFixed(5)}`;
     out.hidden = false; out.textContent = ll.replace(",", ", "); $("urgCopy").hidden = false;
+    try { localStorage.setItem(LS_POS, JSON.stringify({ lat: +c.latitude.toFixed(2), lon: +c.longitude.toFixed(2) })); } catch (e) {} renderSun(); renderLostSun();
     // lien geo: : ouvre OsmAnd, Organic Maps, Locus… qui marchent hors réseau
     const a = $("urgMap"); a.href = "geo:" + ll + "?q=" + ll; a.hidden = false;
     say(`Précision ± ${Math.round(c.accuracy)} m, relevée à ${gyTime(new Date(p.timestamp || Date.now()))} (heure de Guyane). Le GPS du téléphone marche sans réseau.`); }, 120000);
@@ -2666,6 +2681,7 @@ function expCard(e, big) {
   return c;
 }
 function renderHome() {
+  renderSun();
   const box = $("homeList"); if (!box) return; box.innerHTML = "";
   const all = Object.values(state.exps).filter(e => !e.draft || draftTouched(e));
   $("btnNew").hidden = !all.length; // accueil vide : un seul bouton pour commencer
@@ -2715,8 +2731,64 @@ function tick(i, e, row, on) {
   renderSum();
   if (on && e.items.length && e.items.every(x => x.done)) setTimeout(() => { if (cur() === e && e.items.length && e.items.every(x => x.done)) celebrate(e); }, 450);
 }
+// ---------- lever et coucher du soleil : calculés dans le téléphone, sans réseau ni GPS ----------
+// algorithme NOAA simplifié (à 1 ou 2 min près). Position : la dernière relevée dans Urgences, sinon le centre de la Guyane
+// (3° de longitude d'une frontière à l'autre = 12 min : sans position, on reste à ± 6 min partout dans le pays).
+const SUN_GY = { lat: 4.0, lon: -53.0 }, LS_POS = "sacdelayon.pos";
+const SUN_CANOPY = 40, SUN_CAMP = 90; // minutes avant le coucher : noir sous les arbres ; commencer le camp
+function sunPos() { try { const p = JSON.parse(localStorage.getItem(LS_POS)); if (p && Number.isFinite(p.lat) && Number.isFinite(p.lon) && Math.abs(p.lat) < 60 && Math.abs(p.lon) <= 180) return { lat: p.lat, lon: p.lon, mine: true }; } catch (e) {} return SUN_GY; }
+// minuit UTC du jour de Guyane (UTC−3) qui contient l'instant t, décalé de `plus` jours
+function sunDay(t, plus) { const g = new Date(t - 3 * 3600e3); return Date.UTC(g.getUTCFullYear(), g.getUTCMonth(), g.getUTCDate() + (plus || 0)); }
+function sunTimes(day, lat, lon) {
+  const rad = Math.PI / 180, n = Math.round((day + 12 * 3600e3) / 864e5 + 2440587.5 - 2451545 + 0.0008);
+  const J = n - lon / 360, M = (357.5291 + 0.98560028 * J) % 360;
+  const C = 1.9148 * Math.sin(M * rad) + 0.02 * Math.sin(2 * M * rad) + 0.0003 * Math.sin(3 * M * rad);
+  const L = (M + C + 180 + 102.9372) % 360, tr = 2451545 + J + 0.0053 * Math.sin(M * rad) - 0.0069 * Math.sin(2 * L * rad);
+  const dec = Math.asin(Math.sin(L * rad) * Math.sin(23.4397 * rad));
+  const at = h => { const c = (Math.sin(h * rad) - Math.sin(lat * rad) * Math.sin(dec)) / (Math.cos(lat * rad) * Math.cos(dec));
+    const w = Math.acos(Math.max(-1, Math.min(1, c))) / rad / 360; return [(tr - w - 2440587.5) * 864e5, (tr + w - 2440587.5) * 864e5]; };
+  const [rise, set] = at(-0.833), [dawn, dusk] = at(-6);
+  return { rise, set, dawn, dusk };
+}
+function sunHM(t) { const g = new Date(t - 3 * 3600e3); return g.getUTCHours() + " h " + String(g.getUTCMinutes()).padStart(2, "0"); }
+function sunDur(ms) { const m = Math.max(0, Math.round(ms / 6e4)), h = Math.floor(m / 60); return h ? `${h} h ${String(m % 60).padStart(2, "0")}` : `${m} min`; }
+function sunNow(now) {
+  const p = sunPos(), td = sunTimes(sunDay(now), p.lat, p.lon), r = { p, td };
+  if (now < td.rise) { r.night = true; r.next = td; }
+  else if (now >= td.set) { r.night = true; r.next = sunTimes(sunDay(now, 1), p.lat, p.lon); }
+  else { r.left = td.set - now; r.camp = td.set - SUN_CAMP * 6e4; r.late = now >= r.camp; }
+  if (r.night) r.big = `Nuit · jour dans ${sunDur(r.next.rise - now)}`; else r.big = `Nuit dans ${sunDur(r.left)}`;
+  return r;
+}
+function renderSun() {
+  const box = $("sunBox"); if (!box) return; box.textContent = "";
+  const r = sunNow(Date.now()), t = r.td, mk = (tag, cls, txt) => { const x = document.createElement(tag); if (cls) x.className = cls; if (txt) x.textContent = txt; return x; };
+  const NS = "http://www.w3.org/2000/svg", svg = document.createElementNS(NS, "svg"), use = document.createElementNS(NS, "use");
+  svg.setAttribute("class", "ico"); svg.setAttribute("aria-hidden", "true"); use.setAttribute("href", "#i-sun"); svg.appendChild(use);
+  const top = mk("div", "sun-top"); top.append(svg, mk("div", "sun-big", r.big)); box.appendChild(top);
+  if (r.night) box.appendChild(mk("p", "sun-line", `${r.next === t ? "Ce matin" : "Demain"} : aube ${sunHM(r.next.dawn)} · lever ${sunHM(r.next.rise)} · coucher ${sunHM(r.next.set)}`));
+  else {
+    box.appendChild(mk("p", "sun-line", `Coucher ${sunHM(t.set)} · noir sous les arbres vers ${sunHM(t.set - SUN_CANOPY * 6e4)} · fin du crépuscule ${sunHM(t.dusk)}`));
+    box.appendChild(mk("p", "sun-camp" + (r.late ? " bad" : ""), r.late ? "Il est temps d'installer le camp." : `Commence ton camp avant ${sunHM(r.camp)}.`));
+  }
+  const d = mk("details"); d.appendChild(mk("summary", "", "La règle du sous-bois"));
+  d.appendChild(mk("p", "", `Sous la canopée, il fait noir environ ${SUN_CANOPY} min avant le coucher officiel, et un camp (hamac, bâche, bois, eau) se monte en 1 h à 1 h 30. On commence donc 1 h 30 avant le coucher. Perdu ou blessé, c'est encore plus vrai : à moins d'1 h 30 de jour, on s'arrête et on s'installe.`));
+  d.appendChild(mk("p", "", r.p.mine ? "Calculé dans le téléphone, sans réseau, pour ta dernière position relevée dans Urgences." : "Calculé dans le téléphone, sans réseau, pour le centre de la Guyane : à 6 min près partout dans le pays. Relève ta position dans Urgences pour l'heure exacte de ton coin."));
+  box.appendChild(d);
+}
+// « Perdu en forêt » (Urgences et Boussole) : ce qu'il reste de jour, et la consigne qui va avec
+function renderLostSun() {
+  const r = sunNow(Date.now());
+  document.querySelectorAll(".sunleft").forEach(li => { li.textContent = ""; const b = document.createElement("b");
+    if (r.night) { b.textContent = "Il fait nuit : ne marche pas."; li.append(b, ` Installe-toi où tu es et attends le jour (lever à ${sunHM(r.next.rise)}).`); }
+    else if (r.late) { b.textContent = `Il reste ${sunDur(r.left)} de jour : arrête-toi et installe ton camp maintenant.`; li.append(b, ` Noir sous les arbres vers ${sunHM(r.td.set - SUN_CANOPY * 6e4)}.`); }
+    else { b.textContent = `Il reste ${sunDur(r.left)} de jour`; li.append(b, ` (coucher à ${sunHM(r.td.set)}). À moins d'1 h 30 de jour, arrête-toi et installe ton camp.`); } });
+}
+setInterval(() => { if (document.hidden) return; if (view === "accueil") renderSun(); renderLostSun(); }, 30000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) { renderSun(); renderLostSun(); } });
+renderLostSun();
 // ---------- à propos : retours par mail, mesure d'audience anonyme ----------
-const APP_VER = 29, FEEDBACK_MAIL = "sacdelayon@gmail.com", GC_CODE = "sacdelayon";
+const APP_VER = 30, FEEDBACK_MAIL = "sacdelayon@gmail.com", GC_CODE = "sacdelayon";
 const mailOk = /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(FEEDBACK_MAIL);
 function feedbackHref() {
   const ua = navigator.userAgent, phone = /iPhone|iPad/.test(ua) ? "iPhone / iPad" : /Android/.test(ua) ? "Android" : "ordinateur";
