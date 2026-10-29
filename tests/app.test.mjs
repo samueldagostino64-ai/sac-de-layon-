@@ -410,6 +410,7 @@ test("boussole : les fiches ne bougent pas quand le cap ou l'inclinaison changen
   await p.click('.tabbar [data-go="boussole"]');
   const ev = (a, beta) => p.evaluate(([a, b]) => { for (let i = 0; i < 20; i++) window.dispatchEvent(new DeviceOrientationEvent("deviceorientationabsolute", { alpha: a, beta: b, gamma: 0, absolute: true })); }, [a, beta]);
   const top = () => p.evaluate(() => document.getElementById("cmpBasics").getBoundingClientRect().top + scrollY);
+  await p.evaluate(() => document.fonts.ready); // en CI, les polices peuvent arriver après l'ouverture et décaler la page
   const t0 = await top();
   await ev(300, 0); assert.equal(await top(), t0);
   await ev(10, 60); assert.equal(await top(), t0, "le message « à plat » ne décale rien");
