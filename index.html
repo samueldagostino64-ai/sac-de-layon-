@@ -462,6 +462,11 @@ button .ico { margin-right: 6px; }
 .cmp-sub { text-align: center; margin: 2px 0 0; font-size: .85rem; color: var(--muted); }
 .cmp-turn { text-align: center; margin: 8px 0 0; font-size: 1.2rem; font-weight: 700; color: var(--laterite); }
 .cmp-turn.ok { color: var(--accent); }
+/* le cap bouge sans arrêt : ces lignes gardent toujours leur place, sinon les fiches en dessous sautent pendant la lecture */
+.cmp-sub { min-height: 2.7em; line-height: 1.35; }
+.cmp-turn { min-height: 1.3em; line-height: 1.3; }
+#cmpTurn.off, #cmpMsg.off { visibility: hidden; }
+#cmpMsg { min-height: 2.7em; text-align: center; }
 .cmp-tips { margin: 6px 0 0; padding-left: 20px; display: grid; gap: 6px; font-size: .9rem; }
 #cmpBasics { display: grid; gap: 8px; }
 /* ---- v26 : bouton de don ---- */
@@ -647,8 +652,8 @@ button .ico { margin-right: 6px; }
     <div class="cmp-dial"><svg id="cmpSvg" viewBox="-120 -120 240 240" aria-hidden="true"><g id="cmpRose"></g><path class="cmp-index" d="M0 -119 L-10 -99 L10 -99 Z"/><line class="cmp-axis" x1="0" y1="-96" x2="0" y2="96"/></svg></div>
     <p class="cmp-read"><b id="cmpDeg">—</b><span id="cmpCard"></span></p>
     <p class="cmp-sub" id="cmpSub">Cap magnétique : le même chiffre que ta boussole à plaque.</p>
-    <p class="cmp-turn" id="cmpTurn" aria-live="polite" hidden></p>
-    <small class="gmsg" id="cmpMsg" role="status" hidden></small>
+    <p class="cmp-turn off" id="cmpTurn" aria-live="polite"></p>
+    <small class="gmsg off" id="cmpMsg" role="status"></small>
     <div class="actions">
       <button class="primary" id="cmpStart"><svg class="ico" aria-hidden="true"><use href="#i-compass"/></svg>Activer la boussole</button>
       <button class="small ghost" id="cmpCalBtn" aria-expanded="false" aria-controls="cmpCal">Calibrer</button>
@@ -766,7 +771,7 @@ button .ico { margin-right: 6px; }
       <p>Hébergeur de la version en ligne : GitHub Pages, GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis.</p>
       <p>Polices Barlow sous licence SIL Open Font License. Déclinaison magnétique d'après le modèle magnétique mondial WMM 2025 (NOAA et BGS).</p>
     </details>
-    <p class="ver mono">Sac de Layon · version 28</p>
+    <p class="ver mono">Sac de Layon · version 29</p>
   </section>
 </main>
 
@@ -2144,7 +2149,7 @@ const degTxt = a => String(Math.round(norm360(a)) % 360).replace(".", ",") + "°
 const degTxt1 = a => String(Math.round(norm360(a) * 10) / 10 % 360).replace(".", ",") + "°";
 // cap magnétique à suivre : un cap lu sur la carte reçoit la déclinaison (Ouest : on l'ajoute)
 const cmpGoal = () => bsl.tgt === null ? null : norm360(bsl.tgt + (bsl.map ? bsl.decl : 0));
-function cmpSay(t, bad) { const m = $("cmpMsg"); m.hidden = !t; m.textContent = t || ""; m.classList.toggle("bad", !!bad); }
+function cmpSay(t, bad) { const m = $("cmpMsg"); m.classList.toggle("off", !t); m.textContent = t || ""; m.classList.toggle("bad", !!bad); }
 function buildRose() {
   if (bsl.built) return; bsl.built = true;
   const NS = "http://www.w3.org/2000/svg", g = $("cmpRose");
@@ -2177,8 +2182,8 @@ function cmpDraw() {
     : `Cap magnétique · sur la carte : ${degTxt(h - bsl.decl)}`;
   $("cmpRose").style.transform = h === null ? "" : `rotate(${-h}deg)`;
   const goal = cmpGoal();
-  if (h === null || goal === null) { turn.hidden = true; return; }
-  const diff = norm360(goal - h + 180) - 180; turn.hidden = false;
+  if (h === null || goal === null) { turn.classList.add("off"); turn.textContent = ""; return; }
+  const diff = norm360(goal - h + 180) - 180; turn.classList.remove("off");
   turn.classList.toggle("ok", Math.abs(diff) <= 5);
   turn.textContent = Math.abs(diff) <= 5 ? "Dans l'axe" : `Tourne de ${Math.round(Math.abs(diff))}° à ${diff > 0 ? "droite" : "gauche"}`;
 }
@@ -2711,7 +2716,7 @@ function tick(i, e, row, on) {
   if (on && e.items.length && e.items.every(x => x.done)) setTimeout(() => { if (cur() === e && e.items.length && e.items.every(x => x.done)) celebrate(e); }, 450);
 }
 // ---------- à propos : retours par mail, mesure d'audience anonyme ----------
-const APP_VER = 28, FEEDBACK_MAIL = "sacdelayon@gmail.com", GC_CODE = "sacdelayon";
+const APP_VER = 29, FEEDBACK_MAIL = "sacdelayon@gmail.com", GC_CODE = "sacdelayon";
 const mailOk = /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(FEEDBACK_MAIL);
 function feedbackHref() {
   const ua = navigator.userAgent, phone = /iPhone|iPad/.test(ua) ? "iPhone / iPad" : /Android/.test(ua) ? "Android" : "ordinateur";
