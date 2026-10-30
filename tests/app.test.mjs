@@ -385,7 +385,7 @@ test("version en ligne : compteur anonyme (une fois par onglet, rien des listes)
   assert.ok(paths.includes("/ouverture-navigateur")); assert.equal(paths.filter(x => x === "/onglet-boussole").length, 1);
   assert.ok(!hits.some(u => /secr|Hamac/i.test(decodeURIComponent(u))), "aucun contenu des listes n'est envoyé");
   await p.click('.tabbar [data-go="reglages"]');
-  assert.match(await p.getAttribute("#btnFeedback", "href"), /^mailto:sacdelayon@gmail\.com\?subject=Sac%20de%20Layon%20v31/);
+  assert.match(await p.getAttribute("#btnFeedback", "href"), /^mailto:sacdelayon@gmail\.com\?subject=Sac%20de%20Layon%20v32/);
   assert.deepEqual(errs, []); await ctx.close();
 });
 
@@ -399,7 +399,7 @@ test("en local (et dans Claude), le compteur ne part pas", async () => {
 test("retours : sur iPhone, Gmail est proposé en plus de Mail et de la copie de l'adresse", async () => {
   const p = await open(); await p.click('.tabbar [data-go="reglages"]');
   assert.ok(await p.isVisible("#btnGmail"));
-  assert.match(await p.getAttribute("#btnGmail", "href"), /^googlegmail:\/\/\/co\?to=sacdelayon%40gmail\.com&subject=Sac%20de%20Layon%20v31[^&]*&body=/);
+  assert.match(await p.getAttribute("#btnGmail", "href"), /^googlegmail:\/\/\/co\?to=sacdelayon%40gmail\.com&subject=Sac%20de%20Layon%20v32[^&]*&body=/);
   assert.match(await p.textContent("#btnFeedback"), /Avec Mail \(Apple\)/);
   assert.ok(await p.isVisible("#btnFbCopy"));
   await close(p);
@@ -466,5 +466,36 @@ test("ajouter un objet : barre en tête de liste, « touk » trouve la touque, u
   assert.equal(t.cat, "Bivouac"); assert.ok(await p.isHidden("#gWhere"));
   // dans une section, c'est la barre de la section qui sert
   await p.click('#secTiles [data-fk="sec:bivouac"]'); assert.ok(await p.isHidden("#gAddBox"));
+  await close(p);
+});
+
+test("photo : consigne copiée, réponse de l'IA lue (puces, tableau, kg), aperçu à cocher puis ajout", async () => {
+  const p = await open({ v: 2, current: "A", gear: {}, hidden: [], exps: [exp({ id: "A", items: [item({ name: "Machette", cat: "Outils" })] })] });
+  await p.context().grantPermissions(["clipboard-read", "clipboard-write"]);
+  await p.click('.tabbar [data-go="liste"]'); await p.click("#btnPhoto");
+  await p.click("#phCopy");
+  const prompt = await p.evaluate(() => navigator.clipboard.readText());
+  assert.match(prompt, /Nom de l'objet ; quantité ; unité ; poids d'une unité en grammes ; catégorie/);
+  assert.match(prompt, /Bivouac, Eau, Vivres/);
+  await p.fill("#phIn", [
+    "Voici ce que je vois sur ta photo :", "",
+    "- **Hamac DD Frontline** ; 1 ; pièce ; 1100 ; Bivouac",
+    "| Touque étanche 60 L | 1 | pièce | 2,6 kg | Outils |",
+    "2. Gourde 1 L ; 2 ; pièce ; 180 ; eau",
+    "Machette ; 1 ; pièce ; 600 ; Outils",
+    "Bon courage pour ton expédition !"].join("\n"));
+  await p.click("#phRead");
+  assert.equal(await p.locator("#phOut label").count(), 4);
+  assert.ok(await p.locator('#phOut label:has-text("Machette") input').isDisabled(), "déjà dans la liste");
+  assert.equal(await p.textContent("#phAdd"), "Ajouter 3 objets à la liste");
+  await p.locator('#phOut label:has-text("Gourde") input').uncheck();
+  await p.click("#phAdd");
+  const st = await p.stored(), it = st.exps[0].items;
+  const h = it.find(i => i.name === "Hamac DD Frontline");
+  assert.equal(h.cat, "Bivouac"); assert.equal(h.w, 1100); assert.match(h.note, /estimé par l'IA/);
+  const t = it.find(i => /Touque/.test(i.name)); assert.equal(t.cat, "Outils"); assert.equal(t.w, 2600);
+  assert.ok(!it.some(i => /Gourde/.test(i.name)), "décochée, pas ajoutée");
+  assert.ok(st.gear["hamac dd frontline"], "retenu dans Mon matériel");
+  assert.ok(await p.isHidden("#phOv"));
   await close(p);
 });
