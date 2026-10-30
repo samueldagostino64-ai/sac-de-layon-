@@ -174,6 +174,16 @@ details.add[open] > summary::after { content: "−"; }
 .gwhere p { margin: 0 0 8px; font-size: .92rem; }
 .gwhere .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .gwhere .chips button { min-height: 40px; }
+#btnPhoto { margin: 0 0 12px; }
+.phsteps { margin: 0; padding-left: 22px; display: grid; gap: 12px; }
+.phsteps li > button { margin: 6px 6px 0 0; }
+.phsteps textarea { display: block; width: 100%; min-height: 120px; margin: 6px 0; }
+#phOut { display: grid; gap: 6px; }
+#phOut label { display: flex; justify-content: flex-start; text-align: left; gap: 12px; align-items: center; padding: 8px 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+#phOut label small { display: block; color: var(--muted); }
+#phOut label input { flex: none; width: 22px; height: 22px; min-height: 0; margin: 0; }
+#phOut label span { flex: 1; min-width: 0; }
+#phOut label.dup { opacity: .55; }
 .qadd { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; align-items: start; }
 .qadd .qn { grid-column: 1 / -1; }
 .qadd .ql { display: grid; gap: 2px; min-width: 0; }
@@ -535,6 +545,7 @@ button .ico { margin-right: 6px; }
   <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4 10-10"/></symbol>
   <symbol id="i-sun" viewBox="0 0 24 24"><path d="M4 18h16M7 18a5 5 0 0 1 10 0M12 5v3M5.6 8.6l2 2M18.4 8.6l-2 2M2.5 14h2.5M19 14h2.5"/></symbol>
+  <symbol id="i-cam" viewBox="0 0 24 24"><path d="M3 8h4l2-3h6l2 3h4v11H3z"/><circle cx="12" cy="13" r="3.5"/></symbol>
   <symbol id="i-jus" viewBox="0 0 24 24"><path d="M6 7h12l-1.6 13.2a1 1 0 0 1-1 .8H8.6a1 1 0 0 1-1-.8z"/><path d="M13.5 7 15.5 2.5h3"/><path d="M6.7 12.5h10.6"/></symbol>
 </svg>
   <header class="top" data-view="accueil">
@@ -631,6 +642,7 @@ button .ico { margin-right: 6px; }
       <button class="primary" id="gAddBtn">Ajouter</button>
     </div>
     <div id="gWhere" class="gwhere" hidden></div>
+    <button class="small" id="btnPhoto" type="button"><svg class="ico" aria-hidden="true"><use href="#i-cam"/></svg>Remplir avec une photo</button>
     <div id="secTiles" class="secs" role="group" aria-label="Sections de la liste"></div>
     <div id="secHead" class="sechead" hidden>
       <div class="t"><h3 id="secTitle"></h3><button class="small ghost" id="secBack">Toutes les sections</button></div>
@@ -797,7 +809,7 @@ button .ico { margin-right: 6px; }
       <p>Hébergeur de la version en ligne : GitHub Pages, GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis.</p>
       <p>Polices Barlow sous licence SIL Open Font License. Déclinaison magnétique d'après le modèle magnétique mondial WMM 2025 (NOAA et BGS).</p>
     </details>
-    <p class="ver mono">Sac de Layon · version 31</p>
+    <p class="ver mono">Sac de Layon · version 32</p>
   </section>
 </main>
 
@@ -941,6 +953,21 @@ button .ico { margin-right: 6px; }
     <div class="toolbar"><h2>Texte à copier</h2><button class="small ghost" id="txtClose">Fermer</button></div>
     <p class="hint">La copie automatique est bloquée ici : le texte est sélectionné, copie-le à la main.</p>
     <textarea id="txtOut" readonly style="min-height:240px"></textarea>
+  </div>
+</div>
+
+<div class="ov" id="phOv" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="phTitle">
+    <div class="toolbar"><h2 id="phTitle">Remplir avec une photo</h2><button type="button" class="small ghost" id="phClose" aria-label="Fermer">✕</button></div>
+    <p class="hint">Avec l'IA que tu as déjà sur ton téléphone (ChatGPT, Gemini, Claude…). Ta photo va chez elle, pas dans l'appli.</p>
+    <ol class="phsteps">
+      <li><b>Étale ton matériel</b> par terre, bien visible, et prends une photo (ou plusieurs).</li>
+      <li><button type="button" class="small primary" id="phCopy">Copier la consigne</button> Puis ouvre ton IA, colle la consigne et joins ta photo.</li>
+      <li><b>Copie sa réponse</b> et colle-la ici :
+        <textarea id="phIn" placeholder="Hamac ; 1 ; pièce ; 900 ; Bivouac"></textarea>
+        <button type="button" class="small" id="phRead">Voir ce qui sera ajouté</button></li>
+    </ol>
+    <div id="phOut" hidden></div>
   </div>
 </div>
 
@@ -1391,7 +1418,7 @@ function renderList() {
   const e = cur(), box = $("list"); box.innerHTML = "";
   renderTiles(e);
   const x = curSec && secDef(curSec);
-  $("secHead").hidden = !x; $("gAddBox").hidden = !!x; if (x) $("gWhere").hidden = true; if (!x) { $("secBilan").hidden = true; $("fuelBox").hidden = true; }
+  $("secHead").hidden = !x; $("gAddBox").hidden = $("btnPhoto").hidden = !!x; if (x) $("gWhere").hidden = true; if (!x) { $("secBilan").hidden = true; $("fuelBox").hidden = true; }
   const pool = x ? e.items.filter(i => secOf(i.cat) === curSec) : e.items;
   if (x) {
     $("secTitle").innerHTML = ico(x.icon); $("secTitle").append(x.label);
@@ -2786,6 +2813,65 @@ function tick(i, e, row, on) {
   renderSum();
   if (on && e.items.length && e.items.every(x => x.done)) setTimeout(() => { if (cur() === e && e.items.length && e.items.every(x => x.done)) celebrate(e); }, 450);
 }
+// ---------- remplir avec une photo : l'IA de l'utilisateur lit la photo, l'appli lit sa réponse ----------
+const PH_CATS = CATS.filter(c => !/^Caisse|^Jeux|^Trousse/.test(c));
+const PH_NOTE = "poids estimé par l'IA d'après la photo, à vérifier";
+function phPrompt() {
+  return `Voici la photo de mon matériel pour une expédition en forêt (Guyane). Liste chaque objet que tu vois, un par ligne, exactement dans ce format, sans titre ni commentaire :
+Nom de l'objet ; quantité ; unité ; poids d'une unité en grammes ; catégorie
+
+Catégorie, une seule parmi : ${PH_CATS.join(", ")}.
+Unité : pièce, paire, lot, rouleau, sachet, boîte, m…
+Si tu reconnais la marque ou le modèle, mets-les dans le nom et donne le poids réel ; sinon un poids typique.
+
+Exemple :
+Hamac DD Frontline ; 1 ; pièce ; 1100 ; Bivouac
+Gourde 1 L ; 2 ; pièce ; 180 ; Eau`;
+}
+// réponse de l'IA → articles ; tolère puces, tableaux, « 1,1 kg », lignes de texte autour
+function phParse(txt) {
+  const out = [], seen = new Set(), catBy = new Map(CATS.map(c => [pho(c), c]));
+  String(txt || "").slice(0, 2e4).split(/\r?\n/).forEach(line => {
+    const l = line.replace(/`/g, "").replace(/^\s*(?:[-*•·]|\d+[.)])\s*/, "").replace(/^\s*\||\|\s*$/g, "").trim();
+    const f = l.split(/\s*[;|\t]\s*/); if (f.length < 2) return;
+    const name = f[0].replace(/\*\*/g, "").trim().slice(0, 80); if (!name || /^-+$/.test(name) || /^nom\b/i.test(name)) return;
+    const k = gkey(name); if (seen.has(k)) return; seen.add(k);
+    const q = numIn((f[1] || "").replace(/[^\d,.]/g, "")), wTxt = f[3] || "", w0 = numIn(wTxt.replace(/[^\d,.]/g, ""));
+    const w = Number.isFinite(w0) ? Math.round(/kg/i.test(wTxt) ? w0 * 1000 : w0) : 0;
+    const pc = pho(f[4] || ""), cat = catBy.get(pc) || [...catBy].find(([kk]) => pc && (kk.includes(pc) || pc.includes(kk)))?.[1] || "";
+    out.push({ name, qty: q > 0 ? Math.min(q, 999) : 1, unit: (f[2] || "").trim().slice(0, 20) || "pièce", w: Math.min(Math.max(w, 0), 1e5), cat });
+  });
+  return out;
+}
+function phShow() {
+  const box = $("phOut"), e = cur(), rows = phParse($("phIn").value); box.textContent = ""; box.hidden = false;
+  if (!rows.length) { const p = document.createElement("p"); p.className = "hint"; p.textContent = "Je ne trouve aucune ligne « nom ; quantité ; unité ; poids ; catégorie ». Vérifie que tu as collé la réponse de l'IA en entier."; box.appendChild(p); return; }
+  const have = new Set(e.items.map(i => gkey(i.name)));
+  rows.forEach((r, n) => {
+    const src = findSrc(gkey(r.name)), dup = have.has(gkey(r.name)); r.cat = r.cat || (src && src.cat) || "Autre";
+    const lb = document.createElement("label"); if (dup) lb.className = "dup";
+    const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = !dup; cb.disabled = dup; cb.dataset.n = n;
+    const t = document.createElement("span"), b = document.createElement("b"), sm = document.createElement("small");
+    b.textContent = r.name; sm.textContent = dup ? "déjà dans la liste" : `${qtyTxt(r.qty, r.unit)}${r.w ? " · " + fmtW(r.w) + " l'unité" : ""} · ${secDef(secOf(r.cat)).label}`;
+    t.append(b, sm); lb.append(cb, t); box.appendChild(lb);
+  });
+  const go = document.createElement("button"); go.type = "button"; go.className = "primary"; go.id = "phAdd";
+  const upd = () => { const k = box.querySelectorAll("input:checked").length; go.textContent = k ? `Ajouter ${k} objet${k > 1 ? "s" : ""} à la liste` : "Coche des objets"; go.disabled = !k; };
+  box.addEventListener("change", upd); upd();
+  go.onclick = () => {
+    const e2 = cur(), picked = [...box.querySelectorAll("input:checked")].map(c => rows[+c.dataset.n]);
+    picked.forEach(r => { const src = findSrc(gkey(r.name)), it = makeItem(r.name, src, r.cat, r.unit, String(r.qty));
+      if (!(src && gkey(src.unit) === gkey(r.unit) && src.w)) { it.w = r.w; it.note = PH_NOTE; } e2.items.push(it); rememberGear(it); });
+    persist(e2); $("phIn").value = ""; box.hidden = true; closeOv("phOv"); renderAll(false);
+    toast(`${picked.length} objet${picked.length > 1 ? "s" : ""} ajouté${picked.length > 1 ? "s" : ""}. Les poids de l'IA sont des estimations : touche un objet pour corriger.`);
+  };
+  box.appendChild(go);
+}
+$("btnPhoto").onclick = () => { $("phOut").hidden = true; openOv("phOv"); };
+$("phClose").onclick = () => closeOv("phOv");
+$("phOv").addEventListener("click", ev => { if (ev.target === $("phOv")) closeOv("phOv"); });
+$("phCopy").onclick = () => copy(phPrompt(), "Consigne copiée : colle-la dans ton IA avec ta photo");
+$("phRead").onclick = phShow;
 // ---------- lever et coucher du soleil : calculés dans le téléphone, sans réseau ni GPS ----------
 // algorithme NOAA simplifié (à 1 ou 2 min près). Position : la dernière relevée dans Urgences, sinon le centre de la Guyane
 // (3° de longitude d'une frontière à l'autre = 12 min : sans position, on reste à ± 6 min partout dans le pays).
@@ -2843,7 +2929,7 @@ setInterval(() => { if (document.hidden) return; if (view === "accueil") renderS
 document.addEventListener("visibilitychange", () => { if (!document.hidden) { renderSun(); renderLostSun(); } });
 renderLostSun();
 // ---------- à propos : retours par mail, mesure d'audience anonyme ----------
-const APP_VER = 31, FEEDBACK_MAIL = "sacdelayon@gmail.com", GC_CODE = "sacdelayon";
+const APP_VER = 32, FEEDBACK_MAIL = "sacdelayon@gmail.com", GC_CODE = "sacdelayon";
 const mailOk = /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(FEEDBACK_MAIL);
 function feedbackHref() {
   const ua = navigator.userAgent, phone = /iPhone|iPad/.test(ua) ? "iPhone / iPad" : /Android/.test(ua) ? "Android" : "ordinateur";
