@@ -338,6 +338,11 @@ body.noscroll { overflow: hidden; }
 .urg-alert { border: 2px solid var(--laterite); border-radius: var(--r); padding: 12px 14px; display: grid; gap: 6px; }
 .urg-alert p { margin: 0; }
 .urg-pos { font-family: var(--f-mono); font-size: 1.1rem; }
+.urg-say { border: 1px solid var(--line); border-radius: var(--r); padding: 12px 14px; display: grid; gap: 8px; background: var(--surface); }
+.urg-say h3 { margin: 0; }
+.urg-say .hint { margin: 0; }
+.urg-say pre { margin: 0; white-space: pre-wrap; font: 600 1.05rem/1.45 var(--f-body); }
+.san { margin-bottom: 8px; }
 .proto { border: 1px solid var(--line); border-radius: 12px; padding: 0 12px; }
 .proto summary { font-weight: 700; cursor: pointer; }
 .proto ul { margin: 0 0 12px; padding-left: 20px; display: grid; gap: 6px; }
@@ -800,6 +805,7 @@ button .ico { margin-right: 6px; }
     <details class="legal">
       <summary>Tes données</summary>
       <p>Tes expéditions, ton matériel et tes fiches sécurité restent sur ton téléphone : ils ne sont envoyés nulle part. Pense à faire une sauvegarde de temps en temps.</p>
+      <p>Ta fiche santé (Urgences) reste aussi sur ton téléphone. Elle n'est jamais dans les sauvegardes : elle ne part que si tu l'envoies toi-même ou si tu la joins à ton message de sécurité. Avec « Remplir avec une photo », ta photo va à l'IA que tu choisis, jamais à l'appli.</p>
       <p>Pour savoir si l'appli sert, la version en ligne compte ses ouvertures avec GoatCounter, de façon anonyme : sans cookie, sans adresse IP conservée, et sans rien de tes listes.</p>
       <p>Les dons passent par Ko-fi et PayPal ou Stripe, selon leurs propres conditions : l'appli n'en voit rien.</p>
     </details>
@@ -809,7 +815,7 @@ button .ico { margin-right: 6px; }
       <p>Hébergeur de la version en ligne : GitHub Pages, GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis.</p>
       <p>Polices Barlow sous licence SIL Open Font License. Déclinaison magnétique d'après le modèle magnétique mondial WMM 2025 (NOAA et BGS).</p>
     </details>
-    <p class="ver mono">Sac de Layon · version 32</p>
+    <p class="ver mono">Sac de Layon · version 33</p>
   </section>
 </main>
 
@@ -890,6 +896,29 @@ button .ico { margin-right: 6px; }
       <p class="urg-pos" id="urgPos" aria-live="polite" hidden></p>
       <small class="gmsg" id="urgMsg" hidden></small>
     </div>
+    <div class="urg-say" id="sanSay" hidden>
+      <h3>À lire aux secours</h3>
+      <p class="hint">Sous le stress, on oublie. Lis ce message mot à mot quand le 15 ou le 112 décroche.</p>
+      <pre id="sanTxt"></pre>
+      <div class="actions" style="margin:0"><button type="button" class="small" id="sanCopy">Copier</button><button type="button" class="small ghost" id="sanSend">Envoyer par SMS ou WhatsApp</button></div>
+    </div>
+    <details class="proto" id="sanBox"><summary><svg class="ico" aria-hidden="true"><use href="#i-med"/></svg>Ma fiche santé</summary>
+      <p class="hint">À remplir chez toi, avant de partir. Elle reste dans ce téléphone : elle ne part que si tu l'envoies.</p>
+      <div class="grid san">
+        <label class="field"><span class="label">Prénom et nom</span><input id="sanName" autocomplete="name"></label>
+        <label class="field"><span class="label">Année de naissance</span><input id="sanBorn" inputmode="numeric" autocomplete="off" placeholder="ex. 1980"></label>
+        <label class="field"><span class="label">Groupe sanguin</span><input id="sanBlood" autocomplete="off" placeholder="ex. O+"></label>
+        <label class="field wide"><span class="label">Allergies</span><input id="sanAllerg" autocomplete="off" placeholder="ex. pénicilline, piqûres de guêpe"></label>
+        <label class="field wide"><span class="label">Traitements en cours</span><input id="sanMeds" autocomplete="off" placeholder="ex. anticoagulant (Kardegic), insuline"></label>
+        <label class="field wide"><span class="label">Antécédents, prothèses, opérations</span><input id="sanHist" autocomplete="off" placeholder="ex. prothèses cervicales, asthme"></label>
+        <label class="field wide"><span class="label">À faire ou à éviter</span><input id="sanDo" autocomplete="off" placeholder="ex. ne pas manipuler la nuque sans collier"></label>
+        <label class="field"><span class="label">Personne à prévenir</span><input id="sanWho" autocomplete="off" placeholder="ex. Élisabeth (épouse)"></label>
+        <label class="field"><span class="label">Son téléphone</span><input id="sanTel" type="tel" autocomplete="off" placeholder="0694 …"></label>
+      </div>
+      <label class="chk"><input type="checkbox" id="sanJoin" checked> Joindre ma fiche santé aux messages de sécurité que j'envoie avant le départ</label>
+      <div class="actions"><button type="button" class="small" id="sanTeam">Envoyer ma fiche à mes équipiers</button></div>
+      <p class="hint">Si tu es inconscient, ton téléphone reste verrouillé : personne ne pourra lire cette fiche. Remplis aussi la <b>fiche médicale du téléphone</b>, lisible sur l'écran verrouillé (iPhone : appli Santé > Fiche médicale ; Android : Réglages > Sécurité et urgence), et envoie ta fiche à tes équipiers avant de partir.</p>
+    </details>
     <details class="proto"><summary><svg class="ico" aria-hidden="true"><use href="#i-compass"/></svg>Perdu en forêt</summary><ul>
       <li><b>Stop.</b> Assieds-toi, bois, mange. Avancer au hasard aggrave tout.</li>
       <li class="sunleft"></li>
@@ -2226,7 +2255,7 @@ document.addEventListener("focusin", ev => { const t = ev.target; if (!t.matches
   setTimeout(() => { if (document.activeElement === t) t.scrollIntoView({ block: "center", behavior: "smooth" }); }, 350); });
 
 // ---------- urgences et premiers secours ----------
-function openUrg() { closeMenu(); renderLostSun(); openOv("urgOv"); $("urgBox").scrollTop = 0; }
+function openUrg() { closeMenu(); renderLostSun(); openOv("urgOv"); renderSan(); $("urgBox").scrollTop = 0; }
 $("btnUrg").onclick = openUrg;
 $("urgClose").onclick = () => closeOv("urgOv");
 $("urgOv").addEventListener("click", ev => { if (ev.target === $("urgOv")) closeOv("urgOv"); });
@@ -2349,6 +2378,7 @@ $("urgLoc").onclick = () => {
   locate($("urgLoc"), say, p => { const c = p.coords, ll = `${c.latitude.toFixed(5)},${c.longitude.toFixed(5)}`;
     out.hidden = false; out.textContent = ll.replace(",", ", "); $("urgCopy").hidden = false;
     try { localStorage.setItem(LS_POS, JSON.stringify({ lat: +c.latitude.toFixed(2), lon: +c.longitude.toFixed(2) })); } catch (e) {} renderSun(); renderLostSun();
+    sanPos = { ll: ll.replace(",", ", "), acc: Math.round(c.accuracy), at: gyTime(new Date(p.timestamp || Date.now())) }; renderSan();
     // lien geo: : ouvre OsmAnd, Organic Maps, Locus… qui marchent hors réseau
     const a = $("urgMap"); a.href = "geo:" + ll + "?q=" + ll; a.hidden = false;
     say(`Précision ± ${Math.round(c.accuracy)} m, relevée à ${gyTime(new Date(p.timestamp || Date.now()))} (heure de Guyane). Le GPS du téléphone marche sans réseau.`); }, 120000);
@@ -2813,6 +2843,42 @@ function tick(i, e, row, on) {
   renderSum();
   if (on && e.items.length && e.items.every(x => x.done)) setTimeout(() => { if (cur() === e && e.items.length && e.items.every(x => x.done)) celebrate(e); }, 450);
 }
+// ---------- fiche santé : reste dans ce téléphone, devient un message à lire aux secours ----------
+const LS_SAN = "sacdelayon.sante", SAN_F = ["Name", "Born", "Blood", "Allerg", "Meds", "Hist", "Do", "Who", "Tel"];
+let sanPos = null; // dernière position relevée dans Urgences, pour le message
+function sanGet() { let d = {}; try { d = JSON.parse(localStorage.getItem(LS_SAN)) || {}; } catch (e) {} const o = { join: d.join !== false };
+  SAN_F.forEach(k => { o[k] = typeof d[k] === "string" ? d[k].slice(0, 300) : ""; }); return o; }
+function sanFilled(d) { return SAN_F.some(k => k !== "Name" && d[k].trim()); }
+// les lignes santé seules : pour le message de sécurité et pour les équipiers
+function sanLines(d) {
+  const L = [], y = parseInt(d.Born, 10), age = y > 1900 && y <= new Date().getFullYear() ? new Date().getFullYear() - y : 0;
+  if (d.Name || age || d.Blood) L.push([d.Name, age ? `né(e) en ${y} (${age} ans)` : "", d.Blood ? "groupe sanguin " + d.Blood : ""].filter(Boolean).join(", ") + ".");
+  if (d.Hist) L.push(`Antécédents : ${d.Hist}.`);
+  if (d.Do) L.push(`Important : ${d.Do}.`);
+  if (d.Meds) L.push(`Traitements en cours : ${d.Meds}.`);
+  L.push(`Allergies : ${d.Allerg || "aucune connue"}.`);
+  if (d.Who || d.Tel) L.push(`Personne à prévenir : ${[d.Who, d.Tel].filter(Boolean).join(", ")}.`);
+  return L.map(x => x.replace(/\.\.$/, "."));
+}
+function sanMsg(d) {
+  const L = ["Urgence en forêt, en Guyane."];
+  L.push(sanPos ? `Position GPS : ${sanPos.ll} (à ${sanPos.acc} m près, relevée à ${sanPos.at}).` : "Position GPS : [touche d'abord « Afficher ma position », au-dessus]");
+  L.push("", "La victime :", ...sanLines(d), "", "À dire aussi : ce qui s'est passé et à quelle heure, combien de blessés, s'il est conscient, s'il respire, et un numéro pour te rappeler.");
+  return L.join("\n");
+}
+function renderSan() {
+  const d = sanGet(); SAN_F.forEach(k => { const i = $("san" + k); if (document.activeElement !== i) i.value = d[k]; }); $("sanJoin").checked = d.join;
+  $("sanSay").hidden = !sanFilled(d); $("sanTxt").textContent = sanMsg(d);
+  if (!sanFilled(d) && !$("urgOv").hidden) $("sanBox").open = true;
+}
+function sanSave() { const d = { join: $("sanJoin").checked }; SAN_F.forEach(k => { d[k] = $("san" + k).value.trim().slice(0, 300); });
+  try { localStorage.setItem(LS_SAN, JSON.stringify(d)); } catch (e) {} $("sanSay").hidden = !sanFilled(d); $("sanTxt").textContent = sanMsg(d); }
+SAN_F.forEach(k => $("san" + k).addEventListener("input", sanSave)); $("sanJoin").addEventListener("change", sanSave);
+function sanShare(text, ok) { if (navigator.share) { navigator.share({ text }).catch(err => { if (!err || err.name !== "AbortError") copy(text, ok); }); return; } copy(text, ok); }
+$("sanCopy").onclick = () => copy($("sanTxt").textContent, "Message copié");
+$("sanSend").onclick = () => sanShare($("sanTxt").textContent, "Message copié : colle-le dans un SMS");
+$("sanTeam").onclick = () => { const d = sanGet(); if (!sanFilled(d)) { toast("Remplis d'abord ta fiche santé"); return; }
+  sanShare(["FICHE SANTÉ · SAC DE LAYON", "Garde-la : si je suis blessé, lis-la aux secours.", "", ...sanLines(d)].join("\n"), "Fiche copiée : colle-la dans WhatsApp"); };
 // ---------- remplir avec une photo : l'IA de l'utilisateur lit la photo, l'appli lit sa réponse ----------
 const PH_CATS = CATS.filter(c => !/^Caisse|^Jeux|^Trousse/.test(c));
 const PH_NOTE = "poids estimé par l'IA d'après la photo, à vérifier";
@@ -2929,7 +2995,7 @@ setInterval(() => { if (document.hidden) return; if (view === "accueil") renderS
 document.addEventListener("visibilitychange", () => { if (!document.hidden) { renderSun(); renderLostSun(); } });
 renderLostSun();
 // ---------- à propos : retours par mail, mesure d'audience anonyme ----------
-const APP_VER = 32, FEEDBACK_MAIL = "sacdelayon@gmail.com", GC_CODE = "sacdelayon";
+const APP_VER = 33, FEEDBACK_MAIL = "sacdelayon@gmail.com", GC_CODE = "sacdelayon";
 const mailOk = /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(FEEDBACK_MAIL);
 function feedbackHref() {
   const ua = navigator.userAgent, phone = /iPhone|iPad/.test(ua) ? "iPhone / iPad" : /Android/.test(ua) ? "Android" : "ordinateur";
@@ -3055,6 +3121,7 @@ function safetyMsg(e) {
   if (s.track) L.push(`Suivi de la balise : ${s.track}`);
   if (s.condAt) L.push(`Crues et météo vérifiées le ${gyDay(new Date(s.condAt))}.`);
   if (s.note) L.push(`À savoir (santé) : ${s.note}`);
+  const sd = sanGet(); if (sd.join && sanFilled(sd)) L.push("", "Ma fiche santé :", ...sanLines(sd));
   L.push("");
   const al = alertDate(e);
   L.push(al ? `SANS NOUVELLES DE NOUS le ${fmtAlert(al)}, appelle la gendarmerie (17) ou le 112 et lis-leur ce message.`
