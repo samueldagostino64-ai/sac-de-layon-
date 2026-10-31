@@ -385,7 +385,7 @@ test("version en ligne : compteur anonyme (une fois par onglet, rien des listes)
   assert.ok(paths.includes("/ouverture-navigateur")); assert.equal(paths.filter(x => x === "/onglet-boussole").length, 1);
   assert.ok(!hits.some(u => /secr|Hamac/i.test(decodeURIComponent(u))), "aucun contenu des listes n'est envoyé");
   await p.click('.tabbar [data-go="reglages"]');
-  assert.match(await p.getAttribute("#btnFeedback", "href"), /^mailto:sacdelayon@gmail\.com\?subject=Sac%20de%20Layon%20v32/);
+  assert.match(await p.getAttribute("#btnFeedback", "href"), /^mailto:sacdelayon@gmail\.com\?subject=Sac%20de%20Layon%20v33/);
   assert.deepEqual(errs, []); await ctx.close();
 });
 
@@ -399,7 +399,7 @@ test("en local (et dans Claude), le compteur ne part pas", async () => {
 test("retours : sur iPhone, Gmail est proposé en plus de Mail et de la copie de l'adresse", async () => {
   const p = await open(); await p.click('.tabbar [data-go="reglages"]');
   assert.ok(await p.isVisible("#btnGmail"));
-  assert.match(await p.getAttribute("#btnGmail", "href"), /^googlegmail:\/\/\/co\?to=sacdelayon%40gmail\.com&subject=Sac%20de%20Layon%20v32[^&]*&body=/);
+  assert.match(await p.getAttribute("#btnGmail", "href"), /^googlegmail:\/\/\/co\?to=sacdelayon%40gmail\.com&subject=Sac%20de%20Layon%20v33[^&]*&body=/);
   assert.match(await p.textContent("#btnFeedback"), /Avec Mail \(Apple\)/);
   assert.ok(await p.isVisible("#btnFbCopy"));
   await close(p);
@@ -497,5 +497,32 @@ test("photo : consigne copiée, réponse de l'IA lue (puces, tableau, kg), aper�
   assert.ok(!it.some(i => /Gourde/.test(i.name)), "décochée, pas ajoutée");
   assert.ok(st.gear["hamac dd frontline"], "retenu dans Mon matériel");
   assert.ok(await p.isHidden("#phOv"));
+  await close(p);
+});
+
+test("fiche santé : remplie une fois, elle devient le message à lire aux secours et rejoint le message de sécurité", async () => {
+  const p = await open({ v: 2, current: "A", gear: {}, hidden: [], exps: [exp({ id: "A", start: iso(3), end: iso(6), items: [item()] })] });
+  await p.click("#btnUrg");
+  assert.ok(await p.isHidden("#sanSay"), "rien à lire tant que la fiche est vide");
+  assert.ok(await p.evaluate(() => document.getElementById("sanBox").open), "la fiche vide s'ouvre d'elle-même");
+  await p.fill("#sanName", "Samuel D."); await p.fill("#sanBorn", "1980"); await p.fill("#sanBlood", "O+");
+  await p.fill("#sanHist", "prothèses cervicales"); await p.fill("#sanDo", "ne pas manipuler la nuque sans collier");
+  await p.fill("#sanMeds", "aucun"); await p.fill("#sanWho", "Élisabeth"); await p.fill("#sanTel", "0694 00 00 00");
+  const t = await p.textContent("#sanTxt");
+  assert.match(t, /Samuel D\., né\(e\) en 1980 \(\d+ ans\), groupe sanguin O\+\./);
+  assert.match(t, /Antécédents : prothèses cervicales\./);
+  assert.match(t, /Important : ne pas manipuler la nuque sans collier\./);
+  assert.match(t, /Allergies : aucune connue\./);
+  assert.match(t, /Personne à prévenir : Élisabeth, 0694 00 00 00\./);
+  assert.match(t, /Position GPS : \[touche d.abord « Afficher ma position »/);
+  assert.ok(await p.isVisible("#sanSay"));
+  // gardée après rechargement, et jamais dans la sauvegarde
+  await p.reload(); await p.waitForTimeout(300); await p.click("#btnUrg");
+  assert.equal(await p.inputValue("#sanHist"), "prothèses cervicales");
+  const bk = await p.evaluate(() => { const s = JSON.parse(localStorage.getItem("sacdelayon.v1")); return JSON.stringify(s); });
+  assert.ok(!/prothèses/.test(bk), "pas dans les données des expéditions");
+  await p.click("#urgClose");
+  await p.locator("#homeList .card.big .actions button", { hasText: "Fiche sécurité" }).click();
+  assert.match(await p.textContent("#safeForm .msgprev"), /Ma fiche santé :\nSamuel D\.[\s\S]*prothèses cervicales/);
   await close(p);
 });
