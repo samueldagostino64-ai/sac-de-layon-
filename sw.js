@@ -1,7 +1,7 @@
 // Sac de Layon : l'appli marche hors ligne une fois ouverte une première fois avec du réseau.
 // Stratégie : on ouvre tout de suite ce qui est gardé sur le téléphone, et on met à jour en arrière-plan.
 // Une barre de réseau en lisière ne retarde donc jamais l'ouverture ; la nouvelle version s'affiche à l'ouverture suivante.
-const CACHE = "sac-de-layon-v35";
+const CACHE = "sac-de-layon-v36";
 const CORE = ["./", "manifest.webmanifest", "icon-192.png", "icon-512.png", "apple-touch-icon.png",
   "fonts/barlow-400.woff2", "fonts/barlow-500.woff2", "fonts/barlow-600.woff2", "fonts/barlow-700.woff2", "fonts/barlow-condensed-600.woff2", "fonts/barlow-condensed-700.woff2"];
 // la bibliothèque PDF (300 Ko) n'est pas nécessaire pour ouvrir l'appli : elle est mise en cache après coup
