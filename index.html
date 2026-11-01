@@ -357,6 +357,13 @@ body.noscroll { overflow: hidden; }
 .bchips button.alarm[aria-pressed="true"] { background: var(--laterite); border-color: var(--laterite); color: #fff; }
 .brow { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); align-items: end; }
 .brow .small { justify-self: start; }
+.btime { display: flex; gap: 8px; align-items: flex-end; }
+.btime .field { flex: 1 1 0; min-width: 0; }
+.btime > button { flex: none; }
+.bq > button { justify-self: start; }
+.btime[hidden] { display: none; }
+input[type="time"] { -webkit-appearance: none; appearance: none; display: block; width: 100%; max-width: 100%; min-height: 44px; }
+input[type="time"]::-webkit-date-and-time-value { text-align: left; }
 .balert { margin: 0; color: var(--laterite); font-weight: 700; }
 .bsan { margin: 0; font-size: .92rem; white-space: pre-wrap; color: var(--muted); }
 .fiches { display: grid; gap: 8px; }
@@ -849,7 +856,7 @@ button .ico { margin-right: 6px; }
       <p>Hébergeur de la version en ligne : GitHub Pages, GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis.</p>
       <p>Polices Barlow sous licence SIL Open Font License. Déclinaison magnétique d'après le modèle magnétique mondial WMM 2025 (NOAA et BGS).</p>
     </details>
-    <p class="ver mono">Sac de Layon · version 35</p>
+    <p class="ver mono">Sac de Layon · version 36</p>
   </section>
 </main>
 
@@ -2944,7 +2951,7 @@ function sanMed(d) {
   if (u.length) L.push(dot(u.join(", ").replace(/^./, c => c.toUpperCase())));
   if (d.Ill) L.push(dot(`Maladies connues : ${d.Ill}`));
   if (d.Hist) L.push(dot(`Opérations, prothèses, antécédents : ${d.Hist}`));
-  if (d.Do) L.push(dot(`Important : ${d.Do}`));
+  if (d.Do && !/^(néant|rien|aucun|aucune|non|-)\.?$/i.test(d.Do.trim())) L.push(dot(`Important : ${d.Do}`));
   L.push(dot(`Traitements en cours : ${d.Meds || "aucun connu"}`));
   L.push(dot(`Allergies : ${d.Allerg || "aucune connue"}`));
   if (d.Vacc) L.push(dot(`Vaccins : ${d.Vacc}`));
@@ -3068,7 +3075,7 @@ function bilRender() {
   // 2. ce qui s'est passé
   const s2 = step("2", "Ce qui s'est passé");
   chips(s2, "what", "");
-  const r2 = el("div", "brow"); s2.appendChild(r2);
+  const r2 = el("div", "btime"); s2.appendChild(r2);
   input(r2, "at", "À quelle heure", { type: "time" }); nowBtn(r2, "at");
   input(s2, "whatTxt", "Précisions", { ph: "ex. glissade dans un bas-fond, choc à la nuque" });
   // 3. la victime
@@ -3080,7 +3087,9 @@ function bilRender() {
   s3.append(other, sanBox);
   const r3 = el("div", "brow"); other.appendChild(r3); input(r3, "age", "Âge", { num: true, ph: "ex. 43" });
   chips(other, "sex", "Sexe"); input(other, "known", "Ce que tu sais de sa santé", { ph: "allergies, traitements, maladies" });
-  if (sanFilled(d)) { sanBox.appendChild(el("p", "bsan", "Ta fiche santé sera lue avec le bilan.")); }
+  if (sanFilled(d)) { const miss = [!d.Sex ? "ton sexe" : "", !sanAge(d) ? "ton année de naissance" : ""].filter(Boolean);
+    sanBox.appendChild(el("p", "bsan", "Ta fiche santé sera lue avec le bilan." + (miss.length ? ` Il y manque ${miss.join(" et ")} : complète-la.` : "")));
+    if (miss.length) { const x = el("button", "small", "Compléter ma fiche santé"); x.type = "button"; x.onclick = openSan; sanBox.appendChild(x); } }
   else { const x = el("button", "small", "Remplir ma fiche santé"); x.type = "button"; x.onclick = openSan; sanBox.append(el("p", "bsan", "Ta fiche santé est vide : les secours n'auront pas tes antécédents."), x); }
   showWho();
   const respAlert = el("p", "balert", "Ne respire pas : commence le massage cardiaque tout de suite, au milieu de la poitrine, fort et vite. Le 15 te guide au téléphone.");
@@ -3093,7 +3102,7 @@ function bilRender() {
   const r6 = el("div", "brow"); s3.appendChild(r6); input(r6, "temp", "Température (°C)", { num: true, ph: "si thermomètre" });
   // 4. déjà fait
   const s4 = step("4", "Ce que vous avez déjà fait");
-  const gar = el("div", "brow");
+  const gar = el("div", "btime");
   const showGar = () => { gar.hidden = !bil.done.includes("Garrot posé"); };
   chips(s4, "done", "", showGar); s4.appendChild(gar); input(gar, "garrotAt", "Heure du garrot", { type: "time" }); nowBtn(gar, "garrotAt"); showGar();
   input(s4, "doneTxt", "Autre chose", { ph: "ex. 2 sachets de réhydratation" });
@@ -3132,7 +3141,7 @@ function satParts() {
     if (d.Meds) P.push("Traitements: " + d.Meds + ".");
     if (d.Hist) P.push("Antécédents: " + d.Hist + ".");
     if (d.Ill) P.push("Maladies: " + d.Ill + ".");
-    if (d.Do) P.push("Important: " + d.Do + ".");
+    if (d.Do && !/^(néant|rien|aucun|aucune|non|-)\.?$/i.test(d.Do.trim())) P.push("Important: " + d.Do + ".");
     if (d.Blood) P.push("Groupe " + d.Blood + ".");
   } else if (b.known) P.push("Santé: " + b.known + ".");
   const cb = b.cb || d.Me; if (cb) P.push("Tél: " + cb + ".");
@@ -3282,7 +3291,7 @@ setInterval(() => { if (document.hidden) return; if (view === "accueil") renderS
 document.addEventListener("visibilitychange", () => { if (!document.hidden) { renderSun(); renderLostSun(); } });
 renderLostSun();
 // ---------- à propos : retours par mail, mesure d'audience anonyme ----------
-const APP_VER = 35, FEEDBACK_MAIL = "sacdelayon@gmail.com", GC_CODE = "sacdelayon";
+const APP_VER = 36, FEEDBACK_MAIL = "sacdelayon@gmail.com", GC_CODE = "sacdelayon";
 const mailOk = /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(FEEDBACK_MAIL);
 function feedbackHref() {
   const ua = navigator.userAgent, phone = /iPhone|iPad/.test(ua) ? "iPhone / iPad" : /Android/.test(ua) ? "Android" : "ordinateur";
