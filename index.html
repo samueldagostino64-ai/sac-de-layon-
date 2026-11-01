@@ -856,7 +856,7 @@ button .ico { margin-right: 6px; }
       <p>Hébergeur de la version en ligne : GitHub Pages, GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis.</p>
       <p>Polices Barlow sous licence SIL Open Font License. Déclinaison magnétique d'après le modèle magnétique mondial WMM 2025 (NOAA et BGS).</p>
     </details>
-    <p class="ver mono">Sac de Layon · version 36</p>
+    <p class="ver mono">Sac de Layon · version 37</p>
   </section>
 </main>
 
@@ -3291,7 +3291,7 @@ setInterval(() => { if (document.hidden) return; if (view === "accueil") renderS
 document.addEventListener("visibilitychange", () => { if (!document.hidden) { renderSun(); renderLostSun(); } });
 renderLostSun();
 // ---------- à propos : retours par mail, mesure d'audience anonyme ----------
-const APP_VER = 36, FEEDBACK_MAIL = "sacdelayon@gmail.com", GC_CODE = "sacdelayon";
+const APP_VER = 37, FEEDBACK_MAIL = "sacdelayon@gmail.com", GC_CODE = "sacdelayon";
 const mailOk = /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(FEEDBACK_MAIL);
 function feedbackHref() {
   const ua = navigator.userAgent, phone = /iPhone|iPad/.test(ua) ? "iPhone / iPad" : /Android/.test(ua) ? "Android" : "ordinateur";
@@ -3400,29 +3400,51 @@ function alertDate(e) {
 function tzName() { return "heure de Guyane"; }
 function parisTxt(d) { return inZone(d, "Europe/Paris", { weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }); }
 function fmtAlert(d) { const p = parisTxt(d); return `${gyDay(d)} à ${gyTime(d)} (heure de Guyane${p ? ", soit le " + p + " heure de Paris" : ""})`; }
-function safetyMsg(e) {
-  const s = safetyOf(e), L = [], end = endOf(e);
-  L.push("FICHE SÉCURITÉ · SAC DE LAYON");
-  L.push(`${e.name}${e.type ? " (" + e.type + ")" : ""}`, "");
-  L.push(`Participants : ${e.people} personne${+e.people > 1 ? "s" : ""}${s.who ? " (" + s.who + ")" : ""}`);
-  if (e.start) L.push(`Départ : ${dLongY(e.start)}${s.startTime ? " à " + s.startTime + " (heure de Guyane)" : ""}`);
-  if (s.from) L.push(`Point de départ : ${s.from}`);
-  if (s.gps) L.push(`GPS : ${s.gps} · https://maps.google.com/?q=${encodeURIComponent(s.gps.replace(/\s+/g, ""))}`);
-  if (s.route) L.push(`Itinéraire : ${s.route}`);
-  if (end) L.push(`Retour prévu : ${dLongY(end)} vers ${s.retTime || "18:00"} (heure de Guyane)`);
-  if (s.car) L.push(`Véhicule : ${s.car}`);
-  if (s.boat) L.push(`Pirogue : ${s.boat}`);
-  if (s.comms) L.push(`Moyens de communication : ${s.comms}`);
-  if (s.okTime) L.push(`Message « tout va bien » chaque jour vers ${s.okTime} (heure de Guyane)${s.missN ? ` : sans message ${s.missN === 1 ? "un jour" : s.missN + " jours de suite"}, donne l'alerte` : ""}.`);
-  if (s.track) L.push(`Suivi de la balise : ${s.track}`);
-  if (s.condAt) L.push(`Crues et météo vérifiées le ${gyDay(new Date(s.condAt))}.`);
-  if (s.note) L.push(`À savoir (santé) : ${s.note}`);
-  const sd = sanGet(); if (sd.join && sanFilled(sd)) L.push("", "Ma fiche santé :", ...sanLines(sd));
-  L.push("");
+// coordonnées UTM (« 22N 273971 560117 ») → latitude, longitude WGS84, pour que le lien de carte marche
+function utmToLL(t) {
+  const m = String(t || "").trim().match(/^(\d{1,2})\s*([C-HJ-NP-X])\s+(\d{5,7}(?:[.,]\d+)?)\s*[ ,;]\s*(\d{5,8}(?:[.,]\d+)?)$/i); if (!m) return null;
+  const zone = +m[1], north = m[2].toUpperCase() >= "N", E = parseFloat(m[3].replace(",", ".")), Nn = parseFloat(m[4].replace(",", "."));
+  if (zone < 1 || zone > 60) return null;
+  const a = 6378137, f = 1 / 298.257223563, k0 = 0.9996, e2 = f * (2 - f), ep2 = e2 / (1 - e2);
+  const x = E - 500000, y = north ? Nn : Nn - 10000000, M = y / k0;
+  const mu = M / (a * (1 - e2 / 4 - 3 * e2 * e2 / 64 - 5 * e2 ** 3 / 256)), e1 = (1 - Math.sqrt(1 - e2)) / (1 + Math.sqrt(1 - e2));
+  const p1 = mu + (3 * e1 / 2 - 27 * e1 ** 3 / 32) * Math.sin(2 * mu) + (21 * e1 * e1 / 16 - 55 * e1 ** 4 / 32) * Math.sin(4 * mu) + (151 * e1 ** 3 / 96) * Math.sin(6 * mu) + (1097 * e1 ** 4 / 512) * Math.sin(8 * mu);
+  const C1 = ep2 * Math.cos(p1) ** 2, T1 = Math.tan(p1) ** 2, N1 = a / Math.sqrt(1 - e2 * Math.sin(p1) ** 2), R1 = a * (1 - e2) / (1 - e2 * Math.sin(p1) ** 2) ** 1.5, D = x / (N1 * k0);
+  const lat = p1 - (N1 * Math.tan(p1) / R1) * (D * D / 2 - (5 + 3 * T1 + 10 * C1 - 4 * C1 * C1 - 9 * ep2) * D ** 4 / 24 + (61 + 90 * T1 + 298 * C1 + 45 * T1 * T1 - 252 * ep2 - 3 * C1 * C1) * D ** 6 / 720);
+  const lon = (D - (1 + 2 * T1 + C1) * D ** 3 / 6 + (5 - 2 * C1 + 28 * T1 - 3 * C1 * C1 + 8 * ep2 + 24 * T1 * T1) * D ** 5 / 120) / Math.cos(p1);
+  const la = lat * 180 / Math.PI, lo = (zone - 1) * 6 - 180 + 3 + lon * 180 / Math.PI;
+  return Math.abs(la) <= 84 && Math.abs(lo) <= 180 ? [+la.toFixed(5), +lo.toFixed(5)] : null;
+}
+// lien de carte : « lat, lon » tel quel, UTM converti ; sinon pas de lien (il ne mènerait nulle part)
+function mapLink(g) {
+  const t = String(g || "").trim(), ll = t.match(/^(-?\d{1,2}(?:[.,]\d+)?)\s*[,; ]\s*(-?\d{1,3}(?:[.,]\d+)?)$/);
+  if (ll) return `https://maps.google.com/?q=${ll[1].replace(",", ".")},${ll[2].replace(",", ".")}`;
+  const u = utmToLL(t); return u ? `https://maps.google.com/?q=${u[0]},${u[1]}` : "";
+}
+// le message « Si je ne rentre pas » : en sections aérées ; wa = gras WhatsApp (*…*), sinon texte simple (SMS, calendrier)
+function safetyMsg(e, wa) {
+  const s = safetyOf(e), L = [], end = endOf(e), B = t => wa ? `*${t}*` : t;
+  const sec = (ico, title, lines) => { lines = lines.filter(Boolean); if (lines.length) L.push("", `${ico} ${B(title)}`, ...lines); };
+  L.push(`🛟 ${B("FICHE SÉCURITÉ · SAC DE LAYON")}`, B(e.name) + (e.type ? ` (${e.type})` : ""));
+  sec("👥", "QUI", [`${e.people} personne${+e.people > 1 ? "s" : ""}${s.who ? " : " + s.who : ""}`]);
+  sec("📅", "QUAND", [
+    e.start ? `Départ : ${dLongY(e.start)}${s.startTime ? " à " + s.startTime : ""}` : "",
+    end ? `Retour prévu : ${dLongY(end)} vers ${s.retTime || "18:00"}` : "",
+    (e.start || end) ? "(heures de Guyane)" : ""]);
+  const link = mapLink(s.gps);
+  sec("📍", "OÙ", [s.from ? `Départ : ${s.from}` : "", s.gps ? `GPS : ${s.gps}` : "", link ? `🗺️ ${link}` : "", s.route ? `Itinéraire : ${s.route}` : ""]);
+  sec("🚙", "TRANSPORT", [s.car ? `Véhicule : ${s.car}` : "", s.boat ? `Pirogue : ${s.boat}` : ""]);
+  sec("📡", "COMMUNICATION", [s.comms ? `Moyens : ${s.comms}` : "",
+    s.okTime ? `Message « tout va bien » chaque jour vers ${s.okTime} (heure de Guyane).${s.missN ? ` Sans message ${s.missN === 1 ? "un jour" : s.missN + " jours de suite"} : donne l'alerte.` : ""}` : "",
+    s.track ? `Suivi de la balise : ${s.track}` : "",
+    s.condAt ? `Crues et météo vérifiées le ${gyDay(new Date(s.condAt))}.` : ""]);
+  const sd = sanGet(), san = sd.join && sanFilled(sd) ? sanLines(sd) : [];
+  sec("🩺", "SANTÉ", [s.note ? `À savoir : ${s.note}` : "", ...(san.length ? [san[0], ...san.slice(1).map(x => "• " + x)] : [])]);
   const al = alertDate(e);
-  L.push(al ? `SANS NOUVELLES DE NOUS le ${fmtAlert(al)}, appelle la gendarmerie (17) ou le 112 et lis-leur ce message.`
-    : "SANS NOUVELLES DE NOUS après la date de retour prévue, appelle la gendarmerie (17) ou le 112 et lis-leur ce message.");
-  L.push("Si tu n'es pas en Guyane, le 17 ou le 112 te répondent là où tu es : dis-leur que l'expédition est en Guyane et demande qu'ils préviennent la gendarmerie de Guyane.");
+  L.push("", `🚨 ${B("SANS NOUVELLES DE NOUS")}`);
+  L.push(al ? `le ${fmtAlert(al)} :` : "après la date de retour prévue :");
+  L.push(`☎️ appelle la gendarmerie (${B("17")}) ou le ${B("112")} et lis-leur ce message.`);
+  L.push("", "Hors de Guyane, le 17 ou le 112 te répondent là où tu es : dis-leur que l'expédition est en Guyane et demande qu'ils préviennent la gendarmerie de Guyane.");
   return L.join("\n");
 }
 function backMsg(e) {
@@ -3466,7 +3488,12 @@ function renderSafety() {
     const t1 = document.createElement("h3"); t1.className = "sfh"; t1.textContent = "Qui prévenir"; g.appendChild(t1);
     g.append(field("Nom du contact", "contact", { ph: "Ex. Marie", wide: false })[0], field("Téléphone", "phone", { type: "tel", ph: "0694 12 34 56", wide: false })[0]);
     const t2 = document.createElement("h3"); t2.className = "sfh"; t2.textContent = "Qui, où, quand"; g.appendChild(t2);
-    g.append(field("Participants", "who", { ph: "Samuel, Paul, Jo" })[0]);
+    const [fWho, iWho] = field("Participants", "who", { ph: "Samuel, Paul, Jo" }); g.append(fWho);
+    // prénoms plus nombreux que les personnes réglées : la fiche et les quantités de la liste seraient fausses
+    const whoW = document.createElement("p"); whoW.className = "hint danger-text wide"; whoW.style.gridColumn = "1 / -1"; whoW.style.margin = "0"; whoW.style.color = "var(--laterite)"; whoW.style.fontWeight = "600"; g.append(whoW);
+    const chkWho = () => { const n = (iWho.value.match(/[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ'’-]*/g) || []).filter(w => !/^(et|and)$/i.test(w)).length;
+      whoW.hidden = !(n > +e.people); whoW.textContent = `Tu as noté ${n} prénoms mais l'expédition est réglée sur ${e.people} personne${+e.people > 1 ? "s" : ""}. Corrige le nombre de personnes dans les réglages de l'expédition : il compte aussi pour les quantités de ta liste.`; };
+    iWho.addEventListener("input", chkWho); chkWho();
     const tz = document.createElement("p"); tz.className = "hint wide"; tz.style.gridColumn = "1 / -1"; tz.textContent = "Heures en heure de Guyane, même si ton téléphone est réglé sur Paris.";
     g.append(tz);
     g.append(field("Départ le", "start", { type: "date", exp: true, wide: false })[0], field("à (Guyane)", "startTime", { type: "time", wide: false })[0]);
@@ -3519,8 +3546,9 @@ function renderSafety() {
     if (!safeBack && (ch === "wa" || ch === "sms")) { const d = String(s.phone || "").replace(/[\s.\-()]/g, "");
       if (!d) { toast("Ajoute le téléphone du contact"); return; }
       if (!/^(0\d{9}|(\+|00)\d{8,15})$/.test(d)) { toast("Numéro invalide : 10 chiffres commençant par 0 (ex. 0694 12 34 56), ou au format +594…"); return; } }
-    if (ch === "share") { navigator.share({ text: preview.textContent }).then(ask, () => {}); return; }
-    sendTo(ch, preview.textContent); ask(); }; a.appendChild(b); };
+    const txt = safeBack ? backMsg(e) : safetyMsg(e, ch === "wa" || ch === "copy");
+    if (ch === "share") { navigator.share({ text: txt }).then(ask, () => {}); return; }
+    sendTo(ch, txt); ask(); }; a.appendChild(b); };
   btn(safeBack ? "Prévenir par WhatsApp" : "Envoyer par WhatsApp", "primary big", "wa");
   btn("SMS", "", "sms");
   if (navigator.share) btn("Autre…", "", "share");

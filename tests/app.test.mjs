@@ -220,7 +220,26 @@ test("fiche sécurité sur un téléphone à l'heure de Paris : heures en heure 
   const msg = await p.textContent("#safeForm .msgprev");
   // retour 18 h + 6 h de marge = minuit, heure de Guyane, quel que soit le fuseau du téléphone
   assert.match(msg, /à 00:00 \(heure de Guyane, soit le .* 0[45]:00 heure de Paris\)/);
-  assert.match(msg, /vers 18:00 \(heure de Guyane\)/);
+  assert.match(msg, /vers 18:00\n\(heures de Guyane\)/);
+  await close(p);
+});
+
+test("fiche « Si je ne rentre pas » : sections aérées, lien de carte depuis des coordonnées UTM, alerte si plus de prénoms que de personnes", async () => {
+  const p = await open({ v: 2, current: "S", gear: {}, hidden: [], exps: [exp({ id: "S", people: 1, start: iso(3), end: iso(6), items: [item()],
+    safety: { who: "Samuel Virgil Bernie Mika", from: "Dégrad Petit Saut", gps: "22N 273971 560117", boat: "Pirogue alu 25 cv", retTime: "16:00", margin: 2 } })] },
+    { permissions: ["clipboard-read", "clipboard-write"] });
+  await p.locator("#homeList .card.big .actions button", { hasText: "Fiche sécurité" }).click();
+  const msg = await p.textContent("#safeForm .msgprev");
+  assert.match(msg, /^🛟 FICHE SÉCURITÉ · SAC DE LAYON\nTest\n\n👥 QUI\n1 personne : Samuel Virgil Bernie Mika\n\n📅 QUAND\nDépart : /);
+  const m = msg.match(/🗺️ https:\/\/maps\.google\.com\/\?q=(-?[\d.]+),(-?[\d.]+)/); assert.ok(m, "lien de carte présent");
+  assert.ok(Math.abs(+m[1] - 5.066) < 0.02 && Math.abs(+m[2] + 53.04) < 0.03, `UTM 22N converti près de Petit Saut (${m[1]}, ${m[2]})`);
+  assert.match(msg, /🚙 TRANSPORT\nPirogue : Pirogue alu 25 cv/);
+  assert.match(msg, /🚨 SANS NOUVELLES DE NOUS\nle .* :\n☎️ appelle la gendarmerie \(17\) ou le 112/);
+  assert.ok(await p.locator("#safeForm .danger-text", { hasText: "4 prénoms" }).isVisible(), "alerte nombre de personnes");
+  // copié pour WhatsApp : titres en gras
+  await p.locator("#safeActions button", { hasText: "Copier" }).click(); await p.waitForTimeout(200);
+  const clip = await p.evaluate(() => navigator.clipboard.readText());
+  assert.match(clip, /^🛟 \*FICHE SÉCURITÉ · SAC DE LAYON\*\n\*Test\*/); assert.match(clip, /\(\*17\*\) ou le \*112\*/);
   await close(p);
 });
 
@@ -385,7 +404,7 @@ test("version en ligne : compteur anonyme (une fois par onglet, rien des listes)
   assert.ok(paths.includes("/ouverture-navigateur")); assert.equal(paths.filter(x => x === "/onglet-boussole").length, 1);
   assert.ok(!hits.some(u => /secr|Hamac/i.test(decodeURIComponent(u))), "aucun contenu des listes n'est envoyé");
   await p.click('.tabbar [data-go="reglages"]');
-  assert.match(await p.getAttribute("#btnFeedback", "href"), /^mailto:sacdelayon@gmail\.com\?subject=Sac%20de%20Layon%20v36/);
+  assert.match(await p.getAttribute("#btnFeedback", "href"), /^mailto:sacdelayon@gmail\.com\?subject=Sac%20de%20Layon%20v37/);
   assert.deepEqual(errs, []); await ctx.close();
 });
 
@@ -399,7 +418,7 @@ test("en local (et dans Claude), le compteur ne part pas", async () => {
 test("retours : sur iPhone, Gmail est proposé en plus de Mail et de la copie de l'adresse", async () => {
   const p = await open(); await p.click('.tabbar [data-go="reglages"]');
   assert.ok(await p.isVisible("#btnGmail"));
-  assert.match(await p.getAttribute("#btnGmail", "href"), /^googlegmail:\/\/\/co\?to=sacdelayon%40gmail\.com&subject=Sac%20de%20Layon%20v36[^&]*&body=/);
+  assert.match(await p.getAttribute("#btnGmail", "href"), /^googlegmail:\/\/\/co\?to=sacdelayon%40gmail\.com&subject=Sac%20de%20Layon%20v37[^&]*&body=/);
   assert.match(await p.textContent("#btnFeedback"), /Avec Mail \(Apple\)/);
   assert.ok(await p.isVisible("#btnFbCopy"));
   await close(p);
@@ -556,6 +575,6 @@ test("fiche santé et bilan aux secours : la fiche se remplit une fois, le bilan
   await p.click("#bilNew"); assert.equal(await p.inputValue("#bil_pulse"), "");
   // la fiche « Si je ne rentre pas » s'ouvre depuis Urgences et contient la fiche santé
   await p.click("#ficSafe");
-  assert.match(await p.textContent("#safeForm .msgprev"), /Ma fiche santé :\nSamuel D\., homme, né en 1983 \(\d+ ans\)\.\n80 kg[\s\S]*prothèses cervicales/);
+  assert.match(await p.textContent("#safeForm .msgprev"), /🩺 SANTÉ\nSamuel D\., homme, né en 1983 \(\d+ ans\)\.\n• 80 kg[\s\S]*• Opérations, prothèses, antécédents : prothèses cervicales/);
   await close(p);
 });
