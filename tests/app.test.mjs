@@ -147,7 +147,7 @@ test("sécurité : le bilan signale ce qui manque, la trousse s'ajoute avec ses 
   const p = await open({ v: 2, current: "A", gear: {}, hidden: [], exps: [exp({ id: "A", people: 3, items: [item()] })] });
   await p.click("#homeList .card.big .actions .primary");
   await p.locator("#secTiles button", { hasText: "Sécurité" }).click(); await p.waitForTimeout(150);
-  assert.match(await p.textContent("#secBilan"), /5 points à régler/);
+  assert.match(await p.textContent("#secBilan"), /6 points à régler/);
   await p.locator("#secBilan button", { hasText: "Ajouter la trousse" }).click(); await p.waitForTimeout(200);
   for (const c of ["Trousse journée", "Trousse camp"]) await p.locator("#packBox .cat", { hasText: c }).locator("h3 .iconbtn").click();
   await p.locator("#packBox label", { hasText: "Balise satellite" }).first().click();
@@ -158,7 +158,7 @@ test("sécurité : le bilan signale ce qui manque, la trousse s'ajoute avec ses 
   assert.match(garrot.note, /JAMAIS pour une morsure de serpent/);
   assert.match(items.find(i => i.name === "Ibuprofène").note, /dengue/);
   assert.match(await p.textContent("#list"), /30 pièces/); // 10 compresses × 3 personnes
-  assert.match(await p.textContent("#secBilan"), /1 point à régler/);
+  assert.match(await p.textContent("#secBilan"), /2 points à régler/);
   await p.locator("#secBilan button", { hasText: "Gestes d'urgence" }).click(); await p.waitForTimeout(150);
   assert.equal(await p.isVisible("#urgOv"), true);
   assert.match(await p.textContent("#urgOv"), /paracétamol uniquement/);
@@ -385,7 +385,7 @@ test("version en ligne : compteur anonyme (une fois par onglet, rien des listes)
   assert.ok(paths.includes("/ouverture-navigateur")); assert.equal(paths.filter(x => x === "/onglet-boussole").length, 1);
   assert.ok(!hits.some(u => /secr|Hamac/i.test(decodeURIComponent(u))), "aucun contenu des listes n'est envoyé");
   await p.click('.tabbar [data-go="reglages"]');
-  assert.match(await p.getAttribute("#btnFeedback", "href"), /^mailto:sacdelayon@gmail\.com\?subject=Sac%20de%20Layon%20v33/);
+  assert.match(await p.getAttribute("#btnFeedback", "href"), /^mailto:sacdelayon@gmail\.com\?subject=Sac%20de%20Layon%20v34/);
   assert.deepEqual(errs, []); await ctx.close();
 });
 
@@ -399,7 +399,7 @@ test("en local (et dans Claude), le compteur ne part pas", async () => {
 test("retours : sur iPhone, Gmail est proposé en plus de Mail et de la copie de l'adresse", async () => {
   const p = await open(); await p.click('.tabbar [data-go="reglages"]');
   assert.ok(await p.isVisible("#btnGmail"));
-  assert.match(await p.getAttribute("#btnGmail", "href"), /^googlegmail:\/\/\/co\?to=sacdelayon%40gmail\.com&subject=Sac%20de%20Layon%20v33[^&]*&body=/);
+  assert.match(await p.getAttribute("#btnGmail", "href"), /^googlegmail:\/\/\/co\?to=sacdelayon%40gmail\.com&subject=Sac%20de%20Layon%20v34[^&]*&body=/);
   assert.match(await p.textContent("#btnFeedback"), /Avec Mail \(Apple\)/);
   assert.ok(await p.isVisible("#btnFbCopy"));
   await close(p);
@@ -500,29 +500,52 @@ test("photo : consigne copiée, réponse de l'IA lue (puces, tableau, kg), aper�
   await close(p);
 });
 
-test("fiche santé : remplie une fois, elle devient le message à lire aux secours et rejoint le message de sécurité", async () => {
+test("fiche santé et bilan aux secours : la fiche se remplit une fois, le bilan se coche le jour J et devient le message à lire", async () => {
   const p = await open({ v: 2, current: "A", gear: {}, hidden: [], exps: [exp({ id: "A", start: iso(3), end: iso(6), items: [item()] })] });
   await p.click("#btnUrg");
-  assert.ok(await p.isHidden("#sanSay"), "rien à lire tant que la fiche est vide");
-  assert.ok(await p.evaluate(() => document.getElementById("sanBox").open), "la fiche vide s'ouvre d'elle-même");
-  await p.fill("#sanName", "Samuel D."); await p.fill("#sanBorn", "1980"); await p.fill("#sanBlood", "O+");
+  assert.match(await p.textContent("#ficSanSt"), /À remplir/);
+  // fiche santé : sa propre fiche, ouverte depuis Urgences
+  await p.click("#ficSan"); assert.ok(await p.isVisible("#sanOv"));
+  await p.fill("#sanName", "Samuel D."); await p.selectOption("#sanSex", "Homme"); await p.fill("#sanBorn", "1983"); await p.fill("#sanBlood", "O+");
+  await p.fill("#sanKg", "80"); await p.fill("#sanBP", "12/8"); await p.fill("#sanHR", "60"); await p.fill("#sanMe", "0694 11 11 11");
   await p.fill("#sanHist", "prothèses cervicales"); await p.fill("#sanDo", "ne pas manipuler la nuque sans collier");
-  await p.fill("#sanMeds", "aucun"); await p.fill("#sanWho", "Élisabeth"); await p.fill("#sanTel", "0694 00 00 00");
-  const t = await p.textContent("#sanTxt");
-  assert.match(t, /Samuel D\., né\(e\) en 1980 \(\d+ ans\), groupe sanguin O\+\./);
-  assert.match(t, /Antécédents : prothèses cervicales\./);
-  assert.match(t, /Important : ne pas manipuler la nuque sans collier\./);
-  assert.match(t, /Allergies : aucune connue\./);
+  await p.fill("#sanWho", "Élisabeth"); await p.fill("#sanTel", "0694 00 00 00");
+  await p.click("#sanDone"); assert.ok(await p.isHidden("#sanOv")); assert.ok(await p.isVisible("#urgOv"), "on revient à Urgences");
+  assert.match(await p.textContent("#ficSanSt"), /Remplie/);
+  // bilan : quelques touches
+  const chip = (t) => p.locator("#bilForm .bchips button", { hasText: t }).first().click();
+  await chip("C'est moi"); // déjà choisi d'office : le retoucher le désélectionne
+  assert.equal(await p.locator("#bilForm .bchips button", { hasText: "C'est moi" }).getAttribute("aria-pressed"), "false");
+  await chip("C'est moi");
+  await chip("Chute d'arbre"); await p.fill("#bil_at", "13:40"); await chip("Confus, répond mal"); await chip("Difficile ou très rapide");
+  await p.fill("#bil_pulse", "110"); await chip("Faible"); await chip("Ne sent plus ou ne bouge plus un membre");
+  await chip("Garrot posé"); await p.fill("#bil_garrotAt", "13:50"); await p.fill("#bil_people", "4");
+  assert.ok(await p.isHidden("#bilForm .balert"), "pas d'alerte massage si la victime respire");
+  const t = await p.textContent("#bilTxt");
+  assert.match(t, /^URGENCE EN FORÊT, EN GUYANE\nJe m'appelle Samuel D\.\nNuméro pour me rappeler : 0694 11 11 11\./);
+  assert.match(t, /Position GPS : \[touche « Relever ma position »\]/);
+  assert.match(t, /Nous sommes 4 sur place\./);
+  assert.match(t, /CE QUI S'EST PASSÉ\nChute d'arbre ou de branche, à 13 h 40 \(heure de Guyane\)\./);
+  assert.match(t, /LA VICTIME\nHomme de \d+ ans, c'est moi qui appelle\.\nConscience : confus, répond mal\.\nRespiration : difficile ou très rapide\.\nPouls : 110 battements par minute, faible\./);
+  assert.match(t, /Mouvements : ne sent plus ou ne bouge plus un membre\./);
+  assert.match(t, /DÉJÀ FAIT\nGarrot posé à 13 h 50\./);
+  assert.match(t, /MA SANTÉ\n80 kg, groupe sanguin O\+\.\nTension habituelle 12\/8, pouls au repos 60\/min\.\nOpérations, prothèses, antécédents : prothèses cervicales\.\nImportant : ne pas manipuler la nuque sans collier\./);
   assert.match(t, /Personne à prévenir : Élisabeth, 0694 00 00 00\./);
-  assert.match(t, /Position GPS : \[touche d.abord « Afficher ma position »/);
-  assert.ok(await p.isVisible("#sanSay"));
-  // gardée après rechargement, et jamais dans la sauvegarde
+  await chip("Ne respire pas"); assert.ok(await p.isVisible("#bilForm .balert"), "alerte massage cardiaque");
+  // quelqu'un d'autre : sa santé à lui, pas la mienne
+  await chip("Quelqu'un d'autre"); await p.fill("#bil_age", "35"); await chip("Femme"); await p.fill("#bil_known", "asthmatique");
+  const t2 = await p.textContent("#bilTxt");
+  assert.match(t2, /LA VICTIME\nFemme de 35 ans\./); assert.match(t2, /CE QU'ON SAIT DE SA SANTÉ\nAsthmatique\.|CE QU'ON SAIT DE SA SANTÉ\nasthmatique\./);
+  assert.ok(!/prothèses/.test(t2));
+  // gardés après rechargement, jamais dans les données des expéditions
   await p.reload(); await p.waitForTimeout(300); await p.click("#btnUrg");
-  assert.equal(await p.inputValue("#sanHist"), "prothèses cervicales");
-  const bk = await p.evaluate(() => { const s = JSON.parse(localStorage.getItem("sacdelayon.v1")); return JSON.stringify(s); });
-  assert.ok(!/prothèses/.test(bk), "pas dans les données des expéditions");
-  await p.click("#urgClose");
-  await p.locator("#homeList .card.big .actions button", { hasText: "Fiche sécurité" }).click();
-  assert.match(await p.textContent("#safeForm .msgprev"), /Ma fiche santé :\nSamuel D\.[\s\S]*prothèses cervicales/);
+  assert.equal(await p.inputValue("#bil_age"), "35");
+  const bk = await p.evaluate(() => localStorage.getItem("sacdelayon.v1"));
+  assert.ok(!/prothèses|asthmatique/.test(bk), "pas dans les données des expéditions");
+  // nouveau bilan, puis annuler
+  await p.click("#bilNew"); assert.equal(await p.inputValue("#bil_pulse"), "");
+  // la fiche « Si je ne rentre pas » s'ouvre depuis Urgences et contient la fiche santé
+  await p.click("#ficSafe");
+  assert.match(await p.textContent("#safeForm .msgprev"), /Ma fiche santé :\nSamuel D\., homme, né en 1983 \(\d+ ans\)\.\n80 kg[\s\S]*prothèses cervicales/);
   await close(p);
 });
