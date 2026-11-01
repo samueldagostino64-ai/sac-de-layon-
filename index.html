@@ -343,6 +343,29 @@ body.noscroll { overflow: hidden; }
 .urg-say .hint { margin: 0; }
 .urg-say pre { margin: 0; white-space: pre-wrap; font: 600 1.05rem/1.45 var(--f-body); }
 .san { margin-bottom: 8px; }
+.bil { display: grid; gap: 8px; }
+.bil-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.bil-head h3, .urg-h, .fiches h3 { margin: 0; font-family: var(--f-display); font-size: 1.05rem; text-transform: uppercase; letter-spacing: .06em; }
+.bil .hint { margin: 0; }
+.bstep { display: grid; gap: 10px; padding: 12px 0 4px; border-top: 1px solid var(--line); }
+.bstep h4 { margin: 0; font-size: 1rem; color: var(--accent); display: flex; gap: 8px; align-items: center; }
+.bstep h4 b { display: inline-grid; place-items: center; width: 1.6em; height: 1.6em; border-radius: 50%; background: var(--accent); color: var(--accent-ink); font-size: .85rem; flex: none; }
+.bq { display: grid; gap: 6px; }
+.bchips { display: flex; flex-wrap: wrap; gap: 6px; }
+.bchips button { min-height: 42px; padding: 7px 12px; border-radius: 999px; font-size: .9rem; touch-action: manipulation; }
+.bchips button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.bchips button.alarm[aria-pressed="true"] { background: var(--laterite); border-color: var(--laterite); color: #fff; }
+.brow { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); align-items: end; }
+.brow .small { justify-self: start; }
+.balert { margin: 0; color: var(--laterite); font-weight: 700; }
+.bsan { margin: 0; font-size: .92rem; white-space: pre-wrap; color: var(--muted); }
+.fiches { display: grid; gap: 8px; }
+button.fic { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 12px 14px; font-weight: 400; }
+button.fic .ico { color: var(--accent); flex: none; }
+button.fic span { flex: 1; display: grid; gap: 2px; }
+button.fic small { color: var(--muted); }
+button.fic small.todo { color: var(--laterite); font-weight: 600; }
+button.fic i { font-style: normal; font-size: 1.4rem; color: var(--muted); }
 .proto { border: 1px solid var(--line); border-radius: 12px; padding: 0 12px; }
 .proto summary { font-weight: 700; cursor: pointer; }
 .proto ul { margin: 0 0 12px; padding-left: 20px; display: grid; gap: 6px; }
@@ -805,7 +828,7 @@ button .ico { margin-right: 6px; }
     <details class="legal">
       <summary>Tes données</summary>
       <p>Tes expéditions, ton matériel et tes fiches sécurité restent sur ton téléphone : ils ne sont envoyés nulle part. Pense à faire une sauvegarde de temps en temps.</p>
-      <p>Ta fiche santé (Urgences) reste aussi sur ton téléphone. Elle n'est jamais dans les sauvegardes : elle ne part que si tu l'envoies toi-même ou si tu la joins à ton message de sécurité. Avec « Remplir avec une photo », ta photo va à l'IA que tu choisis, jamais à l'appli.</p>
+      <p>Ta fiche santé (Urgences) reste aussi sur ton téléphone. Ton bilan aux secours aussi. Ils ne sont jamais dans les sauvegardes : ils ne partent que si tu les envoies toi-même ou si tu joins ta fiche à ta fiche « Si je ne rentre pas ». Avec « Remplir avec une photo », ta photo va à l'IA que tu choisis, jamais à l'appli.</p>
       <p>Pour savoir si l'appli sert, la version en ligne compte ses ouvertures avec GoatCounter, de façon anonyme : sans cookie, sans adresse IP conservée, et sans rien de tes listes.</p>
       <p>Les dons passent par Ko-fi et PayPal ou Stripe, selon leurs propres conditions : l'appli n'en voit rien.</p>
     </details>
@@ -815,7 +838,7 @@ button .ico { margin-right: 6px; }
       <p>Hébergeur de la version en ligne : GitHub Pages, GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis.</p>
       <p>Polices Barlow sous licence SIL Open Font License. Déclinaison magnétique d'après le modèle magnétique mondial WMM 2025 (NOAA et BGS).</p>
     </details>
-    <p class="ver mono">Sac de Layon · version 33</p>
+    <p class="ver mono">Sac de Layon · version 34</p>
   </section>
 </main>
 
@@ -896,29 +919,23 @@ button .ico { margin-right: 6px; }
       <p class="urg-pos" id="urgPos" aria-live="polite" hidden></p>
       <small class="gmsg" id="urgMsg" hidden></small>
     </div>
-    <div class="urg-say" id="sanSay" hidden>
-      <h3>À lire aux secours</h3>
-      <p class="hint">Sous le stress, on oublie. Lis ce message mot à mot quand le 15 ou le 112 décroche.</p>
-      <pre id="sanTxt"></pre>
-      <div class="actions" style="margin:0"><button type="button" class="small" id="sanCopy">Copier</button><button type="button" class="small ghost" id="sanSend">Envoyer par SMS ou WhatsApp</button></div>
-    </div>
-    <details class="proto" id="sanBox"><summary><svg class="ico" aria-hidden="true"><use href="#i-med"/></svg>Ma fiche santé</summary>
-      <p class="hint">À remplir chez toi, avant de partir. Elle reste dans ce téléphone : elle ne part que si tu l'envoies.</p>
-      <div class="grid san">
-        <label class="field"><span class="label">Prénom et nom</span><input id="sanName" autocomplete="name"></label>
-        <label class="field"><span class="label">Année de naissance</span><input id="sanBorn" inputmode="numeric" autocomplete="off" placeholder="ex. 1980"></label>
-        <label class="field"><span class="label">Groupe sanguin</span><input id="sanBlood" autocomplete="off" placeholder="ex. O+"></label>
-        <label class="field wide"><span class="label">Allergies</span><input id="sanAllerg" autocomplete="off" placeholder="ex. pénicilline, piqûres de guêpe"></label>
-        <label class="field wide"><span class="label">Traitements en cours</span><input id="sanMeds" autocomplete="off" placeholder="ex. anticoagulant (Kardegic), insuline"></label>
-        <label class="field wide"><span class="label">Antécédents, prothèses, opérations</span><input id="sanHist" autocomplete="off" placeholder="ex. prothèses cervicales, asthme"></label>
-        <label class="field wide"><span class="label">À faire ou à éviter</span><input id="sanDo" autocomplete="off" placeholder="ex. ne pas manipuler la nuque sans collier"></label>
-        <label class="field"><span class="label">Personne à prévenir</span><input id="sanWho" autocomplete="off" placeholder="ex. Élisabeth (épouse)"></label>
-        <label class="field"><span class="label">Son téléphone</span><input id="sanTel" type="tel" autocomplete="off" placeholder="0694 …"></label>
+    <section class="bil" id="bil" aria-labelledby="bilTitle">
+      <div class="bil-head"><h3 id="bilTitle">Bilan à donner aux secours</h3><button type="button" class="small ghost" id="bilGo">Voir le message</button></div>
+      <p class="hint">Touche ce que tu constates, dans l'ordre. Le message à lire au 15 se remplit tout seul, en bas. Ce que tu ne sais pas, laisse-le vide.</p>
+      <div id="bilForm"></div>
+      <div class="urg-say" id="bilSay">
+        <h3>À lire aux secours</h3>
+        <p class="hint">Lis-le mot à mot quand le 15 ou le 112 décroche. Réponds ensuite à leurs questions et ne raccroche pas le premier.</p>
+        <pre id="bilTxt"></pre>
+        <div class="actions" style="margin:0"><button type="button" class="small" id="bilCopy">Copier</button><button type="button" class="small ghost" id="bilSend">Envoyer par SMS ou WhatsApp</button><button type="button" class="small danger" id="bilNew">Nouveau bilan</button></div>
       </div>
-      <label class="chk"><input type="checkbox" id="sanJoin" checked> Joindre ma fiche santé aux messages de sécurité que j'envoie avant le départ</label>
-      <div class="actions"><button type="button" class="small" id="sanTeam">Envoyer ma fiche à mes équipiers</button></div>
-      <p class="hint">Si tu es inconscient, ton téléphone reste verrouillé : personne ne pourra lire cette fiche. Remplis aussi la <b>fiche médicale du téléphone</b>, lisible sur l'écran verrouillé (iPhone : appli Santé > Fiche médicale ; Android : Réglages > Sécurité et urgence), et envoie ta fiche à tes équipiers avant de partir.</p>
-    </details>
+    </section>
+    <div class="fiches">
+      <h3>Avant de partir</h3>
+      <button type="button" class="fic" id="ficSan"><svg class="ico" aria-hidden="true"><use href="#i-med"/></svg><span><b>Ma fiche santé</b><small id="ficSanSt">À remplir une fois, chez toi</small></span><i aria-hidden="true">›</i></button>
+      <button type="button" class="fic" id="ficSafe"><svg class="ico" aria-hidden="true"><use href="#i-shield"/></svg><span><b>Si je ne rentre pas</b><small>À envoyer à un proche avant chaque départ</small></span><i aria-hidden="true">›</i></button>
+    </div>
+    <h3 class="urg-h">Gestes d'urgence</h3>
     <details class="proto"><summary><svg class="ico" aria-hidden="true"><use href="#i-compass"/></svg>Perdu en forêt</summary><ul>
       <li><b>Stop.</b> Assieds-toi, bois, mange. Avancer au hasard aggrave tout.</li>
       <li class="sunleft"></li>
@@ -949,6 +966,41 @@ button .ico { margin-right: 6px; }
       <li>Aspivenin, kits « anti-venin », garrot contre les serpents : inefficaces et dangereux.</li>
       <li>Kits de secours tout faits : chers et pleins de gadgets. Mieux vaut composer sa trousse (voir le pack « Trousse de secours Guyane »).</li></ul></details>
     <p class="hint">Ces fiches rappellent les gestes de base. Elles ne remplacent ni une formation aux premiers secours (PSC1) ni l'avis d'un médecin.</p>
+  </div>
+</div>
+
+<!-- fiche santé : reste dans ce téléphone -->
+<div class="ov" id="sanOv" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sanTitle" id="sanBox">
+    <div class="toolbar"><h2 id="sanTitle">Ma fiche santé</h2><button type="button" class="small ghost" id="sanClose" aria-label="Fermer">✕</button></div>
+    <p class="hint">À remplir une fois, chez toi. Elle reste dans ce téléphone et ne part que si tu l'envoies. Elle sert à trois choses : le bilan à lire aux secours (écran Urgences), ta fiche « Si je ne rentre pas », et la fiche que tu envoies à tes équipiers.</p>
+    <div class="grid san">
+      <h3 class="sfh">Qui tu es</h3>
+      <label class="field wide"><span class="label">Prénom et nom</span><input id="sanName" autocomplete="name"></label>
+      <label class="field"><span class="label">Sexe</span><select id="sanSex"><option value="">—</option><option>Homme</option><option>Femme</option></select></label>
+      <label class="field"><span class="label">Année de naissance</span><input id="sanBorn" inputmode="numeric" autocomplete="off" placeholder="ex. 1983"></label>
+      <label class="field"><span class="label">Poids (kg)</span><input id="sanKg" inputmode="numeric" autocomplete="off" placeholder="ex. 80"></label>
+      <label class="field"><span class="label">Groupe sanguin</span><input id="sanBlood" autocomplete="off" placeholder="ex. O+"></label>
+      <label class="field wide"><span class="label">Mon téléphone</span><input id="sanMe" type="tel" autocomplete="tel" placeholder="0694 …"></label>
+      <h3 class="sfh">Tes valeurs habituelles</h3>
+      <label class="field"><span class="label">Tension habituelle</span><input id="sanBP" autocomplete="off" placeholder="ex. 12/8"></label>
+      <label class="field"><span class="label">Pouls au repos (/min)</span><input id="sanHR" inputmode="numeric" autocomplete="off" placeholder="ex. 60"></label>
+      <h3 class="sfh">Ta santé</h3>
+      <label class="field wide"><span class="label">Maladies connues</span><input id="sanIll" autocomplete="off" placeholder="ex. asthme, diabète, épilepsie, cœur"></label>
+      <label class="field wide"><span class="label">Opérations, prothèses, antécédents</span><input id="sanHist" autocomplete="off" placeholder="ex. prothèses cervicales"></label>
+      <label class="field wide"><span class="label">Traitements en cours</span><input id="sanMeds" autocomplete="off" placeholder="ex. anticoagulant (Kardegic), insuline"></label>
+      <label class="field wide"><span class="label">Allergies</span><input id="sanAllerg" autocomplete="off" placeholder="ex. pénicilline, piqûres de guêpe"></label>
+      <label class="field wide"><span class="label">Vaccins</span><input id="sanVacc" autocomplete="off" placeholder="ex. tétanos 2021, fièvre jaune 2015"></label>
+      <label class="field wide"><span class="label">À faire ou à éviter</span><input id="sanDo" autocomplete="off" placeholder="ex. ne pas manipuler la nuque sans collier"></label>
+      <h3 class="sfh">Qui prévenir</h3>
+      <label class="field"><span class="label">Personne à prévenir</span><input id="sanWho" autocomplete="off" placeholder="ex. Élisabeth (épouse)"></label>
+      <label class="field"><span class="label">Son téléphone</span><input id="sanTel" type="tel" autocomplete="off" placeholder="0694 …"></label>
+      <label class="field wide"><span class="label">Médecin traitant</span><input id="sanDoc" autocomplete="off" placeholder="ex. Dr Martin, 0594 …"></label>
+    </div>
+    <label class="chk"><input type="checkbox" id="sanJoin" checked> Ajouter ma fiche santé à ma fiche « Si je ne rentre pas »</label>
+    <div class="actions"><button type="button" class="small" id="sanTeam">Envoyer ma fiche à mes équipiers</button></div>
+    <p class="hint">Si tu es inconscient, ton téléphone reste verrouillé : personne ne pourra lire cette fiche. Remplis aussi la <b>fiche médicale du téléphone</b>, lisible sur l'écran verrouillé (iPhone : appli Santé > Fiche médicale ; Android : Réglages > Sécurité et urgence), et envoie ta fiche à tes équipiers avant de partir.</p>
+    <div class="actions"><button type="button" class="primary" id="sanDone">C'est rempli</button></div>
   </div>
 </div>
 
@@ -2213,7 +2265,7 @@ document.querySelectorAll(".tabbar button").forEach(b => b.onclick = () => { clo
 // ---------- bouton retour du téléphone ----------
 // une entrée d'historique « garde » au-dessus de l'entrée de base tant qu'il y a quelque chose à fermer ;
 // retour la consomme : on ferme la fiche du dessus, sinon on revient à l'accueil, sinon on laisse sortir
-const OVS = ["askOv", "txtOv", "debOv", "urgOv", "safeOv", "doneOv", "packOv", "sheetOv"];
+const OVS = ["askOv", "txtOv", "debOv", "sanOv", "safeOv", "urgOv", "doneOv", "packOv", "sheetOv"];
 function guard() { try { if (!(history.state && history.state.sdl === 1)) history.pushState({ sdl: 1 }, ""); } catch (e) {} }
 function closeTop() {
   const id = OVS.find(o => !$(o).hidden); if (!id) return false;
@@ -2255,7 +2307,7 @@ document.addEventListener("focusin", ev => { const t = ev.target; if (!t.matches
   setTimeout(() => { if (document.activeElement === t) t.scrollIntoView({ block: "center", behavior: "smooth" }); }, 350); });
 
 // ---------- urgences et premiers secours ----------
-function openUrg() { closeMenu(); renderLostSun(); openOv("urgOv"); renderSan(); $("urgBox").scrollTop = 0; }
+function openUrg() { closeMenu(); renderLostSun(); openOv("urgOv"); renderSan(); bilRender(); $("urgBox").scrollTop = 0; }
 $("btnUrg").onclick = openUrg;
 $("urgClose").onclick = () => closeOv("urgOv");
 $("urgOv").addEventListener("click", ev => { if (ev.target === $("urgOv")) closeOv("urgOv"); });
@@ -2378,7 +2430,7 @@ $("urgLoc").onclick = () => {
   locate($("urgLoc"), say, p => { const c = p.coords, ll = `${c.latitude.toFixed(5)},${c.longitude.toFixed(5)}`;
     out.hidden = false; out.textContent = ll.replace(",", ", "); $("urgCopy").hidden = false;
     try { localStorage.setItem(LS_POS, JSON.stringify({ lat: +c.latitude.toFixed(2), lon: +c.longitude.toFixed(2) })); } catch (e) {} renderSun(); renderLostSun();
-    sanPos = { ll: ll.replace(",", ", "), acc: Math.round(c.accuracy), at: gyTime(new Date(p.timestamp || Date.now())) }; renderSan();
+    sanPos = { ll: ll.replace(",", ", "), acc: Math.round(c.accuracy), at: gyTime(new Date(p.timestamp || Date.now())) }; bilText();
     // lien geo: : ouvre OsmAnd, Organic Maps, Locus… qui marchent hors réseau
     const a = $("urgMap"); a.href = "geo:" + ll + "?q=" + ll; a.hidden = false;
     say(`Précision ± ${Math.round(c.accuracy)} m, relevée à ${gyTime(new Date(p.timestamp || Date.now()))} (heure de Guyane). Le GPS du téléphone marche sans réseau.`); }, 120000);
@@ -2395,7 +2447,8 @@ function renderSecBilan(e) {
     [has(i => /garrot|tourniquet/.test(n(i))), "Garrot tourniquet"],
     [has(i => i.cat === "Trousse journée"), "Trousse journée (une par personne)"],
     [has(i => i.cat === "Trousse camp"), "Trousse camp (une pour le groupe)"],
-    [safeSent(e) && !safeStale(e), "Fiche sécurité envoyée à un proche"]
+    [safeSent(e) && !safeStale(e), "Fiche sécurité envoyée à un proche"],
+    [sanFilled(sanGet()), "Ta fiche santé est remplie"]
   ];
   const t = document.createElement("b"); const miss = lines.filter(l => !l[0]).length;
   t.textContent = miss ? `Sécurité : ${miss} point${miss > 1 ? "s" : ""} à régler` : "Sécurité : tout est en place";
@@ -2405,6 +2458,7 @@ function renderSecBilan(e) {
   if (lines.slice(0, 4).some(l => !l[0])) { const b1 = document.createElement("button"); b1.className = "small primary"; b1.textContent = lines[2][0] && lines[3][0] ? "Compléter depuis le pack secours" : "Ajouter la trousse de secours"; b1.onclick = () => { pick.src = "trousse"; openPicker(); }; a.appendChild(b1); }
   const b2 = document.createElement("button"); b2.className = "small" + (lines[4][0] ? " ghost" : ""); b2.innerHTML = ico("shield"); b2.append("Fiche sécurité"); b2.onclick = () => openSafety(); a.appendChild(b2);
   const b3 = document.createElement("button"); b3.className = "small ghost"; b3.innerHTML = ico("urg"); b3.append("Gestes d'urgence"); b3.onclick = openUrg; a.appendChild(b3);
+  const b4 = document.createElement("button"); b4.className = "small" + (lines[5][0] ? " ghost" : ""); b4.innerHTML = ico("med"); b4.append("Fiche santé"); b4.onclick = openSan; a.appendChild(b4);
   // matériel périmé ou à réviser (dates saisies dans Mon matériel)
   const old = e.items.filter(i => secOf(i.cat) === "secu").map(i => state.gear[gkey(i.name)]).filter(g => g && expiryTxt(g) && expiryTxt(g).bad);
   if (old.length) { const w = document.createElement("p"); w.className = "hint danger-text"; w.style.margin = "0"; w.textContent = "À vérifier : " + old.map(g => `${g.name} (${expiryTxt(g).t.toLowerCase()})`).join(", "); box.append(t, ul, w, a); return; }
@@ -2843,42 +2897,183 @@ function tick(i, e, row, on) {
   renderSum();
   if (on && e.items.length && e.items.every(x => x.done)) setTimeout(() => { if (cur() === e && e.items.length && e.items.every(x => x.done)) celebrate(e); }, 450);
 }
-// ---------- fiche santé : reste dans ce téléphone, devient un message à lire aux secours ----------
-const LS_SAN = "sacdelayon.sante", SAN_F = ["Name", "Born", "Blood", "Allerg", "Meds", "Hist", "Do", "Who", "Tel"];
+// ---------- fiche santé : reste dans ce téléphone ; nourrit le bilan aux secours et la fiche « Si je ne rentre pas » ----------
+const LS_SAN = "sacdelayon.sante", SAN_F = ["Name", "Sex", "Born", "Kg", "Blood", "Me", "BP", "HR", "Ill", "Hist", "Meds", "Allerg", "Vacc", "Do", "Who", "Tel", "Doc"];
 let sanPos = null; // dernière position relevée dans Urgences, pour le message
 function sanGet() { let d = {}; try { d = JSON.parse(localStorage.getItem(LS_SAN)) || {}; } catch (e) {} const o = { join: d.join !== false };
   SAN_F.forEach(k => { o[k] = typeof d[k] === "string" ? d[k].slice(0, 300) : ""; }); return o; }
-function sanFilled(d) { return SAN_F.some(k => k !== "Name" && d[k].trim()); }
-// les lignes santé seules : pour le message de sécurité et pour les équipiers
-function sanLines(d) {
-  const L = [], y = parseInt(d.Born, 10), age = y > 1900 && y <= new Date().getFullYear() ? new Date().getFullYear() - y : 0;
-  if (d.Name || age || d.Blood) L.push([d.Name, age ? `né(e) en ${y} (${age} ans)` : "", d.Blood ? "groupe sanguin " + d.Blood : ""].filter(Boolean).join(", ") + ".");
-  if (d.Hist) L.push(`Antécédents : ${d.Hist}.`);
-  if (d.Do) L.push(`Important : ${d.Do}.`);
-  if (d.Meds) L.push(`Traitements en cours : ${d.Meds}.`);
-  L.push(`Allergies : ${d.Allerg || "aucune connue"}.`);
-  if (d.Who || d.Tel) L.push(`Personne à prévenir : ${[d.Who, d.Tel].filter(Boolean).join(", ")}.`);
-  return L.map(x => x.replace(/\.\.$/, "."));
+function sanFilled(d) { return SAN_F.some(k => !["Name", "Sex", "Me"].includes(k) && d[k].trim()); }
+function sanAge(d) { const y = parseInt(d.Born, 10), n = new Date().getFullYear(); return y > 1900 && y <= n ? n - y : 0; }
+const dot = t => t.replace(/[.\s]+$/, "") + ".";
+// le médical seul (sans nom, sexe ni âge) : pour le bilan aux secours
+function sanMed(d) {
+  const L = [];
+  const v = [d.Kg ? d.Kg.replace(/\s*kg$/i, "") + " kg" : "", d.Blood ? "groupe sanguin " + d.Blood : ""].filter(Boolean);
+  if (v.length) L.push(dot(v.join(", ").replace(/^./, c => c.toUpperCase())));
+  const u = [d.BP ? "tension habituelle " + d.BP : "", d.HR ? "pouls au repos " + d.HR.replace(/\s*\/?\s*min$/i, "") + "/min" : ""].filter(Boolean);
+  if (u.length) L.push(dot(u.join(", ").replace(/^./, c => c.toUpperCase())));
+  if (d.Ill) L.push(dot(`Maladies connues : ${d.Ill}`));
+  if (d.Hist) L.push(dot(`Opérations, prothèses, antécédents : ${d.Hist}`));
+  if (d.Do) L.push(dot(`Important : ${d.Do}`));
+  L.push(dot(`Traitements en cours : ${d.Meds || "aucun connu"}`));
+  L.push(dot(`Allergies : ${d.Allerg || "aucune connue"}`));
+  if (d.Vacc) L.push(dot(`Vaccins : ${d.Vacc}`));
+  if (d.Doc) L.push(dot(`Médecin traitant : ${d.Doc}`));
+  if (d.Who || d.Tel) L.push(dot(`Personne à prévenir : ${[d.Who, d.Tel].filter(Boolean).join(", ")}`));
+  return L;
 }
-function sanMsg(d) {
-  const L = ["Urgence en forêt, en Guyane."];
-  L.push(sanPos ? `Position GPS : ${sanPos.ll} (à ${sanPos.acc} m près, relevée à ${sanPos.at}).` : "Position GPS : [touche d'abord « Afficher ma position », au-dessus]");
-  L.push("", "La victime :", ...sanLines(d), "", "À dire aussi : ce qui s'est passé et à quelle heure, combien de blessés, s'il est conscient, s'il respire, et un numéro pour te rappeler.");
-  return L.join("\n");
+// la fiche complète : pour la fiche « Si je ne rentre pas » et pour les équipiers
+function sanLines(d) {
+  const age = sanAge(d), id = [d.Name, d.Sex ? d.Sex.toLowerCase() : "", age ? `né${d.Sex === "Femme" ? "e" : d.Sex ? "" : "(e)"} en ${parseInt(d.Born, 10)} (${age} ans)` : ""].filter(Boolean);
+  return [...(id.length ? [dot(id.join(", "))] : []), ...sanMed(d)];
 }
 function renderSan() {
   const d = sanGet(); SAN_F.forEach(k => { const i = $("san" + k); if (document.activeElement !== i) i.value = d[k]; }); $("sanJoin").checked = d.join;
-  $("sanSay").hidden = !sanFilled(d); $("sanTxt").textContent = sanMsg(d);
-  if (!sanFilled(d) && !$("urgOv").hidden) $("sanBox").open = true;
+  renderFic(d);
 }
+function renderFic(d) { const st = $("ficSanSt"), ok = sanFilled(d); st.textContent = ok ? "Remplie · touche pour la relire" : "À remplir une fois, chez toi"; st.classList.toggle("todo", !ok); }
 function sanSave() { const d = { join: $("sanJoin").checked }; SAN_F.forEach(k => { d[k] = $("san" + k).value.trim().slice(0, 300); });
-  try { localStorage.setItem(LS_SAN, JSON.stringify(d)); } catch (e) {} $("sanSay").hidden = !sanFilled(d); $("sanTxt").textContent = sanMsg(d); }
-SAN_F.forEach(k => $("san" + k).addEventListener("input", sanSave)); $("sanJoin").addEventListener("change", sanSave);
+  try { localStorage.setItem(LS_SAN, JSON.stringify(d)); } catch (e) {} renderFic(sanGet()); bilText(); }
+SAN_F.forEach(k => $("san" + k).addEventListener(k === "Sex" ? "change" : "input", sanSave)); $("sanJoin").addEventListener("change", sanSave);
+function openSan() { renderSan(); openOv("sanOv"); $("sanBox").scrollTop = 0; }
+const closeSan = () => { closeOv("sanOv"); if (!$("urgOv").hidden) bilRender(); };
+$("sanClose").onclick = closeSan; $("sanDone").onclick = closeSan;
+$("sanOv").addEventListener("click", ev => { if (ev.target === $("sanOv")) closeSan(); });
+$("ficSan").onclick = openSan;
+$("ficSafe").onclick = () => { if (!cur()) { toast("Crée d'abord une expédition : la fiche dit où tu vas et quand tu rentres"); return; } openSafety(); };
 function sanShare(text, ok) { if (navigator.share) { navigator.share({ text }).catch(err => { if (!err || err.name !== "AbortError") copy(text, ok); }); return; } copy(text, ok); }
-$("sanCopy").onclick = () => copy($("sanTxt").textContent, "Message copié");
-$("sanSend").onclick = () => sanShare($("sanTxt").textContent, "Message copié : colle-le dans un SMS");
 $("sanTeam").onclick = () => { const d = sanGet(); if (!sanFilled(d)) { toast("Remplis d'abord ta fiche santé"); return; }
   sanShare(["FICHE SANTÉ · SAC DE LAYON", "Garde-la : si je suis blessé, lis-la aux secours.", "", ...sanLines(d)].join("\n"), "Fiche copiée : colle-la dans WhatsApp"); };
+
+// ---------- bilan aux secours : ce que le 15 demande, dans l'ordre du bilan secouriste ----------
+const LS_BIL = "sacdelayon.bilan";
+const BIL_ONE = { // choix uniques : [valeur, alarme]
+  sos: [["Balise SOS déclenchée"], ["Pas de balise"]],
+  who: [["C'est moi"], ["Quelqu'un d'autre"]],
+  sex: [["Homme"], ["Femme"]],
+  cons: [["Parle normalement"], ["Confus, répond mal", 1], ["Ne répond pas", 1]],
+  resp: [["Normale"], ["Difficile ou très rapide", 1], ["Ne respire pas", 1]],
+  pulseQ: [["Bien frappé"], ["Faible", 1], ["Irrégulier", 1], ["Introuvable", 1]],
+  skin: [["Normale"], ["Pâle, sueurs", 1], ["Lèvres bleues", 1], ["Brûlante (fièvre)", 1]],
+  bleed: [["Aucun"], ["Arrêté"], ["Abondant, ne s'arrête pas", 1]],
+  move: [["Bouge bras et jambes"], ["Ne peut pas marcher", 1], ["Ne sent plus ou ne bouge plus un membre", 1]]
+};
+const BIL_MULTI = {
+  access: ["Clairière, crique ou fleuve tout près (hélico possible)", "Sous couvert dense, pas de dégagement", "Accessible en pirogue", "Accessible par une piste"],
+  what: ["Chute", "Chute d'arbre ou de branche", "Morsure de serpent", "Piqûre de raie", "Piqûre (insecte, scorpion, araignée)", "Plaie, coupure", "Malaise", "Fièvre", "Noyade", "Brûlure", "Épuisement, déshydratation"],
+  done: ["Compression de la plaie", "Garrot posé", "Membre immobilisé", "Tête et nuque maintenues", "Mis sur le côté (PLS)", "Massage cardiaque", "Paracétamol donné", "Mis à l'abri, au sec"]
+};
+const BIL_TXT = ["caller", "cb", "people", "whatTxt", "at", "age", "known", "pulse", "pain", "painN", "temp", "garrotAt", "doneTxt"];
+function bilGet() { let b = {}; try { b = JSON.parse(localStorage.getItem(LS_BIL)) || {}; } catch (e) {} const o = {};
+  BIL_TXT.forEach(k => { o[k] = typeof b[k] === "string" ? b[k].slice(0, 300) : ""; });
+  Object.keys(BIL_ONE).forEach(k => { o[k] = BIL_ONE[k].some(x => x[0] === b[k]) ? b[k] : ""; });
+  Object.keys(BIL_MULTI).forEach(k => { o[k] = Array.isArray(b[k]) ? b[k].filter(v => BIL_MULTI[k].includes(v)) : []; });
+  return o; }
+let bil = null;
+function bilPut() { try { localStorage.setItem(LS_BIL, JSON.stringify(bil)); } catch (e) {} bilText(); }
+const hm = t => /^\d{1,2}:\d{2}$/.test(t) ? t.replace(":", " h ") : t;
+const nowGy = () => gyTime(new Date()).replace(/\s*h\s*/, ":");
+function bilMsg() {
+  const b = bil || bilGet(), d = sanGet(), L = [], me = b.who === "C'est moi";
+  L.push("URGENCE EN FORÊT, EN GUYANE");
+  const caller = b.caller || d.Name, cb = b.cb || d.Me;
+  if (caller) L.push(dot(`Je m'appelle ${caller}`));
+  if (cb) L.push(dot(`Numéro pour me rappeler : ${cb}`));
+  L.push(sanPos ? `Position GPS : ${sanPos.ll} (à ${sanPos.acc} m près, relevée à ${hm(sanPos.at)}).` : "Position GPS : [touche « Relever ma position »]");
+  if (b.access.length) L.push(dot(`Accès : ${b.access.join(" ; ").toLowerCase()}`));
+  if (b.people) L.push(`Nous sommes ${b.people} sur place.`);
+  if (b.sos) L.push(dot(b.sos));
+  const what = [...b.what, b.whatTxt].filter(Boolean);
+  if (what.length || b.at) { L.push("", "CE QUI S'EST PASSÉ");
+    L.push(dot((what.length ? what.join(", ").replace(/^./, c => c.toUpperCase()) : "Accident") + (b.at ? `, à ${hm(b.at)} (heure de Guyane)` : ""))); }
+  L.push("", "LA VICTIME");
+  const sex = me ? d.Sex : b.sex, age = me ? sanAge(d) : parseInt(b.age, 10) || 0;
+  const id = (sex || "Une personne") + (age ? ` de ${age} ans` : "") + (me ? ", c'est moi qui appelle" : "");
+  L.push(dot(id));
+  if (b.cons) L.push(dot(`Conscience : ${b.cons.toLowerCase()}`));
+  if (b.resp) L.push(dot(`Respiration : ${b.resp.toLowerCase()}`));
+  if (b.pulse || b.pulseQ) L.push(dot(`Pouls : ${[b.pulse ? b.pulse.replace(/\D+$/, "") + " battements par minute" : "", b.pulseQ.toLowerCase()].filter(Boolean).join(", ")}`));
+  if (b.skin) L.push(dot(`Peau : ${b.skin.toLowerCase()}`));
+  if (b.bleed) L.push(dot(`Saignement : ${b.bleed.toLowerCase()}`));
+  if (b.move) L.push(dot(`Mouvements : ${b.move.toLowerCase()}`));
+  if (b.pain || b.painN) L.push(dot(`Douleur : ${[b.pain, b.painN ? b.painN + " sur 10" : ""].filter(Boolean).join(", ")}`));
+  if (b.temp) L.push(dot(`Température : ${b.temp.replace(/\s*°?\s*c?$/i, "")} °C`));
+  const done = b.done.map(x => x === "Garrot posé" && b.garrotAt ? `garrot posé à ${hm(b.garrotAt)}` : x.toLowerCase());
+  if (b.doneTxt) done.push(b.doneTxt);
+  if (done.length) L.push("", "DÉJÀ FAIT", dot(done.join(", ").replace(/^./, c => c.toUpperCase())));
+  const med = me ? (sanFilled(d) ? sanMed(d) : []) : (b.known ? [dot(b.known)] : []);
+  if (med.length) L.push("", me ? "MA SANTÉ" : "CE QU'ON SAIT DE SA SANTÉ", ...med);
+  return L.join("\n");
+}
+function bilText() { if ($("bilTxt")) $("bilTxt").textContent = bilMsg(); }
+function bilRender() {
+  bil = bilGet(); const d = sanGet();
+  if (!bil.who) bil.who = sanFilled(d) ? "C'est moi" : "";
+  const f = $("bilForm"); f.innerHTML = "";
+  const el = (t, c, txt) => { const x = document.createElement(t); if (c) x.className = c; if (txt) x.textContent = txt; return x; };
+  const step = (n, title) => { const s = el("div", "bstep"), h = el("h4"); h.append(el("b", "", n), title); s.appendChild(h); f.appendChild(s); return s; };
+  const q = (box, label) => { const w = el("div", "bq"); if (label) w.appendChild(el("span", "label", label)); box.appendChild(w); return w; };
+  const chips = (box, key, label, after) => {
+    const w = q(box, label), c = el("div", "bchips"); w.appendChild(c);
+    const one = !!BIL_ONE[key], list = one ? BIL_ONE[key] : BIL_MULTI[key].map(v => [v]);
+    const paint = () => c.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", one ? String(bil[key] === x.dataset.v) : String(bil[key].includes(x.dataset.v))));
+    list.forEach(([v, bad]) => { const x = el("button", bad ? "alarm" : "", v); x.type = "button"; x.dataset.v = v;
+      x.onclick = () => { if (one) bil[key] = bil[key] === v ? "" : v; else bil[key] = bil[key].includes(v) ? bil[key].filter(y => y !== v) : [...bil[key], v];
+        paint(); bilPut(); if (after) after(); }; c.appendChild(x); });
+    paint(); return w;
+  };
+  const input = (box, key, label, o = {}) => { const l = el("label", "field"); l.appendChild(el("span", "label", label));
+    const i = el("input"); i.id = "bil_" + key; if (o.type) i.type = o.type; if (o.num) i.inputMode = "numeric"; if (o.ph) i.placeholder = o.ph; i.autocomplete = "off";
+    i.value = bil[key]; i.addEventListener("input", () => { bil[key] = i.value.trim().slice(0, 300); bilPut(); }); l.appendChild(i); box.appendChild(l); return i; };
+  const nowBtn = (box, key) => { const x = el("button", "small ghost", "Maintenant"); x.type = "button"; x.onclick = () => { bil[key] = nowGy(); $("bil_" + key).value = bil[key]; bilPut(); }; box.appendChild(x); };
+  // 1. qui appelle, où
+  const s1 = step("1", "Qui appelle, où vous êtes");
+  const r1 = el("div", "brow"); s1.appendChild(r1);
+  input(r1, "caller", "Ton nom", { ph: d.Name || "Prénom Nom" }); input(r1, "cb", "Numéro de rappel", { type: "tel", ph: d.Me || "0694 …" });
+  const pr = el("div", "brow"); s1.appendChild(pr);
+  const loc = el("button", "small"); loc.type = "button"; loc.innerHTML = ico("pin"); loc.append("Relever ma position"); loc.onclick = () => $("urgLoc").click(); pr.appendChild(loc);
+  input(pr, "people", "Personnes sur place", { num: true, ph: "ex. 4" });
+  chips(s1, "access", "Accès pour les secours");
+  chips(s1, "sos", "Balise");
+  // 2. ce qui s'est passé
+  const s2 = step("2", "Ce qui s'est passé");
+  chips(s2, "what", "");
+  const r2 = el("div", "brow"); s2.appendChild(r2);
+  input(r2, "at", "À quelle heure", { type: "time" }); nowBtn(r2, "at");
+  input(s2, "whatTxt", "Précisions", { ph: "ex. glissade dans un bas-fond, choc à la nuque" });
+  // 3. la victime
+  const s3 = step("3", "La victime");
+  const other = el("div", "bq");
+  const sanBox = el("div", "bq");
+  const showWho = () => { other.hidden = bil.who !== "Quelqu'un d'autre"; sanBox.hidden = bil.who !== "C'est moi"; };
+  chips(s3, "who", "", showWho);
+  s3.append(other, sanBox);
+  const r3 = el("div", "brow"); other.appendChild(r3); input(r3, "age", "Âge", { num: true, ph: "ex. 43" });
+  chips(other, "sex", "Sexe"); input(other, "known", "Ce que tu sais de sa santé", { ph: "allergies, traitements, maladies" });
+  if (sanFilled(d)) { sanBox.appendChild(el("p", "bsan", "Ta fiche santé sera lue avec le bilan.")); }
+  else { const x = el("button", "small", "Remplir ma fiche santé"); x.type = "button"; x.onclick = openSan; sanBox.append(el("p", "bsan", "Ta fiche santé est vide : les secours n'auront pas tes antécédents."), x); }
+  showWho();
+  const respAlert = el("p", "balert", "Ne respire pas : commence le massage cardiaque tout de suite, au milieu de la poitrine, fort et vite. Le 15 te guide au téléphone.");
+  const showResp = () => { respAlert.hidden = bil.resp !== "Ne respire pas"; };
+  chips(s3, "cons", "Conscience"); chips(s3, "resp", "Respiration", showResp); s3.appendChild(respAlert); showResp();
+  const r4 = el("div", "brow"); s3.appendChild(r4); input(r4, "pulse", "Pouls (battements/min)", { num: true, ph: "compte 15 s × 4" });
+  chips(s3, "pulseQ", "");
+  chips(s3, "skin", "Peau"); chips(s3, "bleed", "Saignement"); chips(s3, "move", "Mouvements");
+  const r5 = el("div", "brow"); s3.appendChild(r5); input(r5, "pain", "Où il a mal, ce que tu vois", { ph: "ex. jambe gauche déformée" }); input(r5, "painN", "Douleur sur 10", { num: true, ph: "0 à 10" });
+  const r6 = el("div", "brow"); s3.appendChild(r6); input(r6, "temp", "Température (°C)", { num: true, ph: "si thermomètre" });
+  // 4. déjà fait
+  const s4 = step("4", "Ce que vous avez déjà fait");
+  const gar = el("div", "brow");
+  const showGar = () => { gar.hidden = !bil.done.includes("Garrot posé"); };
+  chips(s4, "done", "", showGar); s4.appendChild(gar); input(gar, "garrotAt", "Heure du garrot", { type: "time" }); nowBtn(gar, "garrotAt"); showGar();
+  input(s4, "doneTxt", "Autre chose", { ph: "ex. 2 sachets de réhydratation" });
+  bilText();
+}
+$("bilGo").onclick = () => $("bilSay").scrollIntoView({ behavior: "smooth", block: "start" });
+$("bilCopy").onclick = () => copy(bilMsg(), "Message copié");
+$("bilSend").onclick = () => sanShare(bilMsg(), "Message copié : colle-le dans un SMS");
+$("bilNew").onclick = () => { const old = localStorage.getItem(LS_BIL); try { localStorage.removeItem(LS_BIL); } catch (e) {} bilRender();
+  toast("Bilan effacé", () => { try { if (old) localStorage.setItem(LS_BIL, old); } catch (e) {} bilRender(); }, "Annuler"); };
 // ---------- remplir avec une photo : l'IA de l'utilisateur lit la photo, l'appli lit sa réponse ----------
 const PH_CATS = CATS.filter(c => !/^Caisse|^Jeux|^Trousse/.test(c));
 const PH_NOTE = "poids estimé par l'IA d'après la photo, à vérifier";
@@ -2995,7 +3190,7 @@ setInterval(() => { if (document.hidden) return; if (view === "accueil") renderS
 document.addEventListener("visibilitychange", () => { if (!document.hidden) { renderSun(); renderLostSun(); } });
 renderLostSun();
 // ---------- à propos : retours par mail, mesure d'audience anonyme ----------
-const APP_VER = 33, FEEDBACK_MAIL = "sacdelayon@gmail.com", GC_CODE = "sacdelayon";
+const APP_VER = 34, FEEDBACK_MAIL = "sacdelayon@gmail.com", GC_CODE = "sacdelayon";
 const mailOk = /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(FEEDBACK_MAIL);
 function feedbackHref() {
   const ua = navigator.userAgent, phone = /iPhone|iPad/.test(ua) ? "iPhone / iPad" : /Android/.test(ua) ? "Android" : "ordinateur";
