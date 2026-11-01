@@ -366,6 +366,16 @@ button.fic span { flex: 1; display: grid; gap: 2px; }
 button.fic small { color: var(--muted); }
 button.fic small.todo { color: var(--laterite); font-weight: 600; }
 button.fic i { font-style: normal; font-size: 1.4rem; color: var(--muted); }
+.sat h3 { display: flex; gap: 8px; align-items: center; }
+.sat h3 .ico { color: var(--accent); }
+.sat-how { margin: 0 0 8px; padding-left: 20px; display: grid; gap: 6px; }
+.sat .proto .hint { margin: 0 0 12px; }
+.sat-msgs { display: grid; gap: 8px; }
+.sat-msg { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: grid; gap: 8px; background: var(--bg); }
+.sat-msg p { margin: 0; font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; }
+.sat-msg div { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.sat-msg small { color: var(--muted); }
+.sat-msg button.ok { background: var(--soft); border-color: var(--accent); }
 .proto { border: 1px solid var(--line); border-radius: 12px; padding: 0 12px; }
 .proto summary { font-weight: 700; cursor: pointer; }
 .proto ul { margin: 0 0 12px; padding-left: 20px; display: grid; gap: 6px; }
@@ -560,6 +570,7 @@ button .ico { margin-right: 6px; }
   <symbol id="i-urg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v9M7.5 12h9"/></symbol>
   <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 4.5 3.4 8 8 9 4.6-1 8-4.5 8-9V6zM9 12l2 2 4-4"/></symbol>
   <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H6v18h12V7zM14 3v4h4M9 13h6M9 17h6"/></symbol>
+  <symbol id="i-sat" viewBox="0 0 24 24"><rect x="9" y="6" width="6" height="15" rx="1.5"/><path d="M12 6V3M10.5 10h3"/><path d="M5.5 5.5a9 9 0 0 0 0 9M18.5 5.5a9 9 0 0 1 0 9"/></symbol>
   <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
   <symbol id="i-snake" viewBox="0 0 24 24"><path d="M3 17c2 0 3-2 3-4s1-4 3-4 3 2 3 4 1 4 3 4 3-2 3-4-1-4-3-4"/><circle cx="18" cy="5" r="1"/></symbol>
   <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></symbol>
@@ -838,7 +849,7 @@ button .ico { margin-right: 6px; }
       <p>Hébergeur de la version en ligne : GitHub Pages, GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis.</p>
       <p>Polices Barlow sous licence SIL Open Font License. Déclinaison magnétique d'après le modèle magnétique mondial WMM 2025 (NOAA et BGS).</p>
     </details>
-    <p class="ver mono">Sac de Layon · version 34</p>
+    <p class="ver mono">Sac de Layon · version 35</p>
   </section>
 </main>
 
@@ -928,6 +939,25 @@ button .ico { margin-right: 6px; }
         <p class="hint">Lis-le mot à mot quand le 15 ou le 112 décroche. Réponds ensuite à leurs questions et ne raccroche pas le premier.</p>
         <pre id="bilTxt"></pre>
         <div class="actions" style="margin:0"><button type="button" class="small" id="bilCopy">Copier</button><button type="button" class="small ghost" id="bilSend">Envoyer par SMS ou WhatsApp</button><button type="button" class="small danger" id="bilNew">Nouveau bilan</button></div>
+      </div>
+      <div class="urg-say sat" id="satBox">
+        <h3><svg class="ico" aria-hidden="true"><use href="#i-sat"/></svg>Pas de réseau : selon ce que tu as</h3>
+        <details class="proto" open><summary>Une balise qui envoie des messages (inReach, Zoleo…)</summary><ol class="sat-how">
+          <li><b>Déclenche le SOS</b> sur la balise. Ta position part toute seule, pas besoin de l'écrire.</li>
+          <li>Le centre de secours te répond <b>par message</b>. Ouvre l'appli de ta balise sur le téléphone (par exemple Garmin Messenger, reliée en Bluetooth), dans la conversation avec les secours.</li>
+          <li>Ici, en bas, touche <b>Copier</b> sur le message 1, colle-le là-bas et envoie. Puis le 2, puis le 3, <b>dans l'ordre</b>.</li>
+          <li>Réponds ensuite à leurs questions. Si l'état change, mets le bilan à jour et renvoie les messages.</li>
+        </ol>
+        <p class="hint">Chaque message fait moins de 160 caractères, la limite de la plupart des balises. Sans téléphone relié, tape-les sur la balise : ils sont écrits court exprès. Entraîne-toi une fois avant de partir : copie un message et colle-le dans une conversation normale de ton appli, pas en SOS.</p></details>
+        <details class="proto"><summary>Une balise de détresse sans messages (PLB, Spot…)</summary><ul>
+          <li><b>Déclenche-la</b> et laisse-la allumée, antenne vers le ciel, à découvert si possible. Elle envoie ta position, mais tu ne peux pas écrire.</li>
+          <li>Les secours ne sauront pas ce qui s'est passé : garde le bilan à jour pour le <b>montrer à leur arrivée</b>, et le lire dès que tu retrouves du réseau.</li></ul></details>
+        <details class="proto"><summary>Ni réseau ni balise</summary><ul>
+          <li>Cherche du réseau : point haut, bord du fleuve, crique dégagée. Un SMS passe parfois quand un appel ne passe pas : envoie le bilan à un proche qui appellera le 15 pour toi.</li>
+          <li>Si vous êtes plusieurs, <b>envoie deux personnes</b> chercher du réseau ou de l'aide, avec ce bilan copié (SMS, WhatsApp) ou noté sur papier, et la position GPS.</li>
+          <li>Reste avec la victime. Ta fiche « Si je ne rentre pas » fera partir les recherches si vous ne rentrez pas à l'heure.</li></ul></details>
+        <p class="hint" style="margin:0">Messages courts, à copier un par un :</p>
+        <div id="satMsgs" class="sat-msgs"></div>
       </div>
     </section>
     <div class="fiches">
@@ -3005,7 +3035,7 @@ function bilMsg() {
   if (med.length) L.push("", me ? "MA SANTÉ" : "CE QU'ON SAIT DE SA SANTÉ", ...med);
   return L.join("\n");
 }
-function bilText() { if ($("bilTxt")) $("bilTxt").textContent = bilMsg(); }
+function bilText() { if ($("bilTxt")) $("bilTxt").textContent = bilMsg(); renderSat(); }
 function bilRender() {
   bil = bilGet(); const d = sanGet();
   if (!bil.who) bil.who = sanFilled(d) ? "C'est moi" : "";
@@ -3068,6 +3098,68 @@ function bilRender() {
   chips(s4, "done", "", showGar); s4.appendChild(gar); input(gar, "garrotAt", "Heure du garrot", { type: "time" }); nowBtn(gar, "garrotAt"); showGar();
   input(s4, "doneTxt", "Autre chose", { ph: "ex. 2 sachets de réhydratation" });
   bilText();
+}
+// ---------- version courte pour balise satellite (inReach…) : messages de 160 caractères au plus ----------
+const SAT_MAX = 160;
+const SAT_W = { "Chute d'arbre ou de branche": "chute d'arbre", "Morsure de serpent": "morsure de serpent", "Piqûre de raie": "piqûre de raie", "Piqûre (insecte, scorpion, araignée)": "piqûre insecte ou scorpion", "Plaie, coupure": "plaie", "Épuisement, déshydratation": "épuisement" };
+const SAT_V = { "Parle normalement": "conscient", "Confus, répond mal": "confus", "Ne répond pas": "INCONSCIENT",
+  "Normale": "", "Difficile ou très rapide": "respire mal", "Ne respire pas": "NE RESPIRE PAS",
+  "Pâle, sueurs": "pâle, sueurs", "Lèvres bleues": "lèvres bleues", "Brûlante (fièvre)": "fiévreux",
+  "Aucun": "", "Arrêté": "saignement arrêté", "Abondant, ne s'arrête pas": "SAIGNE ABONDAMMENT",
+  "Bouge bras et jambes": "bouge", "Ne peut pas marcher": "ne peut pas marcher", "Ne sent plus ou ne bouge plus un membre": "ne sent ou ne bouge plus un membre" };
+const SAT_D = { "Compression de la plaie": "compression", "Membre immobilisé": "membre immobilisé", "Tête et nuque maintenues": "nuque maintenue", "Mis sur le côté (PLS)": "PLS", "Massage cardiaque": "massage cardiaque", "Paracétamol donné": "paracétamol", "Mis à l'abri, au sec": "à l'abri" };
+const SAT_A = { "Clairière, crique ou fleuve tout près (hélico possible)": "clairière ou fleuve proche, hélico possible", "Sous couvert dense, pas de dégagement": "couvert dense, pas de dégagement", "Accessible en pirogue": "accès pirogue", "Accessible par une piste": "accès piste" };
+const hmS = t => /^\d{1,2}:\d{2}$/.test(t) ? t.replace(":", "h") : t;
+function satParts() {
+  const b = bil || bilGet(), d = sanGet(), me = b.who === "C'est moi", P = [];
+  const what = [...b.what.map(w => SAT_W[w] || w.toLowerCase()), b.whatTxt].filter(Boolean);
+  P.push("URGENCE: " + (what.length ? what.join(", ") : "accident") + (b.at ? " à " + hmS(b.at) : "") + ".");
+  const sex = me ? d.Sex : b.sex, age = me ? sanAge(d) : parseInt(b.age, 10) || 0;
+  const v = [(sex || "Victime") + (age ? " " + age + " ans" : "")];
+  const st = [SAT_V[b.cons], SAT_V[b.resp],
+    (b.pulse || b.pulseQ) ? (b.pulseQ === "Introuvable" ? "pouls introuvable" : ["pouls", b.pulse.replace(/\D+$/, ""), b.pulseQ === "Bien frappé" ? "" : b.pulseQ.toLowerCase()].filter(Boolean).join(" ")) : "",
+    SAT_V[b.skin], SAT_V[b.bleed], SAT_V[b.move],
+    (b.pain || b.painN) ? ["douleur", b.pain, b.painN ? b.painN + "/10" : ""].filter(Boolean).join(" ") : "",
+    b.temp ? b.temp.replace(/\s*°?\s*c?$/i, "") + "°C" : ""].filter(Boolean);
+  P.push(v[0] + (st.length ? ": " + st.join(", ") : "") + ".");
+  const done = b.done.map(x => x === "Garrot posé" ? "garrot" + (b.garrotAt ? " à " + hmS(b.garrotAt) : "") : SAT_D[x] || x.toLowerCase());
+  if (b.doneTxt) done.push(b.doneTxt);
+  if (done.length) P.push("Fait: " + done.join(", ") + ".");
+  const where = [b.people ? b.people + " pers. sur place" : "", ...b.access.map(a => SAT_A[a] || a.toLowerCase())].filter(Boolean);
+  if (where.length) P.push(where.join(", ") + ".");
+  if (me) {
+    if (d.Allerg) P.push("Allergies: " + d.Allerg + ".");
+    if (d.Meds) P.push("Traitements: " + d.Meds + ".");
+    if (d.Hist) P.push("Antécédents: " + d.Hist + ".");
+    if (d.Ill) P.push("Maladies: " + d.Ill + ".");
+    if (d.Do) P.push("Important: " + d.Do + ".");
+    if (d.Blood) P.push("Groupe " + d.Blood + ".");
+  } else if (b.known) P.push("Santé: " + b.known + ".");
+  const cb = b.cb || d.Me; if (cb) P.push("Tél: " + cb + ".");
+  return P.map(x => x.replace(/\.\.$/, "."));
+}
+// regroupe les phrases en messages, « 1/3 » devant ; une phrase trop longue est coupée entre deux mots
+function satMsgs() {
+  const room = SAT_MAX - 5, words = [];
+  satParts().forEach(p => { if (p.length <= room) { words.push(p); return; }
+    let cur = ""; p.split(" ").forEach(w => { while (w.length > room) { if (cur) { words.push(cur); cur = ""; } words.push(w.slice(0, room)); w = w.slice(room); }
+      if ((cur + " " + w).trim().length > room) { words.push(cur); cur = w; } else cur = (cur + " " + w).trim(); }); if (cur) words.push(cur); });
+  const M = []; let m = "";
+  words.forEach(w => { if (m && (m + " " + w).length > room) { M.push(m); m = w; } else m = m ? m + " " + w : w; });
+  if (m) M.push(m);
+  return M.map((x, i) => `${i + 1}/${M.length} ${x}`);
+}
+function renderSat() {
+  const box = $("satMsgs"); if (!box) return; box.innerHTML = "";
+  satMsgs().forEach((t, i) => {
+    const c = document.createElement("div"); c.className = "sat-msg";
+    const p = document.createElement("p"); p.textContent = t;
+    const row = document.createElement("div");
+    const n = document.createElement("small"); n.textContent = `Message ${i + 1} · ${t.length} caractères`;
+    const btn = document.createElement("button"); btn.type = "button"; btn.className = "small"; btn.textContent = "Copier";
+    btn.onclick = async () => { await copy(t, `Message ${i + 1} copié : colle-le dans l'appli de ta balise`); btn.classList.add("ok"); btn.textContent = "Copié"; };
+    row.append(n, btn); c.append(p, row); box.appendChild(c);
+  });
 }
 $("bilGo").onclick = () => $("bilSay").scrollIntoView({ behavior: "smooth", block: "start" });
 $("bilCopy").onclick = () => copy(bilMsg(), "Message copié");
@@ -3190,7 +3282,7 @@ setInterval(() => { if (document.hidden) return; if (view === "accueil") renderS
 document.addEventListener("visibilitychange", () => { if (!document.hidden) { renderSun(); renderLostSun(); } });
 renderLostSun();
 // ---------- à propos : retours par mail, mesure d'audience anonyme ----------
-const APP_VER = 34, FEEDBACK_MAIL = "sacdelayon@gmail.com", GC_CODE = "sacdelayon";
+const APP_VER = 35, FEEDBACK_MAIL = "sacdelayon@gmail.com", GC_CODE = "sacdelayon";
 const mailOk = /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(FEEDBACK_MAIL);
 function feedbackHref() {
   const ua = navigator.userAgent, phone = /iPhone|iPad/.test(ua) ? "iPhone / iPad" : /Android/.test(ua) ? "Android" : "ordinateur";

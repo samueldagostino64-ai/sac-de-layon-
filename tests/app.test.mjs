@@ -385,7 +385,7 @@ test("version en ligne : compteur anonyme (une fois par onglet, rien des listes)
   assert.ok(paths.includes("/ouverture-navigateur")); assert.equal(paths.filter(x => x === "/onglet-boussole").length, 1);
   assert.ok(!hits.some(u => /secr|Hamac/i.test(decodeURIComponent(u))), "aucun contenu des listes n'est envoyé");
   await p.click('.tabbar [data-go="reglages"]');
-  assert.match(await p.getAttribute("#btnFeedback", "href"), /^mailto:sacdelayon@gmail\.com\?subject=Sac%20de%20Layon%20v34/);
+  assert.match(await p.getAttribute("#btnFeedback", "href"), /^mailto:sacdelayon@gmail\.com\?subject=Sac%20de%20Layon%20v35/);
   assert.deepEqual(errs, []); await ctx.close();
 });
 
@@ -399,7 +399,7 @@ test("en local (et dans Claude), le compteur ne part pas", async () => {
 test("retours : sur iPhone, Gmail est proposé en plus de Mail et de la copie de l'adresse", async () => {
   const p = await open(); await p.click('.tabbar [data-go="reglages"]');
   assert.ok(await p.isVisible("#btnGmail"));
-  assert.match(await p.getAttribute("#btnGmail", "href"), /^googlegmail:\/\/\/co\?to=sacdelayon%40gmail\.com&subject=Sac%20de%20Layon%20v34[^&]*&body=/);
+  assert.match(await p.getAttribute("#btnGmail", "href"), /^googlegmail:\/\/\/co\?to=sacdelayon%40gmail\.com&subject=Sac%20de%20Layon%20v35[^&]*&body=/);
   assert.match(await p.textContent("#btnFeedback"), /Avec Mail \(Apple\)/);
   assert.ok(await p.isVisible("#btnFbCopy"));
   await close(p);
@@ -531,6 +531,16 @@ test("fiche santé et bilan aux secours : la fiche se remplit une fois, le bilan
   assert.match(t, /DÉJÀ FAIT\nGarrot posé à 13 h 50\./);
   assert.match(t, /MA SANTÉ\n80 kg, groupe sanguin O\+\.\nTension habituelle 12\/8, pouls au repos 60\/min\.\nOpérations, prothèses, antécédents : prothèses cervicales\.\nImportant : ne pas manipuler la nuque sans collier\./);
   assert.match(t, /Personne à prévenir : Élisabeth, 0694 00 00 00\./);
+  // version courte pour balise satellite : messages numérotés de 160 caractères au plus, dans l'ordre
+  const sat = await p.locator("#satMsgs .sat-msg p").allTextContents();
+  assert.ok(sat.length >= 2, "plusieurs messages");
+  sat.forEach((m, i) => { assert.ok(m.length <= 160, `message ${i + 1} trop long (${m.length})`); assert.ok(m.startsWith(`${i + 1}/${sat.length} `)); });
+  const all = sat.join(" ");
+  assert.match(sat[0], /^1\/\d URGENCE: chute d'arbre à 13h40\. Homme \d+ ans: confus, respire mal, pouls 110 faible, ne sent ou ne bouge plus un membre\./);
+  assert.match(all, /Fait: garrot à 13h50\./); assert.match(all, /Antécédents: prothèses cervicales\./); assert.match(all, /Tél: 0694 11 11 11\./);
+  await p.locator("#satMsgs button").first().click();
+  await p.waitForFunction(() => /Copié/.test(document.querySelector("#satMsgs button").textContent), null, { timeout: 3000 });
+  if (await p.isVisible("#txtOv")) await p.click("#txtClose");
   await chip("Ne respire pas"); assert.ok(await p.isVisible("#bilForm .balert"), "alerte massage cardiaque");
   // quelqu'un d'autre : sa santé à lui, pas la mienne
   await chip("Quelqu'un d'autre"); await p.fill("#bil_age", "35"); await chip("Femme"); await p.fill("#bil_known", "asthmatique");
