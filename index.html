@@ -302,6 +302,8 @@ body.noscroll { overflow: hidden; }
 /* démarrage guidé */
 #wizard { border-color: var(--accent); }
 .wstep { font-size: .78rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-weight: 600; }
+.pwarn { margin: 6px 0 0; color: var(--laterite); font-weight: 600; font-size: .88rem; }
+.stepper.key { border: 2px solid var(--accent); border-radius: 12px; padding: 10px 12px; background: var(--soft); }
 .stepper { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px dashed var(--line); }
 .stepper .ctl { display: grid; grid-template-columns: 48px 52px 48px; align-items: center; text-align: center; }
 .stepper .ctl button { min-height: 48px; font-size: 1.3rem; padding: 0; }
@@ -344,6 +346,14 @@ body.noscroll { overflow: hidden; }
 .urg-say pre { margin: 0; white-space: pre-wrap; font: 600 1.05rem/1.45 var(--f-body); }
 .san { margin-bottom: 8px; }
 .bil { display: grid; gap: 8px; }
+.upanel { display: grid; gap: 10px; }
+.upanel[hidden] { display: none; }
+.urgtabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; position: sticky; top: -1px; z-index: 2; background: var(--bg); padding: 6px 0; }
+.urgtabs button { display: grid; justify-items: center; gap: 2px; min-height: 76px; padding: 8px 4px; font-size: .98rem; line-height: 1.15; text-align: center; touch-action: manipulation; }
+.urgtabs button .ico { width: 24px; height: 24px; color: var(--laterite); }
+.urgtabs button small { font-weight: 400; font-size: .74rem; color: var(--muted); }
+.urgtabs button[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.urgtabs button[aria-selected="true"] .ico, .urgtabs button[aria-selected="true"] small { color: var(--accent-ink); }
 .bil-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .bil-head h3, .urg-h, .fiches h3 { margin: 0; font-family: var(--f-display); font-size: 1.05rem; text-transform: uppercase; letter-spacing: .06em; }
 .bil .hint { margin: 0; }
@@ -856,7 +866,7 @@ button .ico { margin-right: 6px; }
       <p>Hébergeur de la version en ligne : GitHub Pages, GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis.</p>
       <p>Polices Barlow sous licence SIL Open Font License. Déclinaison magnétique d'après le modèle magnétique mondial WMM 2025 (NOAA et BGS).</p>
     </details>
-    <p class="ver mono">Sac de Layon · version 37</p>
+    <p class="ver mono">Sac de Layon · version 38</p>
   </section>
 </main>
 
@@ -937,7 +947,12 @@ button .ico { margin-right: 6px; }
       <p class="urg-pos" id="urgPos" aria-live="polite" hidden></p>
       <small class="gmsg" id="urgMsg" hidden></small>
     </div>
-    <section class="bil" id="bil" aria-labelledby="bilTitle">
+    <div class="urgtabs" role="tablist" aria-label="Que faire">
+      <button type="button" role="tab" data-u="bil" aria-controls="bil"><svg class="ico" aria-hidden="true"><use href="#i-file"/></svg>Bilan<small>à lire au 15</small></button>
+      <button type="button" role="tab" data-u="uSat" aria-controls="uSat"><svg class="ico" aria-hidden="true"><use href="#i-sat"/></svg>Pas de réseau<small>balise ou rien</small></button>
+      <button type="button" role="tab" data-u="uGes" aria-controls="uGes"><svg class="ico" aria-hidden="true"><use href="#i-urg"/></svg>Gestes<small>serpent, perdu…</small></button>
+    </div>
+    <section class="bil upanel" id="bil" aria-labelledby="bilTitle">
       <div class="bil-head"><h3 id="bilTitle">Bilan à donner aux secours</h3><button type="button" class="small ghost" id="bilGo">Voir le message</button></div>
       <p class="hint">Touche ce que tu constates, dans l'ordre. Le message à lire au 15 se remplit tout seul, en bas. Ce que tu ne sais pas, laisse-le vide.</p>
       <div id="bilForm"></div>
@@ -947,6 +962,10 @@ button .ico { margin-right: 6px; }
         <pre id="bilTxt"></pre>
         <div class="actions" style="margin:0"><button type="button" class="small" id="bilCopy">Copier</button><button type="button" class="small ghost" id="bilSend">Envoyer par SMS ou WhatsApp</button><button type="button" class="small danger" id="bilNew">Nouveau bilan</button></div>
       </div>
+    </section>
+    <div class="upanel" id="uSat" hidden>
+      <p class="hint" style="margin:0">Les messages courts plus bas reprennent ton bilan : remplis-le d'abord avec le bouton « Bilan ».</p>
+      <button type="button" class="small" id="satToBil" style="justify-self:start">Remplir le bilan d'abord</button>
       <div class="urg-say sat" id="satBox">
         <h3><svg class="ico" aria-hidden="true"><use href="#i-sat"/></svg>Pas de réseau : selon ce que tu as</h3>
         <details class="proto" open><summary>Une balise qui envoie des messages (inReach, Zoleo…)</summary><ol class="sat-how">
@@ -966,13 +985,8 @@ button .ico { margin-right: 6px; }
         <p class="hint" style="margin:0">Messages courts, à copier un par un :</p>
         <div id="satMsgs" class="sat-msgs"></div>
       </div>
-    </section>
-    <div class="fiches">
-      <h3>Avant de partir</h3>
-      <button type="button" class="fic" id="ficSan"><svg class="ico" aria-hidden="true"><use href="#i-med"/></svg><span><b>Ma fiche santé</b><small id="ficSanSt">À remplir une fois, chez toi</small></span><i aria-hidden="true">›</i></button>
-      <button type="button" class="fic" id="ficSafe"><svg class="ico" aria-hidden="true"><use href="#i-shield"/></svg><span><b>Si je ne rentre pas</b><small>À envoyer à un proche avant chaque départ</small></span><i aria-hidden="true">›</i></button>
     </div>
-    <h3 class="urg-h">Gestes d'urgence</h3>
+    <div class="upanel" id="uGes" hidden>
     <details class="proto"><summary><svg class="ico" aria-hidden="true"><use href="#i-compass"/></svg>Perdu en forêt</summary><ul>
       <li><b>Stop.</b> Assieds-toi, bois, mange. Avancer au hasard aggrave tout.</li>
       <li class="sunleft"></li>
@@ -1003,6 +1017,13 @@ button .ico { margin-right: 6px; }
       <li>Aspivenin, kits « anti-venin », garrot contre les serpents : inefficaces et dangereux.</li>
       <li>Kits de secours tout faits : chers et pleins de gadgets. Mieux vaut composer sa trousse (voir le pack « Trousse de secours Guyane »).</li></ul></details>
     <p class="hint">Ces fiches rappellent les gestes de base. Elles ne remplacent ni une formation aux premiers secours (PSC1) ni l'avis d'un médecin.</p>
+    </div>
+    <div class="fiches">
+      <h3>Avant de partir</h3>
+      <button type="button" class="fic" id="ficSan"><svg class="ico" aria-hidden="true"><use href="#i-med"/></svg><span><b>Ma fiche santé</b><small id="ficSanSt">À remplir une fois, chez toi</small></span><i aria-hidden="true">›</i></button>
+      <button type="button" class="fic" id="ficSafe"><svg class="ico" aria-hidden="true"><use href="#i-shield"/></svg><span><b>Si je ne rentre pas</b><small>À envoyer à un proche avant chaque départ</small></span><i aria-hidden="true">›</i></button>
+      <button type="button" class="fic" id="ficPaper"><svg class="ico" aria-hidden="true"><use href="#i-file"/></svg><span><b>Version papier</b><small>Fiche santé et grille de bilan à imprimer, pour la trousse</small></span><i aria-hidden="true">›</i></button>
+    </div>
   </div>
 </div>
 
@@ -1035,7 +1056,8 @@ button .ico { margin-right: 6px; }
       <label class="field wide"><span class="label">Médecin traitant</span><input id="sanDoc" autocomplete="off" placeholder="ex. Dr Martin, 0594 …"></label>
     </div>
     <label class="chk"><input type="checkbox" id="sanJoin" checked> Ajouter ma fiche santé à ma fiche « Si je ne rentre pas »</label>
-    <div class="actions"><button type="button" class="small" id="sanTeam">Envoyer ma fiche à mes équipiers</button></div>
+    <div class="actions"><button type="button" class="small" id="sanTeam">Envoyer ma fiche à mes équipiers</button><button type="button" class="small" id="sanPdf"><svg class="ico" aria-hidden="true"><use href="#i-file"/></svg>Version papier (PDF)</button></div>
+    <p class="hint">La version papier : ta fiche remplie et une grille de bilan vierge à cocher au crayon. Imprime-la, plastifie-la, glisse-la dans la trousse. Elle marche quand le téléphone est noyé ou à plat.</p>
     <p class="hint">Si tu es inconscient, ton téléphone reste verrouillé : personne ne pourra lire cette fiche. Remplis aussi la <b>fiche médicale du téléphone</b>, lisible sur l'écran verrouillé (iPhone : appli Santé > Fiche médicale ; Android : Réglages > Sécurité et urgence), et envoie ta fiche à tes équipiers avant de partir.</p>
     <div class="actions"><button type="button" class="primary" id="sanDone">C'est rempli</button></div>
   </div>
@@ -2344,7 +2366,12 @@ document.addEventListener("focusin", ev => { const t = ev.target; if (!t.matches
   setTimeout(() => { if (document.activeElement === t) t.scrollIntoView({ block: "center", behavior: "smooth" }); }, 350); });
 
 // ---------- urgences et premiers secours ----------
-function openUrg() { closeMenu(); renderLostSun(); openOv("urgOv"); renderSan(); bilRender(); $("urgBox").scrollTop = 0; }
+// une seule partie à la fois : sous le stress, on ne fait pas défiler trois mètres d'écran
+function urgTab(k) { if (!["bil", "uSat", "uGes"].includes(k)) k = "bil";
+  document.querySelectorAll("#urgOv .urgtabs button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.u === k)));
+  ["bil", "uSat", "uGes"].forEach(id => { $(id).hidden = id !== k; }); }
+document.querySelectorAll("#urgOv .urgtabs button").forEach(b => b.onclick = () => { urgTab(b.dataset.u); const t = document.querySelector("#urgOv .urgtabs"); $("urgBox").scrollTop = Math.min($("urgBox").scrollTop, t.offsetTop - 8); });
+function openUrg(tab) { closeMenu(); renderLostSun(); openOv("urgOv"); renderSan(); bilRender(); urgTab(typeof tab === "string" ? tab : "bil"); $("urgBox").scrollTop = 0; }
 $("btnUrg").onclick = openUrg;
 $("urgClose").onclick = () => closeOv("urgOv");
 $("urgOv").addEventListener("click", ev => { if (ev.target === $("urgOv")) closeOv("urgOv"); });
@@ -2494,7 +2521,7 @@ function renderSecBilan(e) {
   const a = document.createElement("div"); a.className = "actions";
   if (lines.slice(0, 4).some(l => !l[0])) { const b1 = document.createElement("button"); b1.className = "small primary"; b1.textContent = lines[2][0] && lines[3][0] ? "Compléter depuis le pack secours" : "Ajouter la trousse de secours"; b1.onclick = () => { pick.src = "trousse"; openPicker(); }; a.appendChild(b1); }
   const b2 = document.createElement("button"); b2.className = "small" + (lines[4][0] ? " ghost" : ""); b2.innerHTML = ico("shield"); b2.append("Fiche sécurité"); b2.onclick = () => openSafety(); a.appendChild(b2);
-  const b3 = document.createElement("button"); b3.className = "small ghost"; b3.innerHTML = ico("urg"); b3.append("Gestes d'urgence"); b3.onclick = openUrg; a.appendChild(b3);
+  const b3 = document.createElement("button"); b3.className = "small ghost"; b3.innerHTML = ico("urg"); b3.append("Gestes d'urgence"); b3.onclick = () => openUrg("uGes"); a.appendChild(b3);
   const b4 = document.createElement("button"); b4.className = "small" + (lines[5][0] ? " ghost" : ""); b4.innerHTML = ico("med"); b4.append("Fiche santé"); b4.onclick = openSan; a.appendChild(b4);
   // matériel périmé ou à réviser (dates saisies dans Mon matériel)
   const old = e.items.filter(i => secOf(i.cat) === "secu").map(i => state.gear[gkey(i.name)]).filter(g => g && expiryTxt(g) && expiryTxt(g).bad);
@@ -2712,8 +2739,8 @@ function renderWizard() {
     di.onchange = () => { if (di.value && di.value < todayS()) { toast("Cette date est déjà passée : choisis le jour du départ"); di.value = e.start || ""; return; }
       e.start = di.value; e.end = e.start ? addDays(e.start, Math.max(0, (+e.days || 1) - 1)) : ""; showRet(); lsSave(); };
     fd.append(ld, di, ret); box.appendChild(fd); showRet();
-    [["days","Jours",1,""],["nights","Nuits",0,""],["people","Personnes",1,""],["reserve","Jours de réserve",0,"en cas de crue ou de pépin : 1 minimum"]].forEach(([k, lab, min, sub]) => {
-      const r = document.createElement("div"); r.className = "stepper";
+    [["people","Combien êtes-vous, toi compris ?",1,"eau, rations, trousses : toutes les quantités en dépendent"],["days","Jours",1,""],["nights","Nuits",0,""],["reserve","Jours de réserve",0,"en cas de crue ou de pépin : 1 minimum"]].forEach(([k, lab, min, sub]) => {
+      const r = document.createElement("div"); r.className = "stepper" + (k === "people" ? " key" : "");
       const l = document.createElement("div"); l.textContent = lab; if (sub) { const s2 = document.createElement("small"); s2.textContent = sub; l.appendChild(s2); }
       const c = document.createElement("div"); c.className = "ctl";
       const minus = document.createElement("button"); minus.textContent = "−"; minus.setAttribute("aria-label", lab + " moins un");
@@ -2852,6 +2879,9 @@ function expCard(e, big) {
   tt.append(h, sub);
   const cd = document.createElement("span"); cd.className = "cd " + ph.k; cd.textContent = ph.k === "none" ? "" : ph.label;
   top.append(ic, tt, cd);
+  const wc = whoCount(s.who);
+  let warnEl = null;
+  if (!draft && wc > +e.people) { warnEl = document.createElement("p"); warnEl.className = "pwarn"; warnEl.textContent = `Réglée pour ${e.people} personne${+e.people > 1 ? "s" : ""}, mais ${wc} prénoms notés : vérifie le nombre, les quantités en dépendent.`; }
   if (draft) { const dn = document.createElement("p"); dn.className = "dnote"; dn.textContent = "À compléter : pas de date, liste vide"; c.append(top, dn); c.onclick = () => openExp(e.id, "liste"); return c; }
   const mid = document.createElement("div"); mid.className = "cmid";
   mid.appendChild(ring(d, n, big ? 64 : 44));
@@ -2864,7 +2894,7 @@ function expCard(e, big) {
   if (ph.k !== "none" && ph.k !== "past") { const l3 = document.createElement("p"); l3.className = "safe " + (safeSent(e) ? "ok" : "todo"); l3.textContent = safeSent(e) ? "Fiche sécurité envoyée" : safeStale(e) ? "Fiche sécurité à renvoyer (dates changées)" : "Fiche sécurité à envoyer"; info.appendChild(l3); }
   if (s.backAt) { const l3 = document.createElement("p"); l3.className = "safe ok"; l3.textContent = "Retour signalé"; info.appendChild(l3); }
   mid.appendChild(info);
-  c.append(top, mid);
+  c.append(...[top, warnEl, mid].filter(Boolean));
   c.onclick = ev => { if (!ev.target.closest("button")) openExp(e.id, "liste"); };
   // « Je suis rentré » : pendant l'expé et jusqu'à 3 jours après le retour prévu, pas au-delà
   const back = safeSent(e) && !s.backAt && (ph.k === "during" || ph.k === "today" || (ph.k === "past" && dayDiff(endOf(e), todayS()) <= 3));
@@ -3170,6 +3200,92 @@ function renderSat() {
     row.append(n, btn); c.append(p, row); box.appendChild(c);
   });
 }
+// ---------- version papier : fiche santé remplie + grille de bilan vierge, à imprimer et plastifier ----------
+function buildSanPdf(JsPDF) {
+  const doc = new JsPDF({ unit: "mm", format: "a4" }), d = sanGet();
+  const W = 210, H = 297, M = 14, CW = W - 2 * M;
+  const C = { acc: [31, 106, 82], ink: [27, 42, 34], mut: [93, 107, 97], line: [180, 188, 175], lat: [180, 83, 42] };
+  const col = (c, k) => k === "f" ? doc.setFillColor(...c) : k === "d" ? doc.setDrawColor(...c) : doc.setTextColor(...c);
+  const txt = (t, x, y, o) => doc.text(pdfTxt(t), x, y, o);
+  const head = (title, sub) => { col(C.acc, "f"); doc.rect(0, 0, W, 26, "F");
+    doc.setFont("helvetica", "bold"); doc.setFontSize(8); col([214, 232, 222]); txt("SAC DE LAYON", M, 9, { charSpace: 0.6 });
+    doc.setFontSize(17); col([255, 255, 255]); txt(title, M, 18); doc.setFont("helvetica", "normal"); doc.setFontSize(8.5); col([226, 238, 230]); txt(sub, M, 23.2); return 34; };
+  const sec = (y, t) => { doc.setFont("helvetica", "bold"); doc.setFontSize(10); col(C.acc); txt(t.toUpperCase(), M, y, { charSpace: 0.3 }); col(C.acc, "d"); doc.setLineWidth(0.4); doc.line(M, y + 1.6, W - M, y + 1.6); return y + 7; };
+  // une ligne « libellé : valeur » ; vide = ligne pointillée à remplir à la main
+  const row = (y, lab, val, x = M, w = CW) => { doc.setFont("helvetica", "bold"); doc.setFontSize(8); col(C.mut); txt(lab, x, y);
+    const lx = x + Math.min(48, doc.getTextWidth(pdfTxt(lab)) + 3);
+    if (val) { doc.setFont("helvetica", "normal"); doc.setFontSize(10); col(C.ink); const ls = doc.splitTextToSize(pdfTxt(val), x + w - lx); doc.text(ls, lx, y); return y + 5.2 * ls.length + 1.6; }
+    col(C.line, "d"); doc.setLineWidth(0.2); doc.setLineDashPattern([0.6, 0.8], 0); doc.line(lx, y + 0.6, x + w, y + 0.6); doc.setLineDashPattern([], 0); return y + 7; };
+  // cases à cocher qui passent à la ligne d'elles-mêmes
+  const boxes = (y, lab, opts) => { doc.setFont("helvetica", "bold"); doc.setFontSize(8); col(C.mut); if (lab) { txt(lab, M, y); y += 4.6; }
+    doc.setFont("helvetica", "normal"); doc.setFontSize(9); col(C.ink); let x = M;
+    opts.forEach(o => { const w = doc.getTextWidth(pdfTxt(o)) + 9; if (x + w > W - M) { x = M; y += 6; }
+      col(C.ink, "d"); doc.setLineWidth(0.3); doc.rect(x, y - 3, 3.4, 3.4); txt(o, x + 5, y); x += w; });
+    return y + 7.5; };
+  // page 1 : fiche santé
+  const age = sanAge(d);
+  let y = head("FICHE SANTÉ", "À plastifier et à garder dans la trousse de secours. À lire aux secours si je ne peux pas parler.");
+  y = sec(y, "Qui");
+  y = row(y, "Nom", d.Name);
+  const half = (yy, l1, v1, l2, v2) => Math.max(row(yy, l1, v1, M, CW / 2 - 4), row(yy, l2, v2, M + CW / 2 + 4, CW / 2 - 4));
+  y = half(y, "Sexe", d.Sex, "Naissance", d.Born ? `${parseInt(d.Born, 10)}${age ? " (" + age + " ans)" : ""}` : "");
+  y = half(y, "Poids", d.Kg ? d.Kg.replace(/\s*kg$/i, "") + " kg" : "", "Groupe sanguin", d.Blood);
+  y = row(y, "Mon téléphone", d.Me);
+  y = sec(y + 2, "Valeurs habituelles");
+  y = half(y, "Tension", d.BP, "Pouls au repos", d.HR ? d.HR.replace(/\s*\/?\s*min$/i, "") + " /min" : "");
+  y = sec(y + 2, "Santé");
+  [["Maladies connues", d.Ill], ["Opérations, prothèses", d.Hist], ["Traitements en cours", d.Meds], ["Allergies", d.Allerg], ["Vaccins", d.Vacc]].forEach(([l, v]) => { y = row(y, l, v); });
+  if (d.Do) { y += 1; col([251, 236, 228], "f"); const ls = doc.splitTextToSize(pdfTxt("IMPORTANT : " + d.Do), CW - 8); doc.rect(M, y - 4.5, CW, 5.4 * ls.length + 4, "F");
+    doc.setFont("helvetica", "bold"); doc.setFontSize(10.5); col(C.lat); doc.text(ls, M + 4, y + 0.6); y += 5.4 * ls.length + 6; }
+  else y = row(y, "À faire ou à éviter", "");
+  y = sec(y + 2, "Qui prévenir");
+  y = half(y, "Personne", d.Who, "Téléphone", d.Tel);
+  y = row(y, "Médecin traitant", d.Doc);
+  doc.setFont("helvetica", "normal"); doc.setFontSize(7.5); col(C.mut); txt(`Imprimée le ${new Date().toLocaleDateString("fr-FR")}. Mets-la à jour si un traitement change.`, M, H - 10);
+  // page 2 : grille de bilan vierge, dans l'ordre de l'appli
+  doc.addPage();
+  y = head("BILAN À DONNER AUX SECOURS", "Coche au crayon, puis lis-le au 15 ou au 112, ou recopie-le dans ta balise. Sert aussi sans téléphone.");
+  y = sec(y, "1. Qui appelle, où");
+  y = half(y, "Nom", "", "Numéro de rappel", ""); y = half(y, "Position GPS", "", "Personnes sur place", "");
+  y = boxes(y, "Accès", BIL_MULTI.access.map(a => SAT_A[a] || a));
+  y = boxes(y, "", ["Balise SOS déclenchée", "Pas de balise"]);
+  y = sec(y, "2. Ce qui s'est passé");
+  y = boxes(y, "", BIL_MULTI.what.map(w => SAT_W[w] ? SAT_W[w].replace(/^./, c => c.toUpperCase()) : w));
+  y = half(y, "Heure", "", "Précisions", "");
+  y = sec(y, "3. La victime");
+  y = half(y, "Âge", "", "Sexe", "");
+  y = boxes(y, "Conscience", BIL_ONE.cons.map(o => o[0]));
+  y = boxes(y, "Respiration", BIL_ONE.resp.map(o => o[0]));
+  y = boxes(y, "Pouls (compte 15 s x 4) : ......... /min", BIL_ONE.pulseQ.map(o => o[0]));
+  y = boxes(y, "Peau", BIL_ONE.skin.map(o => o[0]));
+  y = boxes(y, "Saignement", BIL_ONE.bleed.map(o => o[0]));
+  y = boxes(y, "Mouvements", BIL_ONE.move.map(o => o[0]));
+  y = half(y, "Douleur (où, sur 10)", "", "Température", "");
+  y = sec(y, "4. Déjà fait");
+  y = boxes(y, "", BIL_MULTI.done.map(x => x === "Garrot posé" ? "Garrot posé à ..... h ....." : x));
+  // évolution : le papier sert surtout à ça, en attendant les secours
+  if (y > H - 46) { doc.addPage(); y = 20; }
+  y = sec(y, "Évolution : refais le bilan toutes les 10 minutes");
+  const cols = ["Heure", "Conscience", "Respiration", "Pouls /min", "Remarque"], cw = [20, 38, 38, 24, CW - 120];
+  doc.setFont("helvetica", "bold"); doc.setFontSize(8); col(C.mut); let x = M; cols.forEach((c2, i) => { txt(c2, x + 1.5, y); x += cw[i]; }); y += 2;
+  col(C.line, "d"); doc.setLineWidth(0.25);
+  for (let r = 0; r < 4 && y + 7 < H - 12; r++) { x = M; cw.forEach(w => { doc.rect(x, y, w, 7); x += w; }); y += 7; }
+  doc.setFont("helvetica", "normal"); doc.setFontSize(7.5); col(C.mut); txt("Ces fiches ne remplacent ni une formation aux premiers secours (PSC1) ni l'avis d'un médecin.", M, H - 10);
+  return doc;
+}
+async function exportSanPdf(btn) {
+  const label = btn ? btn.innerHTML : ""; if (btn) { btn.disabled = true; btn.textContent = "Préparation…"; }
+  try {
+    let JsPDF;
+    try { JsPDF = window.jspdf ? window.jspdf.jsPDF : await loadPdf(); }
+    catch (err) { toast("Impossible de charger le module PDF. Ouvre l'appli une fois avec du réseau."); return; }
+    await new Promise(r => setTimeout(r, 30));
+    await saveBlob(buildSanPdf(JsPDF).output("blob"), "Sac-de-Layon-fiche-sante-et-bilan.pdf", "application/pdf", "Fiche santé et bilan", "PDF enregistré : imprime-le et plastifie-le");
+  } finally { if (btn) { btn.disabled = false; btn.innerHTML = label; } }
+}
+$("sanPdf").onclick = () => exportSanPdf($("sanPdf"));
+$("ficPaper").onclick = () => exportSanPdf($("ficPaper"));
+$("satToBil").onclick = () => urgTab("bil");
 $("bilGo").onclick = () => $("bilSay").scrollIntoView({ behavior: "smooth", block: "start" });
 $("bilCopy").onclick = () => copy(bilMsg(), "Message copié");
 $("bilSend").onclick = () => sanShare(bilMsg(), "Message copié : colle-le dans un SMS");
@@ -3291,7 +3407,7 @@ setInterval(() => { if (document.hidden) return; if (view === "accueil") renderS
 document.addEventListener("visibilitychange", () => { if (!document.hidden) { renderSun(); renderLostSun(); } });
 renderLostSun();
 // ---------- à propos : retours par mail, mesure d'audience anonyme ----------
-const APP_VER = 37, FEEDBACK_MAIL = "sacdelayon@gmail.com", GC_CODE = "sacdelayon";
+const APP_VER = 38, FEEDBACK_MAIL = "sacdelayon@gmail.com", GC_CODE = "sacdelayon";
 const mailOk = /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(FEEDBACK_MAIL);
 function feedbackHref() {
   const ua = navigator.userAgent, phone = /iPhone|iPad/.test(ua) ? "iPhone / iPad" : /Android/.test(ua) ? "Android" : "ordinateur";
@@ -3421,6 +3537,8 @@ function mapLink(g) {
   if (ll) return `https://maps.google.com/?q=${ll[1].replace(",", ".")},${ll[2].replace(",", ".")}`;
   const u = utmToLL(t); return u ? `https://maps.google.com/?q=${u[0]},${u[1]}` : "";
 }
+// prénoms notés dans « Participants » : sert à repérer un nombre de personnes mal réglé
+const whoCount = t => (String(t || "").match(/[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ'’-]*/g) || []).filter(w => !/^(et|and|moi)$/i.test(w)).length;
 // le message « Si je ne rentre pas » : en sections aérées ; wa = gras WhatsApp (*…*), sinon texte simple (SMS, calendrier)
 function safetyMsg(e, wa) {
   const s = safetyOf(e), L = [], end = endOf(e), B = t => wa ? `*${t}*` : t;
@@ -3491,7 +3609,7 @@ function renderSafety() {
     const [fWho, iWho] = field("Participants", "who", { ph: "Samuel, Paul, Jo" }); g.append(fWho);
     // prénoms plus nombreux que les personnes réglées : la fiche et les quantités de la liste seraient fausses
     const whoW = document.createElement("p"); whoW.className = "hint danger-text wide"; whoW.style.gridColumn = "1 / -1"; whoW.style.margin = "0"; whoW.style.color = "var(--laterite)"; whoW.style.fontWeight = "600"; g.append(whoW);
-    const chkWho = () => { const n = (iWho.value.match(/[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ'’-]*/g) || []).filter(w => !/^(et|and)$/i.test(w)).length;
+    const chkWho = () => { const n = whoCount(iWho.value);
       whoW.hidden = !(n > +e.people); whoW.textContent = `Tu as noté ${n} prénoms mais l'expédition est réglée sur ${e.people} personne${+e.people > 1 ? "s" : ""}. Corrige le nombre de personnes dans les réglages de l'expédition : il compte aussi pour les quantités de ta liste.`; };
     iWho.addEventListener("input", chkWho); chkWho();
     const tz = document.createElement("p"); tz.className = "hint wide"; tz.style.gridColumn = "1 / -1"; tz.textContent = "Heures en heure de Guyane, même si ton téléphone est réglé sur Paris.";

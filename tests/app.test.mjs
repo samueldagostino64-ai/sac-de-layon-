@@ -55,7 +55,7 @@ test("démarrage guidé : le pack calcule les quantités par personne et par jou
   const p = await open();
   await p.click("#homeList .primary"); await p.fill("#wName", "Saut Takari");
   await p.click("#wizard .wnav .primary");
-  await p.click('#wizard [aria-label="Personnes plus un"]'); // 3 personnes, 3 jours, 1 de réserve
+  await p.click('#wizard [aria-label="Combien êtes-vous, toi compris ? plus un"]'); // 3 personnes, 3 jours, 1 de réserve
   await p.click("#wizard .wnav .primary");
   await p.click("#wizard .choice.primary"); await p.waitForTimeout(200);
   await p.locator("#packBox label", { hasText: "Ration lyophilisée" }).first().click();
@@ -367,7 +367,7 @@ test("boussole : sans capteur magnétique, l'appli le dit et renvoie à la bouss
 
 test("urgences : « perdu » ouvre la boussole sur la conduite à tenir", async () => {
   const p = await open();
-  await p.click("#btnUrg"); await p.locator("#urgBox details", { hasText: "Perdu" }).click(); await p.click("#urgLost");
+  await p.click("#btnUrg"); await p.locator("#urgOv .urgtabs button", { hasText: "Gestes" }).click(); await p.locator("#urgBox details", { hasText: "Perdu" }).click(); await p.click("#urgLost");
   assert.ok(await p.isVisible("#cmpPanel"));
   assert.equal(await p.evaluate(() => document.getElementById("cmpLost").open), true);
   await close(p);
@@ -404,7 +404,7 @@ test("version en ligne : compteur anonyme (une fois par onglet, rien des listes)
   assert.ok(paths.includes("/ouverture-navigateur")); assert.equal(paths.filter(x => x === "/onglet-boussole").length, 1);
   assert.ok(!hits.some(u => /secr|Hamac/i.test(decodeURIComponent(u))), "aucun contenu des listes n'est envoyé");
   await p.click('.tabbar [data-go="reglages"]');
-  assert.match(await p.getAttribute("#btnFeedback", "href"), /^mailto:sacdelayon@gmail\.com\?subject=Sac%20de%20Layon%20v37/);
+  assert.match(await p.getAttribute("#btnFeedback", "href"), /^mailto:sacdelayon@gmail\.com\?subject=Sac%20de%20Layon%20v38/);
   assert.deepEqual(errs, []); await ctx.close();
 });
 
@@ -418,7 +418,7 @@ test("en local (et dans Claude), le compteur ne part pas", async () => {
 test("retours : sur iPhone, Gmail est proposé en plus de Mail et de la copie de l'adresse", async () => {
   const p = await open(); await p.click('.tabbar [data-go="reglages"]');
   assert.ok(await p.isVisible("#btnGmail"));
-  assert.match(await p.getAttribute("#btnGmail", "href"), /^googlegmail:\/\/\/co\?to=sacdelayon%40gmail\.com&subject=Sac%20de%20Layon%20v37[^&]*&body=/);
+  assert.match(await p.getAttribute("#btnGmail", "href"), /^googlegmail:\/\/\/co\?to=sacdelayon%40gmail\.com&subject=Sac%20de%20Layon%20v38[^&]*&body=/);
   assert.match(await p.textContent("#btnFeedback"), /Avec Mail \(Apple\)/);
   assert.ok(await p.isVisible("#btnFbCopy"));
   await close(p);
@@ -557,9 +557,14 @@ test("fiche santé et bilan aux secours : la fiche se remplit une fois, le bilan
   const all = sat.join(" ");
   assert.match(sat[0], /^1\/\d URGENCE: chute d'arbre à 13h40\. Homme \d+ ans: confus, respire mal, pouls 110 faible, ne sent ou ne bouge plus un membre\./);
   assert.match(all, /Fait: garrot à 13h50\./); assert.match(all, /Antécédents: prothèses cervicales\./); assert.match(all, /Tél: 0694 11 11 11\./);
+  // une partie à la fois : la version balise est dans l'onglet « Pas de réseau »
+  assert.ok(!(await p.isVisible("#satMsgs")), "caché tant qu'on est sur le bilan");
+  await p.locator("#urgOv .urgtabs button", { hasText: "Pas de réseau" }).click();
+  assert.ok(!(await p.isVisible("#bilForm")), "le bilan se replie");
   await p.locator("#satMsgs button").first().click();
   await p.waitForFunction(() => /Copié/.test(document.querySelector("#satMsgs button").textContent), null, { timeout: 3000 });
   if (await p.isVisible("#txtOv")) await p.click("#txtClose");
+  await p.click("#satToBil"); assert.ok(await p.isVisible("#bilForm"));
   await chip("Ne respire pas"); assert.ok(await p.isVisible("#bilForm .balert"), "alerte massage cardiaque");
   // quelqu'un d'autre : sa santé à lui, pas la mienne
   await chip("Quelqu'un d'autre"); await p.fill("#bil_age", "35"); await chip("Femme"); await p.fill("#bil_known", "asthmatique");
@@ -577,4 +582,27 @@ test("fiche santé et bilan aux secours : la fiche se remplit une fois, le bilan
   await p.click("#ficSafe");
   assert.match(await p.textContent("#safeForm .msgprev"), /🩺 SANTÉ\nSamuel D\., homme, né en 1983 \(\d+ ans\)\.\n• 80 kg[\s\S]*• Opérations, prothèses, antécédents : prothèses cervicales/);
   await close(p);
+});
+
+test("v38 : urgences en 3 parties, nombre de personnes contrôlé, version papier en PDF de 2 pages", async () => {
+  const p = await open({ v: 2, current: "S", gear: {}, hidden: [], exps: [exp({ id: "S", people: 1, start: iso(5), end: iso(9), items: [item()],
+    safety: { who: "Samuel Virgil Bernie Mika", retTime: "16:00", margin: 2 } })] });
+  // 4 prénoms pour 1 personne : l'accueil le signale
+  assert.match(await p.textContent(".pwarn"), /Réglée pour 1 personne, mais 4 prénoms notés/);
+  // urgences : le bilan d'abord, une seule partie visible
+  await p.click("#btnUrg");
+  assert.ok(await p.isVisible("#bilForm")); assert.ok(!(await p.isVisible("#uSat"))); assert.ok(!(await p.isVisible("#uGes")));
+  await p.locator("#urgOv .urgtabs button", { hasText: "Gestes" }).click();
+  assert.ok(await p.isVisible("#uGes")); assert.ok(!(await p.isVisible("#bil")));
+  assert.equal(await p.getAttribute('#urgOv .urgtabs button[data-u="uGes"]', "aria-selected"), "true");
+  // version papier : fiche santé remplie + grille de bilan vierge
+  await p.evaluate(() => localStorage.setItem("sacdelayon.sante", JSON.stringify({ Name: "Samuel D", Sex: "Homme", Allerg: "pénicilline", Do: "ne pas manipuler la nuque sans collier" })));
+  // on capte le fichier comme le ferait l'appli Claude, par le vrai bouton
+  await p.evaluate(() => { window.claude = { use: async () => ({ save: async ({ filename, data }) => { window.__pdf = { filename, text: await data.text() }; } }) }; });
+  await p.click("#ficPaper");
+  await p.waitForFunction(() => window.__pdf, null, { timeout: 10000 });
+  const pdf = await p.evaluate(() => ({ name: window.__pdf.filename, pages: (window.__pdf.text.match(/\/Type \/Page\b/g) || []).length, head: window.__pdf.text.slice(0, 5) }));
+  assert.equal(pdf.head, "%PDF-"); assert.equal(pdf.name, "Sac-de-Layon-fiche-sante-et-bilan.pdf");
+  assert.ok(pdf.pages >= 2, `2 pages au moins (${pdf.pages})`);
+  assert.deepEqual(p.errors, []);
 });
