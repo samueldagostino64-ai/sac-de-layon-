@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#1f6a52">
+<meta name="theme-color" content="#0a0e0d">
 <meta name="description" content="Checklist de matériel pour les expéditions en Guyane : quantités selon la durée et l'équipe, poids et volume du sac.">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png" type="image/png">
@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Sac de Layon">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://sacdelayon.goatcounter.com; font-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Sac de Layon : ta checklist d'expédition en Guyane">
@@ -567,8 +567,91 @@ button .ico { margin-right: 6px; }
 .legal summary { cursor: pointer; font-weight: 600; min-height: 32px; }
 .legal a { color: var(--accent); }
 .legal p { font-size: .88rem; color: var(--muted); margin: 6px 0; line-height: 1.45; }
+
+/* ===================== Style « verre minéral » (v39) =====================
+   Lumières de forêt, de couchant et de fleuve qui dérivent derrière du verre épais.
+   Un seul look, sombre, voulu : les jetons sont fixés quel que soit le thème du téléphone. */
+@font-face { font-family: "Outfit"; font-weight: 100 900; font-display: swap; src: url(fonts/outfit-var.woff2) format("woff2"); }
+:root:not(#_), :root[data-theme]:not(#_) {
+  --bg: rgba(0,0,0,.28); --surface: rgba(255,255,255,.07); --ink: #F3F1EA; --muted: rgba(243,241,234,.62); --line: rgba(255,255,255,.13);
+  --fline: rgba(255,255,255,.32); --warn: #FFB36B; --accent: #6FE0B0; --accent-ink: #0a0e0d; --soft: rgba(111,224,176,.14); --laterite: #FF8A6B;
+  --contour: rgba(111,224,176,.05); --f-display: "Outfit", system-ui, sans-serif; --f-body: "Outfit", system-ui, -apple-system, sans-serif; --r: 24px;
+  --glass: linear-gradient(145deg, rgba(255,255,255,.14), rgba(255,255,255,.035)); --glass-edge: rgba(255,255,255,.16);
+  color-scheme: dark; }
+html { background: #0a0e0d; }
+body { background: transparent; font-weight: 400; letter-spacing: .005em; -webkit-font-smoothing: antialiased; }
+.orbs { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; background: #0a0e0d; }
+.orbs i { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .75; }
+.orbs .o1 { width: 75vmax; height: 75vmax; left: -32vmax; top: -28vmax; background: radial-gradient(circle, #1f7a5c, transparent 65%); animation: orb1 28s ease-in-out infinite alternate; }
+.orbs .o2 { width: 62vmax; height: 62vmax; right: -34vmax; top: 22vh; background: radial-gradient(circle, #c9531f, transparent 65%); animation: orb2 33s ease-in-out infinite alternate; }
+.orbs .o3 { width: 72vmax; height: 72vmax; left: -18vmax; bottom: -42vmax; background: radial-gradient(circle, #13405e, transparent 65%); animation: orb1 39s ease-in-out infinite alternate-reverse; }
+body.urgent .orbs .o1, body.urgent .orbs .o3 { background: radial-gradient(circle, #8e1a1f, transparent 65%); }
+body.urgent .orbs .o2 { background: radial-gradient(circle, #ff4a3d, transparent 65%); }
+@keyframes orb1 { to { transform: translate(8vmax, 6vmax) scale(1.08); } }
+@keyframes orb2 { to { transform: translate(-6vmax, 8vmax) scale(.94); } }
+@media (prefers-reduced-motion: reduce) { .orbs i { animation: none; } }
+
+/* le verre */
+header.top, section.panel, .card, .sunbox, .sec, .manage, .menu, .urg-say, .msgprev, .gedit, .stats, .sumbar, .cmp-ring, .clist {
+  background: var(--glass) !important; border: 1px solid var(--glass-edge) !important; border-radius: var(--r);
+  backdrop-filter: blur(22px) saturate(1.3); -webkit-backdrop-filter: blur(22px) saturate(1.3);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 18px 40px rgba(0,0,0,.28); }
+.stats div { background: transparent !important; }
+.clist, .menu { background: rgba(26,32,30,.96) !important; }
+header.top canvas { display: none; }
+main.wrap { position: relative; z-index: 1; }
+.urgtabs { background: #161e1b !important; }
+.sheet { background: linear-gradient(160deg, rgba(36,46,42,.97), rgba(14,19,17,.98)) !important; border: 1px solid var(--glass-edge); border-bottom: 0;
+  border-radius: 28px 28px 0 0; backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); box-shadow: 0 -20px 60px rgba(0,0,0,.45); }
+.ov { background: rgba(4,8,7,.55); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+
+/* la typo : fine et grande pour les titres, chiffres très légers */
+h1 { font-weight: 300; font-size: 2.3rem; letter-spacing: -.035em; }
+h2 { font-weight: 500; font-size: .95rem; letter-spacing: .16em; }
+.label { font-weight: 500; letter-spacing: .14em; }
+.stats b, .mono { font-weight: 300; }
+.card .ctt h3, .card h3 { font-family: var(--f-display); font-weight: 500; letter-spacing: -.02em; }
+.card.big { border-color: rgba(111,224,176,.45) !important; padding: 22px; }
+.card.big .ctt h3 { font-size: 2rem; font-weight: 300; letter-spacing: -.04em; }
+.card.big .cd { font-family: var(--f-display); font-weight: 200; font-size: 2.8rem; letter-spacing: -.05em; color: var(--ink); }
+.sunbox .sun-big { font-weight: 300; font-size: 1.6rem; letter-spacing: -.02em; }
+.cat h3, .sechead h3 { font-family: var(--f-display); letter-spacing: .14em; font-weight: 500; }
+
+/* boutons et champs */
+input, select, textarea { background: rgba(0,0,0,.28); border: 1px solid rgba(255,255,255,.14); border-radius: 14px; color: var(--ink); }
+select option { background: #141a18; color: #F3F1EA; }
+button { border-radius: 14px; background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.14); font-weight: 500; }
+button.primary { background: #F3F1EA; color: #0a0e0d; border-color: #F3F1EA; border-radius: 99px; font-weight: 600; }
+button.ghost { background: transparent; }
+button.danger { color: var(--laterite); border-color: rgba(255,138,107,.5); background: transparent; }
+.bar { background: rgba(255,255,255,.1); height: 4px; }
+.bar span { background: linear-gradient(90deg, #6FE0B0, #FFB36B); }
+
+/* barre d'onglets : une pilule de verre qui flotte */
+.tabbar { left: max(12px, env(safe-area-inset-left, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); bottom: calc(env(safe-area-inset-bottom, 0px) + 10px); max-width: 600px;
+  border: 1px solid var(--glass-edge) !important; border-radius: 26px; padding-bottom: 0 !important;
+  background: linear-gradient(145deg, rgba(40,50,46,.82), rgba(16,22,20,.86)) !important; backdrop-filter: blur(24px) saturate(1.4); -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  box-shadow: 0 16px 40px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.12); }
+.tabbar button { background: none; color: var(--muted); font-weight: 400; }
+.tabbar button[aria-current="page"] { color: #F3F1EA; box-shadow: none; }
+.tabbar button[aria-current="page"] svg { color: #6FE0B0; filter: drop-shadow(0 0 8px rgba(111,224,176,.6)); }
+.wrap { padding-bottom: 120px; }
+
+/* Urgences : un rond rouge qui respire */
+.homehead { align-items: center; }
+.urgbtn { position: fixed; z-index: 26; right: max(18px, env(safe-area-inset-right, 0px)); bottom: calc(env(safe-area-inset-bottom, 0px) + 96px);
+  width: 72px; height: 72px; min-height: 72px !important; border-radius: 50%; padding: 0; display: grid; place-content: center; justify-items: center; gap: 0;
+  background: radial-gradient(circle at 35% 30%, #ff8a7a, #e8382f 60%, #a3171c) !important; color: #fff !important; border: 0 !important;
+  font: 600 .54rem var(--f-body); letter-spacing: .05em; text-transform: uppercase; box-shadow: 0 0 0 8px rgba(232,56,47,.16), 0 14px 30px rgba(0,0,0,.45); }
+.urgbtn::before, .urgbtn::after { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgba(255,90,80,.6); animation: urgbreath 2.6s ease-out infinite; pointer-events: none; }
+.urgbtn::after { animation-delay: 1.3s; }
+.urgbtn .ico { color: #fff !important; width: 24px; height: 24px; margin: 0 0 2px; }
+@keyframes urgbreath { from { transform: scale(1); opacity: .7; } to { transform: scale(1.6); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .urgbtn::before, .urgbtn::after { animation: none; } }
+.homehead #btnNew { flex: 1; min-height: 56px; font-size: 1.05rem; }
 </style>
 
+<div class="orbs" aria-hidden="true"><i class="o1"></i><i class="o2"></i><i class="o3"></i></div>
 <main class="wrap">
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-cool" viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="11" rx="2"/><path d="M8 9V6a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v3M3 13h18"/></symbol>
@@ -866,7 +949,7 @@ button .ico { margin-right: 6px; }
       <p>Hébergeur de la version en ligne : GitHub Pages, GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis.</p>
       <p>Polices Barlow sous licence SIL Open Font License. Déclinaison magnétique d'après le modèle magnétique mondial WMM 2025 (NOAA et BGS).</p>
     </details>
-    <p class="ver mono">Sac de Layon · version 38</p>
+    <p class="ver mono">Sac de Layon · version 39</p>
   </section>
 </main>
 
@@ -2352,6 +2435,7 @@ function openOv(id) {
   setTimeout(() => { if (o.hidden || o.contains(document.activeElement)) return; const f = o.querySelector('[role="dialog"], .sheet, .box') || o; const t = f.querySelector(FOCUSABLE); if (t) t.focus({ preventScroll: true }); }, 30);
 }
 function closeOv(id) {
+  if (id === "urgOv") document.body.classList.remove("urgent");
   $(id).hidden = true;
   if (![...document.querySelectorAll(".ov")].some(o => !o.hidden)) { document.body.classList.remove("noscroll"); document.querySelectorAll("main.wrap, nav.tabbar").forEach(x => x.inert = false); }
   const b = ovBack[id]; delete ovBack[id]; if (b && b.isConnected && typeof b.focus === "function") try { b.focus({ preventScroll: true }); } catch (e) {}
@@ -2371,7 +2455,7 @@ function urgTab(k) { if (!["bil", "uSat", "uGes"].includes(k)) k = "bil";
   document.querySelectorAll("#urgOv .urgtabs button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.u === k)));
   ["bil", "uSat", "uGes"].forEach(id => { $(id).hidden = id !== k; }); }
 document.querySelectorAll("#urgOv .urgtabs button").forEach(b => b.onclick = () => { urgTab(b.dataset.u); const t = document.querySelector("#urgOv .urgtabs"); $("urgBox").scrollTop = Math.min($("urgBox").scrollTop, t.offsetTop - 8); });
-function openUrg(tab) { closeMenu(); renderLostSun(); openOv("urgOv"); renderSan(); bilRender(); urgTab(typeof tab === "string" ? tab : "bil"); $("urgBox").scrollTop = 0; }
+function openUrg(tab) { closeMenu(); renderLostSun(); openOv("urgOv"); document.body.classList.add("urgent"); renderSan(); bilRender(); urgTab(typeof tab === "string" ? tab : "bil"); $("urgBox").scrollTop = 0; }
 $("btnUrg").onclick = openUrg;
 $("urgClose").onclick = () => closeOv("urgOv");
 $("urgOv").addEventListener("click", ev => { if (ev.target === $("urgOv")) closeOv("urgOv"); });
@@ -3407,7 +3491,7 @@ setInterval(() => { if (document.hidden) return; if (view === "accueil") renderS
 document.addEventListener("visibilitychange", () => { if (!document.hidden) { renderSun(); renderLostSun(); } });
 renderLostSun();
 // ---------- à propos : retours par mail, mesure d'audience anonyme ----------
-const APP_VER = 38, FEEDBACK_MAIL = "sacdelayon@gmail.com", GC_CODE = "sacdelayon";
+const APP_VER = 39, FEEDBACK_MAIL = "sacdelayon@gmail.com", GC_CODE = "sacdelayon";
 const mailOk = /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(FEEDBACK_MAIL);
 function feedbackHref() {
   const ua = navigator.userAgent, phone = /iPhone|iPad/.test(ua) ? "iPhone / iPad" : /Android/.test(ua) ? "Android" : "ordinateur";
